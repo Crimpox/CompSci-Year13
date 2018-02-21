@@ -4,12 +4,25 @@ Button button = new Button(1700, 0, 300, 100, color(100)){
     print("Overriden");
   }
 };
+Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
+  @Override
+  public void onPress(){
+    canvas.xoffset = 0;
+    canvas.yoffset = 0;
+  }
+};
+
 
 Button saveButton = new Button(500, 0, 300, 100, color(100));
 
 TextInput textIn = new TextInput(0, 0, 500, 100, color(100));
 //Caeser caeser = new Caeser();
-Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2);      
+Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
+  @Override
+  public void returnSelected(int index){
+    
+  }
+};      
 Button up = new Button(1650, 300, 50, 50, color(200)){@Override public void onPress(){listBox.scrollUp();}};
 Button down = new Button(1650, 350, 50, 50, color(200)){@Override public void onPress(){listBox.scrollDown();}};
 Canvas canvas = new Canvas(0, 200, 1650, 800, color(52), color(197));
@@ -33,6 +46,8 @@ void setup(){
   Elements.add(canvas);
   Elements.add(saveButton);
   Elements.add(nodeLabel);
+  Elements.add(centerCanvas);
+  centerCanvas.Text = "Center";
   nodeLabel.text = "Nodes";
   saveButton.Text = "Save"; 
   button.Text = "Clear";
@@ -70,6 +85,8 @@ void mouseReleased(){
     }
   }
 }
+
+
 
 void draw(){
   background(255);
@@ -114,6 +131,30 @@ void MouseChecks(){
     }
   }
 }
+
+float xdisplacement;
+float ydisplacement;
+void mouseDragged(){
+  xdisplacement = mouseX - pmouseX;
+  ydisplacement = mouseY - pmouseY;
+}
+
+void instantiateCaesar(){
+
+}
+
+void instantiateStringIN(){
+
+}
+
+void instantiateStringOUT(){
+
+}
+
+void instnatiateIntIN(){
+
+}
+
 
 /**
 PROTOTYPE 1
