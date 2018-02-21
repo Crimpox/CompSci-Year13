@@ -1,19 +1,19 @@
-Label label = new Label(100, 100, 300, 100, color(100));
-Button button = new Button(100, 210, 300, 100, color(100)){
+Button button = new Button(1700, 0, 300, 100, color(100)){
   @Override
   public void onPress(){
     print("Overriden");
   }
 };
 
-TextInput textIn = new TextInput(100, 320, 300, 100, color(100));
-Toggle toggle = new Toggle(225, 430, 50, 50, color(20));
-//Caeser caeser = new Caeser();
-Listbox listBox = new Listbox(500, 500, 300, color(100), 50, 6);
-Dropdown dropdown = new Dropdown(500, 200, 300, 75, color(200));        
-Button up = new Button(450, 500, 50, 50, color(200)){@Override public void onPress(){listBox.scrollUp();}};
-Button down = new Button(450, 550, 50, 50, color(200)){@Override public void onPress(){listBox.scrollDown();}};
+Button saveButton = new Button(500, 0, 300, 100, color(100));
 
+TextInput textIn = new TextInput(0, 0, 500, 100, color(100));
+//Caeser caeser = new Caeser();
+Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2);      
+Button up = new Button(1650, 300, 50, 50, color(200)){@Override public void onPress(){listBox.scrollUp();}};
+Button down = new Button(1650, 350, 50, 50, color(200)){@Override public void onPress(){listBox.scrollDown();}};
+Canvas canvas = new Canvas(0, 200, 1650, 800, color(52), color(197));
+Label nodeLabel = new Label(1650, 200, 350, 100, color(100));
 PFont futura;
 
 void setup(){
@@ -25,22 +25,24 @@ void setup(){
   
   
   //TEST UI ELEMENTS
-  Elements.add(label);
   Elements.add(button);
   Elements.add(textIn);
-  Elements.add(toggle);
   Elements.add(listBox);
-  Elements.add(dropdown);
   Elements.add(up);
   Elements.add(down);
-  button.Text = "Button";
-  button.HighlightColor = color(255, 0, 0);
-  button.PressColor = color(0, 255, 0);
-  listBox.options.add("Option 1");
-  listBox.options.add("Option 2");
-  listBox.options.add("Option 3");
-  listBox.options.add("Option 4");
-  dropdown.optionNames.add("Option 1");
+  Elements.add(canvas);
+  Elements.add(saveButton);
+  Elements.add(nodeLabel);
+  nodeLabel.text = "Nodes";
+  saveButton.Text = "Save"; 
+  button.Text = "Clear";
+  button.HighlightColor = color(120);
+  button.PressColor = color(200);
+  listBox.options.add("Caesar");
+  listBox.options.add("Substitution");
+  listBox.options.add("String IN");
+  listBox.options.add("String OUT");
+  listBox.options.add("Int IN");
 }
 
 ArrayList<String> charBuffer = new ArrayList<String>();
@@ -56,6 +58,7 @@ void keyPressed(){
 }
 
 /** 
+[DONE]
 Rewrite mouse checks to implement layey checking and so that a simple hover(),
 released()or pressed()is sent to the GUI element and the specifics are handled GUI side
 **/
@@ -75,6 +78,24 @@ void draw(){
     Elements.get(i).update();
   }
   charBuffer.clear();
+}
+
+void mouseClicked(){
+  print("Canvas: ");
+  print(canvas.screenToCanvas(mouseX, mouseY)[0]);
+  print(", ");
+  print(canvas.screenToCanvas(mouseX, mouseY)[1]);
+  print("\n");
+  print("Screen: ");
+  print(mouseX);
+  print(", ");
+  print(mouseY);
+  print("\n");
+  print("CanvasToScreen: ");
+  print(canvas.canvasToScreen(canvas.screenToCanvas(mouseX, mouseY)[0],canvas.screenToCanvas(mouseX, mouseY)[1])[0]);
+  print(", ");
+  print(canvas.canvasToScreen(canvas.screenToCanvas(mouseX, mouseY)[0],canvas.screenToCanvas(mouseX, mouseY)[1])[1]);
+  print("\n");
 }
 
 void MouseChecks(){

@@ -1,4 +1,3 @@
-import java.lang.reflect.Method;
 
 class GUI {
   float x, y;
