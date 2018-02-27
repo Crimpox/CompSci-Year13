@@ -7,6 +7,12 @@ class GUI {
   GUI parent = null;
   
   boolean WithinBounds(float X, float Y){
+    if (this instanceof Node){
+      print("Snonker" + "\n");
+      Node node = (Node)this;
+      X = node.canvas.canvasToScreen(X, Y)[0];
+      Y = node.canvas.canvasToScreen(X, Y)[1];
+    }
     if (X >= x && Y >= y){
       if (X <= x + Width && Y <= y + Height){
         return true;
@@ -112,11 +118,24 @@ class TextInput extends GUI{
     active = false;
   }
   void update(){
+    float parentX = 0;
+    float parentY = 0;
+    float scaleWidth = Width;
+    float scaleHeight = Height;
+    if (parent instanceof Node){
+      Node Parent = (Node)parent;
+      parentX = Parent.getScreenCoords()[0];
+      parentY = Parent.getScreenCoords()[1] + Parent.headsize*Parent.canvas.scale/2;
+      scaleWidth *= Parent.canvas.scale;
+      scaleHeight *= Parent.canvas.scale;
+    }
+    float X = x + parentX;
+    float Y = y + parentY;
     fill(Color);
     stroke(TextColor);
-    rect(x, y, Width, Height);
+    rect(X, Y, scaleWidth, scaleHeight);
     int overflow = 0;
-    while(textWidth(value.substring(overflow, value.length())) > Width){
+    while(textWidth(value.substring(overflow, value.length())) > scaleWidth){
       overflow++;
     }  
     if(active){
@@ -131,16 +150,16 @@ class TextInput extends GUI{
       textAlign(CORNER);
       if (second() % 2 == 0){
         //Draw |
-        text(value.substring(overflow, value.length()) + "|", x, y + (Height/2));
+        text(value.substring(overflow, value.length()) + "|", X, Y + (scaleHeight/2));
       }else{
-        text(value.substring(overflow, value.length()), x, y + (Height/2));
+        text(value.substring(overflow, value.length()), X, Y + (scaleHeight/2));
       }
       
     }else{
       //draw without |
       fill(TextColor);
       textAlign(CORNER);
-      text(value.substring(overflow, value.length()), x, y + (Height/2));
+      text(value.substring(overflow, value.length()), X, Y + (scaleHeight/2));
     }
   }
 }
@@ -362,5 +381,9 @@ class GUIGroup extends GUI{
     for(int i = 0; i < Elements.size(); i++){
       Elements.get(i).update();
     }
+  }
+  
+  boolean WithinBounds(float X, float Y){
+    return false;
   }
 }

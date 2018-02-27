@@ -116,16 +116,70 @@ class Canvas extends GUI{
 
 class Node extends GUI{
   Canvas canvas;
+  float smoothRadius = 20;
+  color headColor = color(138, 157, 205);
+  float headsize = 1;
+  float fontSize = 36;
+  color textColor = color(218);
   String Title;
   String[] outputs;
   String[] Inputs;
+  
+  public float[] getScreenCoords(){
+    float[] Coords =  new float[]{0, 0};
+    Coords[0] = canvas.canvasToScreen(x, y)[0];
+    Coords[1] = canvas.canvasToScreen(x, y)[1];
+    return Coords;
+  }
+  
+  boolean active = false;
+  void pressed(){
+    active = true;
+  }
+  
+  void released(){
+    active = false;
+  }
+  
+  void move(){
+    if (active){
+      if (xdisplacement >1 || xdisplacement < -1){
+        x += xdisplacement;
+      }
+      if(ydisplacement > 1 || ydisplacement < -1){
+        y += ydisplacement;    
+      }
+    }
+  }
+  
 }
 
 class StringIN extends Node{
   //Width 120 Height 150
-  float Width = 120;
-  float Height = 150; 
-  String Title = "StringIN";
-  TextInput in = new TextInput(20,50, 100, 100, color(80));
-  in.parent = this;
+  float Width = 4;
+  float Height = 5; 
+  String Title = "Input";
+  TextInput in = new TextInput(15,50, 3.5, 3.2, color(80));
+  
+  StringIN(Canvas canvas, float X, float Y){
+    in.parent = this;
+    this.canvas = canvas;
+    this.Color = color(12, 33, 90); 
+    this.x = X;
+    this.y = Y;
+  }
+  void update(){
+    float X = canvas.canvasToScreen(x, y)[0];
+    float Y = canvas.canvasToScreen(x, y)[1];
+    fill(Color);
+    rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius, smoothRadius, smoothRadius, smoothRadius);
+    fill(headColor);
+    rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
+    fill(textColor);
+    textAlign(CENTER);
+    textSize(fontSize);
+    text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
+    in.update();
+  }
+  
 }

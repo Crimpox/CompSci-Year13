@@ -4,6 +4,14 @@ Button button = new Button(1700, 0, 300, 100, color(100)){
     print("Overriden");
   }
 };
+Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
+  @Override
+  public void onPress(){
+    canvas.xoffset = 0;
+    canvas.yoffset = 0;
+  }
+};
+
 
 Button saveButton = new Button(500, 0, 300, 100, color(100));
 
@@ -13,16 +21,22 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
   @Override
   public void returnSelected(int index){
     switch(index){
-      case 0:
+      case 0:  index = 0;
         //caesar
-      case 1:
+        break;
+      case 1:  index = 1;
         //substitution
-      case 3:
+        break;
+      case 2:  index = 2;
         //String IN
-      case 4:
+        instantiateStringIN();
+        break;
+      case 3:  index = 3;
         //String OUT
-      case 5:
+        break;
+      case 4:  index = 4;
         //Int IN
+        break;
     }
   }
 };      
@@ -49,6 +63,9 @@ void setup(){
   Elements.add(canvas);
   Elements.add(saveButton);
   Elements.add(nodeLabel);
+  Elements.add(centerCanvas);
+  Elements.add(nodes);
+  centerCanvas.Text = "Center";
   nodeLabel.text = "Nodes";
   saveButton.Text = "Save"; 
   button.Text = "Clear";
@@ -81,11 +98,21 @@ released()or pressed()is sent to the GUI element and the specifics are handled G
 void mouseReleased(){
   for (int i =0; i < Elements.size(); i++){
     GUI _element = (GUI)Elements.get(i);
+    if (_element instanceof GUIGroup){
+      GUIGroup _Group = (GUIGroup)_element; 
+      for(int j= 0; j < _Group.Elements.size(); j++){
+        if(_Group.Elements.get(i).WithinBounds(mouseX, mouseY)){
+          _Group.Elements.get(i).released();
+        }
+      }
+    }
     if(_element.WithinBounds(mouseX, mouseY)){
       _element.released();
     }
   }
 }
+
+
 
 void draw(){
   background(255);
@@ -128,8 +155,49 @@ void MouseChecks(){
         _element.deactivate();      
       }
     }
+    if (_element instanceof GUIGroup){
+      GUIGroup _Group = (GUIGroup)_element; 
+      for(int j= 0; j < _Group.Elements.size(); j++){
+        if(_Group.Elements.get(i).WithinBounds(mouseX, mouseY)){
+          if (mousePressed == true){
+            _Group.Elements.get(i).pressed();
+          }else{
+            _Group.Elements.get(i).hover();
+          }
+        }else{
+          _Group.Elements.get(i).deactivate();
+        }
+      }
+    }
   }
 }
+
+float xdisplacement;
+float ydisplacement;
+void mouseDragged(){
+  xdisplacement = mouseX - pmouseX;
+  ydisplacement = mouseY - pmouseY;
+}
+
+GUIGroup nodes = new GUIGroup();
+
+void instantiateCaesar(){
+
+}
+
+void instantiateStringIN(){
+  StringIN stringIN = new StringIN(canvas, 0, 0);
+  nodes.Elements.add(stringIN);
+}
+
+void instantiateStringOUT(){
+
+}
+
+void instnatiateIntIN(){
+  
+}
+
 
 /**
 PROTOTYPE 1
