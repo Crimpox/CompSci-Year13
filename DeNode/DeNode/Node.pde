@@ -110,7 +110,10 @@ class Canvas extends GUI{
   }
   
   void released(){
-    moveable = false;
+    if (mouseButton == CENTER){
+      moveable = false;
+    }
+    
   }
 }
 
@@ -122,8 +125,6 @@ class Node extends GUI{
   float fontSize = 36;
   color textColor = color(218);
   String Title;
-  String[] outputs;
-  String[] Inputs;
   
   public float[] getScreenCoords(){
     float[] Coords =  new float[]{0, 0};
@@ -134,7 +135,9 @@ class Node extends GUI{
   
   boolean active = false;
   void pressed(){
-    active = true;
+    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
+      active = true;
+    }
   }
   
   void released(){
@@ -143,30 +146,59 @@ class Node extends GUI{
   
   void move(){
     if (active){
-      if (xdisplacement >1 || xdisplacement < -1){
-        x += xdisplacement;
-      }
-      if(ydisplacement > 1 || ydisplacement < -1){
-        y += ydisplacement;    
-      }
+      print("HALO\n");
+      x += xdisplacement/canvas.scale;
+      y += ydisplacement/canvas.scale;    
     }
   }
   
 }
 
-class StringIN extends Node{
-  //Width 120 Height 150
-  float Width = 4;
-  float Height = 5; 
-  String Title = "Input";
-  TextInput in = new TextInput(15,50, 3.5, 3.2, color(80));
+class connection<T> extends GUI{
+  private T value;
+  public void set(T value){ this.value = value;}
+  public T get(){ return value;}
+  Node node;
+  Canvas $canvas;
   
+  connection(Node node, float x, float y, Canvas canvas){
+    this.x = x;
+    this.y = y;
+    this.Width = 20;
+    this.Height = 20;
+    this.Color = color(201);
+    this.node = node;
+    this.$canvas = canvas;
+  }
+  
+  void update(){
+    fill(Color);
+    ellipse($canvas.canvasToScreen(x + node.x, y + node.y)[0], $canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
+  }
+  
+  void pressed(){
+    //draw bezier
+    line($canvas.canvasToScreen(x+node.x, y+node.y)[0], $canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, mouseY);
+    //TODO
+  }
+  
+  void released(){
+    //either connect bezier or stop drawing
+  }
+}
+
+class StringIN extends Node{
+  TextInput in = new TextInput(15,50, 3.5, 3.2, color(80));
+  connection<String> output = new connection<String>(this, 4, 2, canvas);
   StringIN(Canvas canvas, float X, float Y){
     in.parent = this;
     this.canvas = canvas;
     this.Color = color(12, 33, 90); 
     this.x = X;
     this.y = Y;
+    this.Width = 4;
+    this.Height = 5;
+    this.Title = "Input";
   }
   void update(){
     float X = canvas.canvasToScreen(x, y)[0];
@@ -180,6 +212,8 @@ class StringIN extends Node{
     textSize(fontSize);
     text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
     in.update();
+    output.update();
+    move();
   }
   
 }

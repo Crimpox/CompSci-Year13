@@ -7,12 +7,18 @@ class GUI {
   GUI parent = null;
   
   boolean WithinBounds(float X, float Y){
-    if (this instanceof Node){
-      print("Snonker" + "\n");
+    if (this instanceof StringIN){
+      //ISSUE HERE width is for some reason 0
       Node node = (Node)this;
-      X = node.canvas.canvasToScreen(X, Y)[0];
-      Y = node.canvas.canvasToScreen(X, Y)[1];
+      X = node.canvas.screenToCanvas(X, Y)[0];
+      Y = node.canvas.screenToCanvas(X, Y)[1];
     }
+    if (this instanceof connection){
+      connection connect = (connection)this;
+      X = connect.$canvas.screenToCanvas(X, Y)[0];
+      Y = connect.$canvas.screenToCanvas(X, Y)[1];
+    }
+    
     if (X >= x && Y >= y){
       if (X <= x + Width && Y <= y + Height){
         return true;

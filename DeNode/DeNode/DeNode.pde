@@ -7,8 +7,8 @@ Button button = new Button(1700, 0, 300, 100, color(100)){
 Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
   @Override
   public void onPress(){
-    canvas.xoffset = 0;
-    canvas.yoffset = 0;
+    _canvas.xoffset = 0;
+    _canvas.yoffset = 0;
   }
 };
 
@@ -42,7 +42,7 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
 };      
 Button up = new Button(1650, 300, 50, 50, color(200)){@Override public void onPress(){listBox.scrollUp();}};
 Button down = new Button(1650, 350, 50, 50, color(200)){@Override public void onPress(){listBox.scrollDown();}};
-Canvas canvas = new Canvas(0, 200, 1650, 800, color(52), color(197));
+Canvas _canvas = new Canvas(0, 200, 1650, 800, color(52), color(197));
 Label nodeLabel = new Label(1650, 200, 350, 100, color(100));
 PFont futura;
 
@@ -60,7 +60,7 @@ void setup(){
   Elements.add(listBox);
   Elements.add(up);
   Elements.add(down);
-  Elements.add(canvas);
+  Elements.add(_canvas);
   Elements.add(saveButton);
   Elements.add(nodeLabel);
   Elements.add(centerCanvas);
@@ -101,8 +101,8 @@ void mouseReleased(){
     if (_element instanceof GUIGroup){
       GUIGroup _Group = (GUIGroup)_element; 
       for(int j= 0; j < _Group.Elements.size(); j++){
-        if(_Group.Elements.get(i).WithinBounds(mouseX, mouseY)){
-          _Group.Elements.get(i).released();
+        if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
+          _Group.Elements.get(j).released();
         }
       }
     }
@@ -113,7 +113,8 @@ void mouseReleased(){
 }
 
 
-
+float xdisplacement;
+float ydisplacement;
 void draw(){
   background(255);
   MouseChecks();
@@ -121,8 +122,11 @@ void draw(){
     Elements.get(i).update();
   }
   charBuffer.clear();
+  xdisplacement = mouseX - pmouseX;
+  ydisplacement = mouseY - pmouseY;
 }
 
+/**
 void mouseClicked(){
   print("Canvas: ");
   print(canvas.screenToCanvas(mouseX, mouseY)[0]);
@@ -140,7 +144,7 @@ void mouseClicked(){
   print(canvas.canvasToScreen(canvas.screenToCanvas(mouseX, mouseY)[0],canvas.screenToCanvas(mouseX, mouseY)[1])[1]);
   print("\n");
 }
-
+**/
 void MouseChecks(){
   for (int i = 0; i < Elements.size(); i++){
     GUI _element = (GUI)Elements.get(i);
@@ -158,26 +162,21 @@ void MouseChecks(){
     if (_element instanceof GUIGroup){
       GUIGroup _Group = (GUIGroup)_element; 
       for(int j= 0; j < _Group.Elements.size(); j++){
-        if(_Group.Elements.get(i).WithinBounds(mouseX, mouseY)){
+        if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
+          
           if (mousePressed == true){
-            _Group.Elements.get(i).pressed();
+            _Group.Elements.get(j).pressed();
           }else{
-            _Group.Elements.get(i).hover();
+            _Group.Elements.get(j).hover();
           }
         }else{
-          _Group.Elements.get(i).deactivate();
+          _Group.Elements.get(j).deactivate();
         }
       }
     }
   }
 }
 
-float xdisplacement;
-float ydisplacement;
-void mouseDragged(){
-  xdisplacement = mouseX - pmouseX;
-  ydisplacement = mouseY - pmouseY;
-}
 
 GUIGroup nodes = new GUIGroup();
 
@@ -186,7 +185,7 @@ void instantiateCaesar(){
 }
 
 void instantiateStringIN(){
-  StringIN stringIN = new StringIN(canvas, 0, 0);
+  StringIN stringIN = new StringIN(_canvas, 0, 0);
   nodes.Elements.add(stringIN);
 }
 
