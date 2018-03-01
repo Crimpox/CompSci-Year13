@@ -125,6 +125,7 @@ class Node extends GUI{
   float fontSize = 36;
   color textColor = color(218);
   String Title;
+  plug[] plugs;
   
   public float[] getScreenCoords(){
     float[] Coords =  new float[]{0, 0};
@@ -215,6 +216,11 @@ class plug<T> extends GUI{
   
   void clearLine(){
     connecting = false;
+    for(int i = 0; i < nodes.Elements.size(); i++){
+      if (nodes.Elements.get(i).WithinBounds(mouseX, mouseY)){
+        //TODO INTEGRATE PLUGS[] in nodes class
+      }
+    }
   }
   
 
@@ -298,7 +304,7 @@ class StringOUT extends Node{
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    input = new plug<String>(this, 0, 1, canvas);
+    input = new plug<String>(this, 0, 2, canvas);
   }
   void update(){
     float X = canvas.canvasToScreen(x, y)[0];
