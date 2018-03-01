@@ -23,9 +23,11 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
     switch(index){
       case 0:  index = 0;
         //caesar
+        instantiateCaesar();
         break;
       case 1:  index = 1;
         //substitution
+
         break;
       case 2:  index = 2;
         //String IN
@@ -33,9 +35,11 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
         break;
       case 3:  index = 3;
         //String OUT
+        instantiateStringOUT();
         break;
       case 4:  index = 4;
         //Int IN
+        instnatiateIntIN();
         break;
     }
   }
@@ -103,6 +107,9 @@ void mouseReleased(){
       for(int j= 0; j < _Group.Elements.size(); j++){
         if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
           _Group.Elements.get(j).released();
+          print("Sub element released\n");
+        }else{
+          _Group.Elements.get(j).dragRelease();
         }
       }
     }
@@ -146,6 +153,7 @@ void mouseClicked(){
 }
 **/
 void MouseChecks(){
+ 
   for (int i = 0; i < Elements.size(); i++){
     GUI _element = (GUI)Elements.get(i);
     if (_element.WithinBounds(mouseX, mouseY)){
@@ -160,6 +168,7 @@ void MouseChecks(){
       }
     }
     if (_element instanceof GUIGroup){
+      //CAN BE MADE SIMPLER BY CALLING MOUSECHECKS HERE AND HAVING A PARAMETER OF GUI LIST THAT CAN BE CHANGED
       GUIGroup _Group = (GUIGroup)_element; 
       for(int j= 0; j < _Group.Elements.size(); j++){
         if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
@@ -170,7 +179,9 @@ void MouseChecks(){
             _Group.Elements.get(j).hover();
           }
         }else{
-          _Group.Elements.get(j).deactivate();
+          if (mousePressed == true){
+            _Group.Elements.get(j).deactivate();        
+          }
         }
       }
     }
@@ -181,7 +192,8 @@ void MouseChecks(){
 GUIGroup nodes = new GUIGroup();
 
 void instantiateCaesar(){
-
+  Caesar caesar = new Caesar(_canvas, 0, 0);
+  nodes.Elements.add(caesar);
 }
 
 void instantiateStringIN(){
@@ -190,10 +202,19 @@ void instantiateStringIN(){
 }
 
 void instantiateStringOUT(){
-
+  StringOUT stringOUT = new StringOUT(_canvas, 0, 0);
+  nodes.Elements.add(stringOUT);
 }
 
 void instnatiateIntIN(){
+  IntIN intIN = new IntIN(_canvas, 0 ,0);
+  nodes.Elements.add(intIN);
+}
+
+public static float distance(float[] vector1, float[] vector2){
+  float xdelta = abs(vector1[0] - vector2[0]);
+  float ydelta = abs(vector1[1] - vector2[1]);
+  return sqrt((xdelta*xdelta) + (ydelta*ydelta));
   
 }
 
@@ -203,6 +224,7 @@ PROTOTYPE 1
 Working Static UI
   >Basic UI elements [Check]
   >Advanced UI elements [Ongoing]
+  >Improve text input
 Demonstrational Caesar node
   >Cipher logic [Check]
   >Node binding [Not done]

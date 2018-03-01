@@ -14,7 +14,7 @@ IO Nodes
   
 Conections
   Bezier
-  Error handling (invalid connection e.g. string into int connection)
+  Error handling (invalid plug e.g. string into int plug)
   
 Grid
   Zoom
@@ -146,50 +146,84 @@ class Node extends GUI{
   
   void move(){
     if (active){
-      print("HALO\n");
       x += xdisplacement/canvas.scale;
       y += ydisplacement/canvas.scale;    
     }
   }
   
+  void drawBox(float X, float Y){
+    fill(Color);
+    rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius, smoothRadius, smoothRadius, smoothRadius);
+    fill(headColor);
+    rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
+    fill(textColor);
+    textAlign(CENTER);
+    textSize(fontSize);
+    text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
+  }
+  
 }
 
-class connection<T> extends GUI{
+//TODO add mouse hover highlighting
+class plug<T> extends GUI{
   private T value;
   public void set(T value){ this.value = value;}
   public T get(){ return value;}
   Node node;
-  Canvas $canvas;
+  Canvas canvas;
+
+  boolean connecting = false;
   
-  connection(Node node, float x, float y, Canvas canvas){
+  plug(Node node, float x, float y, Canvas canvas){
     this.x = x;
     this.y = y;
     this.Width = 20;
     this.Height = 20;
     this.Color = color(201);
     this.node = node;
-    this.$canvas = canvas;
+    this.canvas = canvas;
   }
   
   void update(){
     fill(Color);
-    ellipse($canvas.canvasToScreen(x + node.x, y + node.y)[0], $canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
+    ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
+    if (connecting){
+      line(canvas.canvasToScreen(x+node.x, y+node.y)[0], canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, mouseY);
+    }
+    if (WithinBounds(mouseX, mouseY)){
+      if (mousePressed == true){
+        pressed();
+      }else{
+        hover();
+      }
+    }else{
+      if (mousePressed == true){
+        deactivate();      
+      }
+    }
+    
   }
-  
   void pressed(){
     //draw bezier
-    line($canvas.canvasToScreen(x+node.x, y+node.y)[0], $canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, mouseY);
-    //TODO
+    connecting = true;
   }
   
   void released(){
     //either connect bezier or stop drawing
+    connecting = false;
   }
+  
+  void clearLine(){
+    connecting = false;
+  }
+  
+
+  
 }
 
 class StringIN extends Node{
   TextInput in = new TextInput(15,50, 3.5, 3.2, color(80));
-  connection<String> output = new connection<String>(this, 4, 2, canvas);
+  plug<String> output;
   StringIN(Canvas canvas, float X, float Y){
     in.parent = this;
     this.canvas = canvas;
@@ -199,21 +233,110 @@ class StringIN extends Node{
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
+    output = new plug<String>(this, 4, 2, canvas);
+    
   }
   void update(){
     float X = canvas.canvasToScreen(x, y)[0];
     float Y = canvas.canvasToScreen(x, y)[1];
-    fill(Color);
-    rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius, smoothRadius, smoothRadius, smoothRadius);
-    fill(headColor);
-    rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
-    fill(textColor);
-    textAlign(CENTER);
-    textSize(fontSize);
-    text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
+    drawBox(X, Y);
     in.update();
     output.update();
     move();
+
+  }
+  
+  void dragRelease(){
+    output.clearLine();
+  }
+  
+}
+
+class Caesar extends Node{
+  plug<String> textIn;
+  plug<String> countIn;
+  plug<String> output;
+  Caesar(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Width = 3;
+    this.Height = 3;
+    this.Title = "Caesar";
+    this.Color = color(12, 33, 90);
+    textIn = new plug<String>(this, 0, 2, canvas);
+    countIn = new plug<String>(this, 0, 2.5, canvas);
+    output = new plug<String>(this, 3, 2.5, canvas);
+  }
+  
+  void update(){
+    float X = canvas.canvasToScreen(x, y)[0];
+    float Y = canvas.canvasToScreen(x, y)[1];
+    drawBox(X, Y);
+    textIn.update();
+    countIn.update();
+    output.update();
+    move();
+  }
+  
+  void dragRelease(){
+    output.clearLine();
+    textIn.clearLine();
+    countIn.clearLine();
+  }
+}
+
+class StringOUT extends Node{
+  plug<String> input;
+  //Label output
+  
+  StringOUT(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.Color = color(12, 33, 90); 
+    this.x = X;
+    this.y = Y;
+    this.Width = 6;
+    this.Height = 5;
+    this.Title = "Output";
+    input = new plug<String>(this, 0, 1, canvas);
+  }
+  void update(){
+    float X = canvas.canvasToScreen(x, y)[0];
+    float Y = canvas.canvasToScreen(x, y)[1];
+    drawBox(X, Y);
+    input.update();
+    move();
+  }
+  
+  void dragRelease(){
+    input.clearLine();
+  }
+  
+}
+
+class IntIN extends Node{
+  plug<Integer> output;
+  //textIn  ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES
+  IntIN(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.Color = color(12, 33, 90);
+    this.x = X;
+    this.y = Y;
+    this.Width = 2;
+    this.Height = 2.5;
+    this.Title = "Int";
+    this.output = new plug<Integer>(this, 2, 1.5, canvas);
+  }
+  
+  void update(){
+    float X = canvas.canvasToScreen(x, y)[0];
+    float Y = canvas.canvasToScreen(x, y)[1];
+    drawBox(X, Y);
+    output.update();
+    move();
+  }
+  void dragRelease(){
+    output.clearLine();
   }
   
 }

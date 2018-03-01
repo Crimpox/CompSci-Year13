@@ -7,20 +7,37 @@ class GUI {
   GUI parent = null;
   
   boolean WithinBounds(float X, float Y){
-    if (this instanceof StringIN){
+    float _Width = Width;
+    float _Height = Height;
+    
+    if (this instanceof Node){
       //ISSUE HERE width is for some reason 0
       Node node = (Node)this;
       X = node.canvas.screenToCanvas(X, Y)[0];
       Y = node.canvas.screenToCanvas(X, Y)[1];
     }
-    if (this instanceof connection){
-      connection connect = (connection)this;
-      X = connect.$canvas.screenToCanvas(X, Y)[0];
-      Y = connect.$canvas.screenToCanvas(X, Y)[1];
+    if (this instanceof plug){
+      plug Plug = (plug)this;
+      /*
+      X = Plug.canvas.screenToCanvas(X, Y)[0]+(Plug.Width/Plug.canvas.scale);
+      Y = Plug.canvas.screenToCanvas(X, Y)[1]+(Plug.Height/Plug.canvas.scale);
+      _Width = Width/Plug.canvas.scale;
+      _Height = Height/Plug.canvas.scale;
+      print("SC: " + Plug.Width/Plug.canvas.scale + "\n");
+      print("WB: " + X + ", " + Y + "\n");
+      print("CN: " + Plug.x + ", " + Plug.y + "\n");
+      */
+      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < Plug.Width/Plug.canvas.scale){
+        return true;
+      }else{
+        return false;
+      }
     }
     
+
     if (X >= x && Y >= y){
-      if (X <= x + Width && Y <= y + Height){
+      if (X <= x + _Width && Y <= y + _Height){
+        
         return true;
       } else {return false;}
     } else {return false;}
@@ -31,6 +48,7 @@ class GUI {
   void pressed(){return;}
   void released(){return;}
   void deactivate(){return;}
+  void dragRelease(){return;}
 }
 
 
