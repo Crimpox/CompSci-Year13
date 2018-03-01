@@ -1,6 +1,6 @@
 /**
 Cipher Nodes
-  Caesar
+  Caesar 
   Substitution
   Matrix
   Railspike
@@ -125,7 +125,8 @@ class Node extends GUI{
   float fontSize = 36;
   color textColor = color(218);
   String Title;
-  plug[] plugs;
+  public ArrayList<plug> inputs = new ArrayList<plug>();
+  public ArrayList<plug> outputs = new ArrayList<plug>();
   
   public float[] getScreenCoords(){
     float[] Coords =  new float[]{0, 0};
@@ -163,6 +164,29 @@ class Node extends GUI{
     text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
   }
   
+  void update(){
+    float X = canvas.canvasToScreen(x, y)[0];
+    float Y = canvas.canvasToScreen(x, y)[1];
+    drawBox(X, Y);
+    for(int i = 0; i < inputs.size(); i++){
+      inputs.get(i).update();
+    }
+    for(int i = 0; i < outputs.size(); i++){
+      outputs.get(i).update();
+    }
+    move();
+  }
+  
+  void dragRelease(){
+    for(int i = 0; i < inputs.size(); i++){
+      inputs.get(i).clearLine();
+    }
+    for(int i = 0; i < outputs.size();i++){
+      outputs.get(i).clearLine();
+    }
+    
+  }
+  
 }
 
 //TODO add mouse hover highlighting
@@ -170,6 +194,7 @@ class plug<T> extends GUI{
   private T value;
   public void set(T value){ this.value = value;}
   public T get(){ return value;}
+  public String label = "";
   Node node;
   Canvas canvas;
 
@@ -214,12 +239,18 @@ class plug<T> extends GUI{
     connecting = false;
   }
   
+  
   void clearLine(){
     connecting = false;
     for(int i = 0; i < nodes.Elements.size(); i++){
-      if (nodes.Elements.get(i).WithinBounds(mouseX, mouseY)){
-        //TODO INTEGRATE PLUGS[] in nodes class
+      //TODO INTEGRATE PLUGS[] in nodes class
+      Node _node = (Node)nodes.Elements.get(i);
+      for (int j = 0; j < _node.inputs.size(); j++){
+          if (_node.inputs.get(j).WithinBounds(mouseX, mouseY)){
+            print("CONNECT\n");
+          }
       }
+      
     }
   }
   
@@ -229,7 +260,7 @@ class plug<T> extends GUI{
 
 class StringIN extends Node{
   TextInput in = new TextInput(15,50, 3.5, 3.2, color(80));
-  plug<String> output;
+
   StringIN(Canvas canvas, float X, float Y){
     in.parent = this;
     this.canvas = canvas;
@@ -239,29 +270,16 @@ class StringIN extends Node{
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
-    output = new plug<String>(this, 4, 2, canvas);
+    outputs.add(new plug<String>(this, 4, 2, canvas));
     
   }
   void update(){
-    float X = canvas.canvasToScreen(x, y)[0];
-    float Y = canvas.canvasToScreen(x, y)[1];
-    drawBox(X, Y);
+    super.update();
     in.update();
-    output.update();
-    move();
-
   }
-  
-  void dragRelease(){
-    output.clearLine();
-  }
-  
 }
 
 class Caesar extends Node{
-  plug<String> textIn;
-  plug<String> countIn;
-  plug<String> output;
   Caesar(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.x = X;
@@ -270,30 +288,15 @@ class Caesar extends Node{
     this.Height = 3;
     this.Title = "Caesar";
     this.Color = color(12, 33, 90);
-    textIn = new plug<String>(this, 0, 2, canvas);
-    countIn = new plug<String>(this, 0, 2.5, canvas);
-    output = new plug<String>(this, 3, 2.5, canvas);
+    inputs.add(new plug<String>(this, 0, 2, canvas));
+    //textIn = new plug<String>(this, 0, 2, canvas);
+    inputs.add(new plug<String>(this, 0, 2.5, canvas));
+    outputs.add(new plug<String>(this, 3, 2.5, canvas));
   }
   
-  void update(){
-    float X = canvas.canvasToScreen(x, y)[0];
-    float Y = canvas.canvasToScreen(x, y)[1];
-    drawBox(X, Y);
-    textIn.update();
-    countIn.update();
-    output.update();
-    move();
-  }
-  
-  void dragRelease(){
-    output.clearLine();
-    textIn.clearLine();
-    countIn.clearLine();
-  }
 }
 
 class StringOUT extends Node{
-  plug<String> input;
   //Label output
   
   StringOUT(Canvas canvas, float X, float Y){
@@ -304,24 +307,12 @@ class StringOUT extends Node{
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    input = new plug<String>(this, 0, 2, canvas);
+    inputs.add(new plug<String>(this, 0, 2, canvas));
   }
-  void update(){
-    float X = canvas.canvasToScreen(x, y)[0];
-    float Y = canvas.canvasToScreen(x, y)[1];
-    drawBox(X, Y);
-    input.update();
-    move();
-  }
-  
-  void dragRelease(){
-    input.clearLine();
-  }
-  
+
 }
 
 class IntIN extends Node{
-  plug<Integer> output;
   //textIn  ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES
   IntIN(Canvas canvas, float X, float Y){
     this.canvas = canvas;
@@ -331,18 +322,7 @@ class IntIN extends Node{
     this.Width = 2;
     this.Height = 2.5;
     this.Title = "Int";
-    this.output = new plug<Integer>(this, 2, 1.5, canvas);
-  }
-  
-  void update(){
-    float X = canvas.canvasToScreen(x, y)[0];
-    float Y = canvas.canvasToScreen(x, y)[1];
-    drawBox(X, Y);
-    output.update();
-    move();
-  }
-  void dragRelease(){
-    output.clearLine();
+    outputs.add(new plug<Integer>(this, 2, 1.5, canvas));
   }
   
 }
