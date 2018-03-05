@@ -27,7 +27,7 @@ class GUI {
       print("WB: " + X + ", " + Y + "\n");
       print("CN: " + Plug.x + ", " + Plug.y + "\n");
       */
-      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < Plug.Width/Plug.canvas.scale){
+      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)/Plug.canvas.scale){
         return true;
       }else{
         return false;
@@ -49,6 +49,7 @@ class GUI {
   void released(){return;}
   void deactivate(){return;}
   void dragRelease(){return;}
+  void mouseDown(){return;}
 }
 
 

@@ -131,6 +131,10 @@ void draw(){
   charBuffer.clear();
   xdisplacement = mouseX - pmouseX;
   ydisplacement = mouseY - pmouseY;
+  for (int i = 0; i < connections.size(); i++){
+    connections.get(i).update();
+  }
+  
 }
 
 /**
@@ -152,6 +156,7 @@ void mouseClicked(){
   print("\n");
 }
 **/
+boolean mouseDown = false;
 void MouseChecks(){
  
   for (int i = 0; i < Elements.size(); i++){
@@ -159,6 +164,12 @@ void MouseChecks(){
     if (_element.WithinBounds(mouseX, mouseY)){
       if (mousePressed == true){
         _element.pressed();
+        if (!mouseDown){
+          mouseDown = true;
+          _element.mouseDown();
+        }else{
+          mouseDown = false;
+        }
       }else{
         _element.hover();
       }
@@ -175,6 +186,12 @@ void MouseChecks(){
           
           if (mousePressed == true){
             _Group.Elements.get(j).pressed();
+            if (!mouseDown){
+              mouseDown = true;
+              _Group.Elements.get(j).pressed();
+            }else{
+              mouseDown = false;
+            }
           }else{
             _Group.Elements.get(j).hover();
           }
@@ -218,6 +235,7 @@ public static float distance(float[] vector1, float[] vector2){
   
 }
 
+ArrayList<Connection> connections = new ArrayList<Connection>();
 
 /**
 PROTOTYPE 1

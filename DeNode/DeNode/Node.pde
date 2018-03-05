@@ -24,6 +24,29 @@ Analysis
   Most common letter
   
 **/
+
+class Connection{
+  plug start;
+  plug end;
+  
+  Connection(plug Start, plug End){
+    this.start = Start;
+    this.end = End;
+  }
+  
+  void update(){
+    noFill();
+    stroke(color(201));
+    strokeWeight(2);
+    float[] startCoords = _canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
+    float[] endCoords = _canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
+    bezier(startCoords[0], startCoords[1], endCoords[0], startCoords[1], startCoords[0], endCoords[1], endCoords[0], endCoords[1]);
+    strokeWeight(1);
+    stroke(color(0));
+    
+  }
+}
+
 class Canvas extends GUI{
   color gridLineColor;
   float scale = 60;
@@ -127,6 +150,7 @@ class Node extends GUI{
   String Title;
   public ArrayList<plug> inputs = new ArrayList<plug>();
   public ArrayList<plug> outputs = new ArrayList<plug>();
+  public ArrayList<GUI> elements = new ArrayList<GUI>();
   
   public float[] getScreenCoords(){
     float[] Coords =  new float[]{0, 0};
@@ -137,6 +161,10 @@ class Node extends GUI{
   
   boolean active = false;
   void pressed(){
+
+  }
+  
+  void mouseDown(){
     if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
       active = true;
     }
@@ -144,6 +172,7 @@ class Node extends GUI{
   
   void released(){
     active = false;
+    dragRelease();
   }
   
   void move(){
@@ -165,6 +194,7 @@ class Node extends GUI{
   }
   
   void update(){
+    move();
     float X = canvas.canvasToScreen(x, y)[0];
     float Y = canvas.canvasToScreen(x, y)[1];
     drawBox(X, Y);
@@ -174,10 +204,14 @@ class Node extends GUI{
     for(int i = 0; i < outputs.size(); i++){
       outputs.get(i).update();
     }
-    move();
+    for(int i = 0; i < elements.size(); i++){
+      elements.get(i).update();
+    }
+
   }
   
   void dragRelease(){
+    active = false;
     for(int i = 0; i < inputs.size(); i++){
       inputs.get(i).clearLine();
     }
@@ -200,7 +234,7 @@ class plug<T> extends GUI{
 
   boolean connecting = false;
   
-  plug(Node node, float x, float y, Canvas canvas){
+  plug(Node node, float x, float y, Canvas canvas, String label){
     this.x = x;
     this.y = y;
     this.Width = 20;
@@ -208,6 +242,7 @@ class plug<T> extends GUI{
     this.Color = color(201);
     this.node = node;
     this.canvas = canvas;
+    this.label = label;
   }
   
   void update(){
@@ -241,17 +276,22 @@ class plug<T> extends GUI{
   
   
   void clearLine(){
-    connecting = false;
+
     for(int i = 0; i < nodes.Elements.size(); i++){
       //TODO INTEGRATE PLUGS[] in nodes class
       Node _node = (Node)nodes.Elements.get(i);
       for (int j = 0; j < _node.inputs.size(); j++){
-          if (_node.inputs.get(j).WithinBounds(mouseX, mouseY)){
+          if (_node.inputs.get(j).WithinBounds(mouseX, mouseY) && connecting){
             print("CONNECT\n");
+            if (node != _node){
+              connections.add(new Connection(this, _node.inputs.get(j)));
+            
+            }
           }
       }
       
     }
+    connecting = false;
   }
   
 
@@ -259,10 +299,8 @@ class plug<T> extends GUI{
 }
 
 class StringIN extends Node{
-  TextInput in = new TextInput(15,50, 3.5, 3.2, color(80));
-
   StringIN(Canvas canvas, float X, float Y){
-    in.parent = this;
+    
     this.canvas = canvas;
     this.Color = color(12, 33, 90); 
     this.x = X;
@@ -270,12 +308,9 @@ class StringIN extends Node{
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
-    outputs.add(new plug<String>(this, 4, 2, canvas));
-    
-  }
-  void update(){
-    super.update();
-    in.update();
+    outputs.add(new plug<String>(this, 4, 2, canvas, ""));
+    elements.add(new TextInput(15,50, 3.5, 3.2, color(80)));
+    elements.get(0).parent = this;
   }
 }
 
@@ -288,10 +323,10 @@ class Caesar extends Node{
     this.Height = 3;
     this.Title = "Caesar";
     this.Color = color(12, 33, 90);
-    inputs.add(new plug<String>(this, 0, 2, canvas));
+    inputs.add(new plug<String>(this, 0, 2, canvas, "text"));
     //textIn = new plug<String>(this, 0, 2, canvas);
-    inputs.add(new plug<String>(this, 0, 2.5, canvas));
-    outputs.add(new plug<String>(this, 3, 2.5, canvas));
+    inputs.add(new plug<String>(this, 0, 2.5, canvas, "shift"));
+    outputs.add(new plug<String>(this, 3, 2.5, canvas, ""));
   }
   
 }
@@ -307,7 +342,7 @@ class StringOUT extends Node{
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    inputs.add(new plug<String>(this, 0, 2, canvas));
+    inputs.add(new plug<String>(this, 0, 2, canvas, ""));
   }
 
 }
@@ -322,7 +357,7 @@ class IntIN extends Node{
     this.Width = 2;
     this.Height = 2.5;
     this.Title = "Int";
-    outputs.add(new plug<Integer>(this, 2, 1.5, canvas));
+    outputs.add(new plug<Integer>(this, 2, 1.5, canvas, ""));
   }
   
 }
