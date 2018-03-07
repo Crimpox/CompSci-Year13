@@ -24,7 +24,6 @@ Analysis
   Most common letter
   
 **/
-
 class Connection{
   plug start;
   plug end;
@@ -48,6 +47,15 @@ class Connection{
     strokeWeight(1);
     stroke(color(0));
     transferData();
+    if (debug){
+      fill(0);
+      rectMode(CENTER);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth((String)start.value)/2, 20);
+      rectMode(CORNER);
+      fill(255);
+      textSize(20);
+      text((String)start.value, (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + 10);
+    }
   }
 }
 

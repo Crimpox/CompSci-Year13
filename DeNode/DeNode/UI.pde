@@ -269,8 +269,11 @@ class Toggle extends GUI{
     }
   }
   
+  void toggle(){}
+  
   void released(){
     active = !active;
+    toggle();
   }
 }
 

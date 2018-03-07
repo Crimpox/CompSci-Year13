@@ -4,9 +4,17 @@ Reverse mouse check loop so it searches backwards in order to allow selection of
 Canvas to Screen for GUI node elements
 ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
-Add default values for plugs based on their dimensions
-
+Add default values for plugs based on their dimensions [Done]
+Replace node value in plug to parent
 */
+boolean debug = true;
+Toggle debugToggle = new Toggle(800, 60, 50, 50, color(200)){
+  @Override
+  public void toggle(){
+    debug = !debug;
+  }
+};
+
 Button button = new Button(1700, 0, 300, 100, color(100)){
   @Override
   public void onPress(){
@@ -89,6 +97,7 @@ void setup(){
   Elements.add(centerCanvas);
   Elements.add(nodes);
   Elements.add(test);
+  Elements.add(debugToggle);
   centerCanvas.Text = "Center";
   nodeLabel.text = "Nodes";
   saveButton.Text = "Save"; 
