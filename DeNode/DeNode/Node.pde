@@ -36,7 +36,6 @@ class Connection{
   
   void transferData(){
     end.value = start.value;
-    print("transfer of: " + start.value + "\n");
   }
   
   void update(){
@@ -258,6 +257,16 @@ class plug<T> extends GUI{
     this.node = node;
     this.canvas = canvas;
     this.label = label;
+    if (value instanceof String){
+      String Value = (String)value;
+      Value = "";
+    } else if (value instanceof Integer){
+      Integer Value = (Integer)value;
+      Value = 0;
+    } else if (value instanceof Character){
+      Character Value = (Character)value;
+      Value = 'A';
+    }
   }
   
   void update(){

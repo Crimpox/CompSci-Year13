@@ -11,6 +11,7 @@ class CaesarCipher extends cipher{
   public String OUT = "";
   
   void Update(){
+    print(OUT);
     if (IN.length() == 0){
       return;
     }
@@ -42,7 +43,7 @@ class CaesarCipher extends cipher{
     }else if (direction == "R"){
       char last = shifted_alphabet[shifted_alphabet.length - 1];
       for (int i = 0; i < shifted_alphabet.length-1; i++){
-        shifted_alphabet[shifted_alphabet.length-(i+1)] = shifted_alphabet[shifted_alphabet.length-(i+2)];
+        shifted_alphabet[shifted_alphabet.length-(i+1)] = shifted_alphabet[shifted_alphabet.length-(i)];
       }
       shifted_alphabet[0] = last;
     }

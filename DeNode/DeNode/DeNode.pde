@@ -4,7 +4,7 @@ Reverse mouse check loop so it searches backwards in order to allow selection of
 Canvas to Screen for GUI node elements
 ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
-
+Add default values for plugs based on their dimensions
 
 */
 Button button = new Button(1700, 0, 300, 100, color(100)){
@@ -122,6 +122,7 @@ Rewrite mouse checks to implement layey checking and so that a simple hover(),
 released()or pressed()is sent to the GUI element and the specifics are handled GUI side
 **/
 void mouseReleased(){
+  mouseDown = false;
   for (int i =0; i < Elements.size(); i++){
     GUI _element = (GUI)Elements.get(i);
     if (_element instanceof GUIGroup){
@@ -129,7 +130,6 @@ void mouseReleased(){
       for(int j= 0; j < _Group.Elements.size(); j++){
         if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
           _Group.Elements.get(j).released();
-          print("Sub element released\n");
         }else{
           _Group.Elements.get(j).dragRelease();
         }
@@ -159,78 +159,10 @@ void draw(){
   
 }
 
-/**
-void mouseClicked(){
-  print("Canvas: ");
-  print(canvas.screenToCanvas(mouseX, mouseY)[0]);
-  print(", ");
-  print(canvas.screenToCanvas(mouseX, mouseY)[1]);
-  print("\n");
-  print("Screen: ");
-  print(mouseX);
-  print(", ");
-  print(mouseY);
-  print("\n");
-  print("CanvasToScreen: ");
-  print(canvas.canvasToScreen(canvas.screenToCanvas(mouseX, mouseY)[0],canvas.screenToCanvas(mouseX, mouseY)[1])[0]);
-  print(", ");
-  print(canvas.canvasToScreen(canvas.screenToCanvas(mouseX, mouseY)[0],canvas.screenToCanvas(mouseX, mouseY)[1])[1]);
-  print("\n");
-}
-**/
-
 boolean mouseDown = false;
-/*
-void MouseChecks(){
-  for (int i = 0; i < Elements.size(); i++){
-    GUI _element = (GUI)Elements.get(i);
-    if (_element.WithinBounds(mouseX, mouseY)){
-      if (mousePressed == true){
-        _element.pressed();
-        if (!mouseDown){
-          mouseDown = true;
-          _element.mouseDown();
-        }else{
-          mouseDown = false;
-        }
-      }else{
-        _element.hover();
-      }
-    }else{
-      if (mousePressed == true){
-        _element.deactivate();      
-      }
-    }
-    if (_element instanceof GUIGroup){
-      //CAN BE MADE SIMPLER BY CALLING MOUSECHECKS HERE AND HAVING A PARAMETER OF GUI LIST THAT CAN BE CHANGED
-      GUIGroup _Group = (GUIGroup)_element; 
-      for(int j= 0; j < _Group.Elements.size(); j++){
-        if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
-          
-          if (mousePressed == true){
-            _Group.Elements.get(j).pressed();
-            if (!mouseDown){
-              mouseDown = true;
-              _Group.Elements.get(j).mouseDown();
-            }else{
-              mouseDown = false;
-            }
-          }else{
-            _Group.Elements.get(j).hover();
-          }
-        }else{
-          if (mousePressed == true){
-            _Group.Elements.get(j).deactivate();        
-          }
-        }
-      }
-    }
-  }
-}
-*/
 
 void MouseChecks(ArrayList<GUI> elements){
-  for(int i = 0; i < elements.size(); i++){
+  for(int i = elements.size() - 1; i >= 0; i--){
     if (elements.get(i) instanceof GUIGroup){
       GUIGroup group = (GUIGroup)elements.get(i);
       MouseChecks(group.Elements);
@@ -242,10 +174,11 @@ void MouseChecks(ArrayList<GUI> elements){
     if(elements.get(i).WithinBounds(mouseX, mouseY)){
       if (mousePressed == true){
         elements.get(i).pressed();
+        //if (elements.get(i) instanceof TestNode){print("333\n");print(mouseDown+"\n");}
         if (!mouseDown){
+
           elements.get(i).mouseDown();
-        }else{
-          mouseDown = false;
+          mouseDown = true;
         }
       }else{
         elements.get(i).hover();
