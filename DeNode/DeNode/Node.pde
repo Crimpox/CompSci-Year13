@@ -34,16 +34,21 @@ class Connection{
     this.end = End;
   }
   
+  void transferData(){
+    end.value = start.value;
+    print("transfer of: " + start.value + "\n");
+  }
+  
   void update(){
     noFill();
     stroke(color(201));
-    strokeWeight(2);
+    strokeWeight(5);
     float[] startCoords = _canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
     float[] endCoords = _canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
     bezier(startCoords[0], startCoords[1], endCoords[0], startCoords[1], startCoords[0], endCoords[1], endCoords[0], endCoords[1]);
     strokeWeight(1);
     stroke(color(0));
-    
+    transferData();
   }
 }
 
@@ -161,7 +166,9 @@ class Node extends GUI{
   
   boolean active = false;
   void pressed(){
-
+    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
+      active = true;
+    }
   }
   
   void mouseDown(){
@@ -187,7 +194,7 @@ class Node extends GUI{
     rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius, smoothRadius, smoothRadius, smoothRadius);
     fill(headColor);
     rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
-    fill(textColor);
+    fill(Color);
     textAlign(CENTER);
     textSize(fontSize);
     text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
@@ -233,6 +240,14 @@ class plug<T> extends GUI{
   Canvas canvas;
 
   boolean connecting = false;
+  
+  void setValue(T value){
+    this.value = value;
+  }
+  
+  T getValue(){
+    return this.value;
+  }
   
   plug(Node node, float x, float y, Canvas canvas, String label){
     this.x = x;
@@ -302,19 +317,28 @@ class StringIN extends Node{
   StringIN(Canvas canvas, float X, float Y){
     
     this.canvas = canvas;
-    this.Color = color(12, 33, 90); 
+    this.Color = color(9, 33, 90); 
     this.x = X;
     this.y = Y;
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
     outputs.add(new plug<String>(this, 4, 2, canvas, ""));
-    elements.add(new TextInput(15,50, 3.5, 3.2, color(80)));
+    elements.add(new TextInput(0.25, 0.8, 3.5, 3.2, color(38, 48, 70)));
     elements.get(0).parent = this;
+  }
+  
+  void update(){
+    super.update();
+    TextInput input = (TextInput)elements.get(0);
+    outputs.get(0).value = input.getText();
   }
 }
 
 class Caesar extends Node{
+  
+  CaesarCipher cipher = new CaesarCipher();
+  
   Caesar(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.x = X;
@@ -322,11 +346,22 @@ class Caesar extends Node{
     this.Width = 3;
     this.Height = 3;
     this.Title = "Caesar";
-    this.Color = color(12, 33, 90);
+    this.Color = color(9, 33, 90);
     inputs.add(new plug<String>(this, 0, 2, canvas, "text"));
     //textIn = new plug<String>(this, 0, 2, canvas);
-    inputs.add(new plug<String>(this, 0, 2.5, canvas, "shift"));
+    inputs.add(new plug<Integer>(this, 0, 2.5, canvas, "shift"));
+    inputs.get(1).value = 0;
+    inputs.get(0).value = "";
     outputs.add(new plug<String>(this, 3, 2.5, canvas, ""));
+  }
+  
+  void update(){
+    super.update();
+    cipher.Update();
+    
+    cipher.IN = (String)inputs.get(0).value;
+    cipher.shiftAmount = (Integer)inputs.get(1).value;
+    outputs.get(0).value = cipher.OUT;
   }
   
 }
@@ -336,22 +371,31 @@ class StringOUT extends Node{
   
   StringOUT(Canvas canvas, float X, float Y){
     this.canvas = canvas;
-    this.Color = color(12, 33, 90); 
+    this.Color = color(9, 33, 90); 
     this.x = X;
     this.y = Y;
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    inputs.add(new plug<String>(this, 0, 2, canvas, ""));
+    inputs.add(new plug<String>(this, 0, 4, canvas, ""));
+    elements.add(new Label(0.25, 0.8, 5.5, 3.2, color(38, 48, 70)));
+    elements.get(0).parent = this;
   }
-
+  
+  void update(){
+    super.update();
+    Label label = (Label)elements.get(0);
+    if (inputs.get(0).value != null){
+      label.text = (String)inputs.get(0).value;  
+    }
+  }
 }
 
 class IntIN extends Node{
-  //textIn  ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES
+
   IntIN(Canvas canvas, float X, float Y){
     this.canvas = canvas;
-    this.Color = color(12, 33, 90);
+    this.Color = color(9, 33, 90);
     this.x = X;
     this.y = Y;
     this.Width = 2;
@@ -360,4 +404,26 @@ class IntIN extends Node{
     outputs.add(new plug<Integer>(this, 2, 1.5, canvas, ""));
   }
   
+}
+
+class TestNode extends Node{
+  TestNode(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.Color = color(9, 33, 90);
+    this.x = X;
+    this.y = Y;
+    this.Width = 2.5;
+    this.Height = 3.5;
+    this.Title = "Test";
+    outputs.add(new plug<Integer>(this, 2.5, 1.5, canvas, ""));
+    outputs.get(0).value = 0;
+    Button button = new Button(0.25, 0.8, 2, 1.7, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        outputs.get(0).value = (Integer)outputs.get(0).value + 1;
+      }
+    };
+    elements.add(button);
+    elements.get(0).parent = this;
+  }
 }

@@ -7,10 +7,7 @@ class GUI {
   GUI parent = null;
   
   boolean WithinBounds(float X, float Y){
-    float _Width = Width;
-    float _Height = Height;
-    
-    if (this instanceof Node){
+    if (this instanceof Node ){
       //ISSUE HERE width is for some reason 0
       Node node = (Node)this;
       X = node.canvas.screenToCanvas(X, Y)[0];
@@ -18,15 +15,6 @@ class GUI {
     }
     if (this instanceof plug){
       plug Plug = (plug)this;
-      /*
-      X = Plug.canvas.screenToCanvas(X, Y)[0]+(Plug.Width/Plug.canvas.scale);
-      Y = Plug.canvas.screenToCanvas(X, Y)[1]+(Plug.Height/Plug.canvas.scale);
-      _Width = Width/Plug.canvas.scale;
-      _Height = Height/Plug.canvas.scale;
-      print("SC: " + Plug.Width/Plug.canvas.scale + "\n");
-      print("WB: " + X + ", " + Y + "\n");
-      print("CN: " + Plug.x + ", " + Plug.y + "\n");
-      */
       if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)/Plug.canvas.scale){
         return true;
       }else{
@@ -35,12 +23,54 @@ class GUI {
     }
     
 
-    if (X >= x && Y >= y){
-      if (X <= x + _Width && Y <= y + _Height){
+    if (X >= getX() && Y >= getY()){
+      if (X <= getX() + getWidth() && Y <= getY() + getHeight()){
         
         return true;
       } else {return false;}
     } else {return false;}
+  }
+  
+  float getX(){
+    float X = 0;
+    if (parent instanceof Node){
+      Node Parent = (Node)parent;
+      X += Parent.canvas.canvasToScreen(X + Parent.x, 0)[0];
+      X += x * Parent.canvas.scale;
+    } else{
+      X += x;
+    }
+    return X;
+  }
+  
+  float getY(){
+    float Y = 0;
+    if (parent instanceof Node){
+      Node Parent = (Node)parent;
+      Y += Parent.canvas.canvasToScreen(0, Y + Parent.y)[1] + Parent.headsize*Parent.canvas.scale/2;
+      Y += y * Parent.canvas.scale;
+    } else{
+      Y += y;    
+    }
+    return Y;
+  }
+  
+  float getWidth(){
+    float scaledWidth = Width;
+    if (parent instanceof Node){
+      Node Parent = (Node)parent;
+      scaledWidth *= Parent.canvas.scale;
+    }
+    return scaledWidth;
+  }
+  
+  float getHeight(){
+    float scaledHeight = Height;
+    if (parent instanceof Node){
+      Node Parent = (Node)parent;
+      scaledHeight *= Parent.canvas.scale;
+    }
+    return scaledHeight;
   }
   
   void update(){return;}
@@ -106,7 +136,7 @@ class Button extends GUI{
         stroke(TextColor);
         fill(Color);
       }
-      rect(x, y, Width, Height);
+      rect(getX(), getY(), getWidth(), getHeight());
       //Text
       if (Highlight){
         fill(TextHighlightColor);
@@ -117,9 +147,11 @@ class Button extends GUI{
       }
       textAlign(CENTER);
       textSize(FontSize);
-      text(Text, x+(Width/2), y+(Height/2)+10);
+      text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+10);
       Highlight = false;
       Pressed = false;
+      if (parent instanceof Node){
+      }
     }
 }
 
@@ -136,6 +168,11 @@ class TextInput extends GUI{
       this.Height = Height;
       this.Color = Color;
   }
+  
+  String getText(){
+    return value;
+  }
+  
   void pressed(){
     active = true;
   }
@@ -143,24 +180,11 @@ class TextInput extends GUI{
     active = false;
   }
   void update(){
-    float parentX = 0;
-    float parentY = 0;
-    float scaleWidth = Width;
-    float scaleHeight = Height;
-    if (parent instanceof Node){
-      Node Parent = (Node)parent;
-      parentX = Parent.getScreenCoords()[0];
-      parentY = Parent.getScreenCoords()[1] + Parent.headsize*Parent.canvas.scale/2;
-      scaleWidth *= Parent.canvas.scale;
-      scaleHeight *= Parent.canvas.scale;
-    }
-    float X = x + parentX;
-    float Y = y + parentY;
     fill(Color);
     stroke(TextColor);
-    rect(X, Y, scaleWidth, scaleHeight);
+    rect(getX(), getY(), getWidth(), getHeight());
     int overflow = 0;
-    while(textWidth(value.substring(overflow, value.length())) > scaleWidth){
+    while(textWidth(value.substring(overflow, value.length())) > getWidth()){
       overflow++;
     }  
     if(active){
@@ -175,23 +199,23 @@ class TextInput extends GUI{
       textAlign(CORNER);
       if (second() % 2 == 0){
         //Draw |
-        text(value.substring(overflow, value.length()) + "|", X, Y + (scaleHeight/2));
+        text(value.substring(overflow, value.length()) + "|", getX(), getY() + (getHeight()/2));
       }else{
-        text(value.substring(overflow, value.length()), X, Y + (scaleHeight/2));
+        text(value.substring(overflow, value.length()), getX(), getY() + (getHeight()/2));
       }
       
     }else{
       //draw without |
       fill(TextColor);
       textAlign(CORNER);
-      text(value.substring(overflow, value.length()), X, Y + (scaleHeight/2));
+      text(value.substring(overflow, value.length()), getX(), getY() + (getHeight()/2));
     }
   }
 }
 
 class Label extends GUI{
   color TextColor = color(0);
-  String text = "Label";
+  String text = "";
   float FontSize = 48;
   
 
@@ -208,13 +232,13 @@ class Label extends GUI{
     //Box
     fill(Color);
     stroke(TextColor);
-    rect(x, y, Width, Height);
+    rect(getX(), getY(), getWidth(), getHeight());
     
     //Text
     fill(TextColor);
     textAlign(CENTER);
     textSize(FontSize);
-    text(text, x+(Width/2), y+(Height/2)+10);
+    text(text, getX()+(getWidth()/2), getY()+(getHeight()/2)+10);
 
   }
 }
@@ -234,14 +258,14 @@ class Toggle extends GUI{
   void update(){
     fill(color(100));
     stroke(HighlightColor);
-    ellipse(x+(Width/2), y+(Height/2), Width, Height);
+    ellipse(getX()+(getWidth()/2), y+(getHeight()/2), getWidth(), getHeight());
     noStroke();
     if (active){
       fill(HighlightColor);
-      ellipse(x+(Width/2), y+(Height/2), Width*0.6, Height*0.6);
+      ellipse(getX()+(getWidth()/2), getY()+(getHeight()/2), getWidth()*0.6, getHeight()*0.6);
     }else{
       fill(60);
-      ellipse(x+(Width/2), y+(Height/2), Width*0.6, Height*0.6);
+      ellipse(getX()+(getWidth()/2), getY()+(getHeight()/2), getWidth()*0.6, getHeight()*0.6);
     }
   }
   
@@ -269,15 +293,14 @@ class Dropdown extends GUI{
     
     void update(){
       fill(Color);
-      rect(x, y, Width-Height, Height);
+      rect(getX(), getY(), getWidth()-getHeight(), getHeight());
       fill(TextColor);
       textAlign(CENTER);
-      text(optionNames.get(optionIndex),x + ((Width-Height)/2), y + Height/2 + 10);
+      text(optionNames.get(optionIndex), getX() + ((getWidth()-getHeight())/2), getY() + getHeight()/2 + 10);
       fill(ButtonColor);
-      rect(x+Width-Height, y, Height, Height);
+      rect(getX() + getWidth() - getHeight(), getY(), getHeight(), getHeight());
       fill(40);
-      triangle(x+Width-(Height/2), y+Height - 10, x+Width-Height + 10, y + 10, x+Width - 10 , y + 10);
-      
+      triangle(getX()+getWidth()-(getHeight()/2), getY()+getHeight() - 10, getX() + getWidth() - getHeight() + 10, getY() + 10, getX() + getWidth() - 10 , getY() + 10);      
     }
 }
 
@@ -327,7 +350,7 @@ class Listbox extends GUI{
     returnSelected(getIndex());
   }
   int getIndex(){
-    float index = ((mouseY - y) - (mouseY%optionHeights)) / optionHeights;
+    float index = ((mouseY - getY()) - (mouseY%optionHeights)) / optionHeights;
     int Index = round(index);
     if(Index > optionsShowing-1){Index = optionsShowing-1;}
     Index += scrollAmount;
@@ -379,10 +402,18 @@ class Listbox extends GUI{
 }
 
 class Panel extends GUI{
+  Panel(float X, float Y, float Width, float Height, color Color){
+    this.x = X;
+    this.y = Y;
+    this.Width = Width;
+    this.Height = Height;
+    this.Color = Color;
+  }
   void update(){
     fill(Color);
     noStroke();
-    rect(x, y, Width, Height);
+    rect(getX(), getY(), getWidth(), getHeight());
+    stroke(color(0));
   }
 }
 

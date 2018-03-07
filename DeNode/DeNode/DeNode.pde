@@ -1,7 +1,19 @@
+/*
+----------<TODO>-----------
+Reverse mouse check loop so it searches backwards in order to allow selection of toplayer.
+Canvas to Screen for GUI node elements
+ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
+[Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
+
+
+*/
 Button button = new Button(1700, 0, 300, 100, color(100)){
   @Override
   public void onPress(){
-    print("Overriden");
+    instantiateCaesar(0, 0);
+    instantiateStringIN(-7, -3);
+    instantiateTest(-6, 3);
+    instantiateStringOUT(6, -2);
   }
 };
 Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
@@ -9,6 +21,13 @@ Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
   public void onPress(){
     _canvas.xoffset = 0;
     _canvas.yoffset = 0;
+  }
+}; 
+
+Button test = new Button(300, 100, 300, 100, color(100)){
+  @Override
+  public void onPress(){
+    instantiateTest(0, 0);
   }
 };
 
@@ -23,7 +42,7 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
     switch(index){
       case 0:  index = 0;
         //caesar
-        instantiateCaesar();
+        instantiateCaesar(0, 0);
         break;
       case 1:  index = 1;
         //substitution
@@ -31,15 +50,15 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
         break;
       case 2:  index = 2;
         //String IN
-        instantiateStringIN();
+        instantiateStringIN(0, 0);
         break;
       case 3:  index = 3;
         //String OUT
-        instantiateStringOUT();
+        instantiateStringOUT(0, 0);
         break;
       case 4:  index = 4;
         //Int IN
-        instnatiateIntIN();
+        instnatiateIntIN(0, 0);
         break;
     }
   }
@@ -69,6 +88,7 @@ void setup(){
   Elements.add(nodeLabel);
   Elements.add(centerCanvas);
   Elements.add(nodes);
+  Elements.add(test);
   centerCanvas.Text = "Center";
   nodeLabel.text = "Nodes";
   saveButton.Text = "Save"; 
@@ -80,6 +100,8 @@ void setup(){
   listBox.options.add("String IN");
   listBox.options.add("String OUT");
   listBox.options.add("Int IN");
+  test.Text = "Test";
+  test.HighlightColor = color(11, 55, 80);
 }
 
 ArrayList<String> charBuffer = new ArrayList<String>();
@@ -124,7 +146,7 @@ float xdisplacement;
 float ydisplacement;
 void draw(){
   background(255);
-  MouseChecks();
+  MouseChecks(Elements);
   for (int i = 0; i < Elements.size(); i++){
     Elements.get(i).update();
   }
@@ -156,9 +178,10 @@ void mouseClicked(){
   print("\n");
 }
 **/
+
 boolean mouseDown = false;
+/*
 void MouseChecks(){
- 
   for (int i = 0; i < Elements.size(); i++){
     GUI _element = (GUI)Elements.get(i);
     if (_element.WithinBounds(mouseX, mouseY)){
@@ -188,7 +211,7 @@ void MouseChecks(){
             _Group.Elements.get(j).pressed();
             if (!mouseDown){
               mouseDown = true;
-              _Group.Elements.get(j).pressed();
+              _Group.Elements.get(j).mouseDown();
             }else{
               mouseDown = false;
             }
@@ -204,28 +227,61 @@ void MouseChecks(){
     }
   }
 }
+*/
+
+void MouseChecks(ArrayList<GUI> elements){
+  for(int i = 0; i < elements.size(); i++){
+    if (elements.get(i) instanceof GUIGroup){
+      GUIGroup group = (GUIGroup)elements.get(i);
+      MouseChecks(group.Elements);
+    }
+    if (elements.get(i) instanceof Node){
+      Node node = (Node)elements.get(i);
+      MouseChecks(node.elements);
+    }
+    if(elements.get(i).WithinBounds(mouseX, mouseY)){
+      if (mousePressed == true){
+        elements.get(i).pressed();
+        if (!mouseDown){
+          elements.get(i).mouseDown();
+        }else{
+          mouseDown = false;
+        }
+      }else{
+        elements.get(i).hover();
+      }
+    }else if (mousePressed == true){
+      elements.get(i).deactivate();
+    } 
+  }
+}
 
 
 GUIGroup nodes = new GUIGroup();
 
-void instantiateCaesar(){
-  Caesar caesar = new Caesar(_canvas, 0, 0);
+void instantiateCaesar(float x, float y){
+  Caesar caesar = new Caesar(_canvas, x, y);
   nodes.Elements.add(caesar);
 }
 
-void instantiateStringIN(){
-  StringIN stringIN = new StringIN(_canvas, 0, 0);
+void instantiateStringIN(float x, float y){
+  StringIN stringIN = new StringIN(_canvas, x, y);
   nodes.Elements.add(stringIN);
 }
 
-void instantiateStringOUT(){
-  StringOUT stringOUT = new StringOUT(_canvas, 0, 0);
+void instantiateStringOUT(float x, float y){
+  StringOUT stringOUT = new StringOUT(_canvas, x, y);
   nodes.Elements.add(stringOUT);
 }
 
-void instnatiateIntIN(){
-  IntIN intIN = new IntIN(_canvas, 0 ,0);
+void instnatiateIntIN(float x, float y){
+  IntIN intIN = new IntIN(_canvas, x ,y);
   nodes.Elements.add(intIN);
+}
+
+void instantiateTest(float x, float y){
+  TestNode test = new TestNode(_canvas, x, y);
+  nodes.Elements.add(test);
 }
 
 public static float distance(float[] vector1, float[] vector2){
@@ -242,16 +298,16 @@ PROTOTYPE 1
 Working Static UI
   >Basic UI elements [Check]
   >Advanced UI elements [Ongoing]
-  >Improve text input
+  >Improve text input [not done]
 Demonstrational Caesar node
   >Cipher logic [Check]
-  >Node binding [Not done]
+  >Node binding [ongoing]
 Instantiation of nodes
-  >UI abstractions [Not done]
-  >Basic Node [Not done]
+  >UI abstractions [ongoing]
+  >Basic Node [done]
 Wiring between nodes
-  >Bezier drawing [Not done]
-  >Variable connections [Not done]
+  >Bezier drawing [done]
+  >Variable connections [ongoing]
 Copy and Paste functionality
 
 **/
