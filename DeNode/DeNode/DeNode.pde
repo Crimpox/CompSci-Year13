@@ -8,13 +8,13 @@ Add default values for plugs based on their dimensions [Done]
 Replace node value in plug to parent
 */
 boolean debug = true;
-Toggle debugToggle = new Toggle(800, 60, 50, 50, color(200)){
+Toggle debugToggle = new Toggle(900, 60, 50, 50, color(200)){
   @Override
   public void toggle(){
     debug = !debug;
   }
 };
-
+Label debugLabel = new Label(800, 0, 300, 60, color(100));
 Button button = new Button(1700, 0, 300, 100, color(100)){
   @Override
   public void onPress(){
@@ -98,10 +98,12 @@ void setup(){
   Elements.add(nodes);
   Elements.add(test);
   Elements.add(debugToggle);
+  Elements.add(debugLabel);
+  debugLabel.text = "Debug";
   centerCanvas.Text = "Center";
   nodeLabel.text = "Nodes";
   saveButton.Text = "Save"; 
-  button.Text = "Clear";
+  button.Text = "Caesar";
   button.HighlightColor = color(120);
   button.PressColor = color(200);
   listBox.options.add("Caesar");

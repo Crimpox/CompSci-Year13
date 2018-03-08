@@ -50,11 +50,11 @@ class Connection{
     if (debug){
       fill(0);
       rectMode(CENTER);
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth((String)start.value)/2, 20);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(start.value.toString())/2, 20);
       rectMode(CORNER);
       fill(255);
       textSize(20);
-      text((String)start.value, (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + 10);
+      text(start.value.toString(), (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + 10);
     }
   }
 }
