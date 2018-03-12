@@ -314,7 +314,6 @@ class plug<T> extends GUI{
       Node _node = (Node)nodes.Elements.get(i);
       for (int j = 0; j < _node.inputs.size(); j++){
           if (_node.inputs.get(j).WithinBounds(mouseX, mouseY) && connecting){
-            print("CONNECT\n");
             if (node != _node){
               connections.add(new Connection(this, _node.inputs.get(j)));
             
@@ -423,8 +422,8 @@ class IntIN extends Node{
   
 }
 
-class TestNode extends Node{
-  TestNode(Canvas canvas, float X, float Y){
+class Counter extends Node{
+  Counter(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.Color = color(9, 33, 90);
     this.x = X;
@@ -434,13 +433,21 @@ class TestNode extends Node{
     this.Title = "Test";
     outputs.add(new plug<Integer>(this, 2.5, 1.5, canvas, ""));
     outputs.get(0).value = 0;
-    Button button = new Button(0.25, 0.8, 2, 1.7, color(38, 48, 70)){
+    Button plus = new Button(0.25, 0.8, 1, 1.7, color(38, 48, 70)){
       @Override
       void mouseDown(){
         outputs.get(0).value = (Integer)outputs.get(0).value + 1;
       }
     };
-    elements.add(button);
+    Button minus = new Button(1.25, 0.8, 1, 1.7, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        outputs.get(0).value = (Integer)outputs.get(0).value - 1;
+      } 
+    };
+    elements.add(plus);
     elements.get(0).parent = this;
+    elements.add(minus);
+    elements.get(1).parent = this;
   }
 }

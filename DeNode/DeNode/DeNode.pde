@@ -1,13 +1,13 @@
 /*
 ----------<TODO>-----------
-Reverse mouse check loop so it searches backwards in order to allow selection of toplayer.
-Canvas to Screen for GUI node elements
+Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
 ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
 Replace node value in plug to parent
 Use a cut off mask for the canvas
 Canvas movements
 Change the drawing of the connections so they're not drawn on top of everything
-Debating whether or not to have an alphabet data type for substitution or have the switch built into the node
+Debating whether or not to have an alphabet data type for substitution or have the plugs built into the node
+Make it so when drawing from a output node you can only finish on an input node and vice versa 
 */
 /*
 ---------<DONE>-----------
@@ -15,8 +15,9 @@ Debating whether or not to have an alphabet data type for substitution or have t
 Add default values for plugs based on their dimensions [Done]
 Rewrite mouse checks to implement layey checking and so that a simple hover(),
 released()or pressed()is sent to the GUI element and the specifics are handled GUI side [Done]
+Canvas to Screen for GUI node elements
 */
-boolean debug = true;
+boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
   @Override
   public void toggle(){
@@ -29,7 +30,7 @@ Button button = new Button(1700, 0, 300, 100, color(100)){
   public void onPress(){
     instantiateCaesar(0, 0);
     instantiateStringIN(-7, -3);
-    instantiateTest(-6, 3);
+    instantiateCounter(-6, 3);
     instantiateStringOUT(6, -2);
   }
 };
@@ -41,10 +42,10 @@ Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
   }
 }; 
 
-Button test = new Button(300, 100, 300, 100, color(100)){
+Button counterButton = new Button(300, 100, 300, 100, color(100)){
   @Override
   public void onPress(){
-    instantiateTest(0, 0);
+    instantiateCounter(0, 0);
   }
 };
 
@@ -104,7 +105,7 @@ void setup(){
   Elements.add(nodeLabel);
   Elements.add(centerCanvas);
   Elements.add(nodes);
-  Elements.add(test);
+  Elements.add(counterButton);
   Elements.add(debugToggle);
   Elements.add(debugLabel);
   debugLabel.text = "Debug";
@@ -119,8 +120,8 @@ void setup(){
   listBox.options.add("String IN");
   listBox.options.add("String OUT");
   listBox.options.add("Int IN");
-  test.Text = "Test";
-  test.HighlightColor = color(11, 55, 80);
+  counterButton.Text = "Counter";
+  counterButton.HighlightColor = color(11, 55, 80);
 }
 
 //Manages the key presses from the keyboard
@@ -140,11 +141,11 @@ void keyPressed(){
 //Manages the mousechecks for all the mouse releases which triggers buttons and connections
 void mouseReleased(){
   mouseDown = false;
-  for (int i =0; i < Elements.size(); i++){
+  for (int i = Elements.size() - 1; i >= 0; i--){
     GUI _element = (GUI)Elements.get(i);
     if (_element instanceof GUIGroup){
       GUIGroup _Group = (GUIGroup)_element; 
-      for(int j= 0; j < _Group.Elements.size(); j++){
+      for(int j = _Group.Elements.size() - 1; j >= 0; j--){
         if(_Group.Elements.get(j).WithinBounds(mouseX, mouseY)){
           _Group.Elements.get(j).released();
         }else{
@@ -186,7 +187,6 @@ void draw(){
 }
 //this boolean manages whether or not the mouse was down in the previous frame, this is so the function mousedown is only called on the first frame that the mouse has been pressed down
 boolean mouseDown = false;
-
 //This checks the mouse position and state and calls functions on the UI elements respectedly 
 void MouseChecks(ArrayList<GUI> elements){
   for(int i = elements.size() - 1; i >= 0; i--){
@@ -203,7 +203,6 @@ void MouseChecks(ArrayList<GUI> elements){
     if(elements.get(i).WithinBounds(mouseX, mouseY)){
       if (mousePressed == true){
         elements.get(i).pressed();
-        //if (elements.get(i) instanceof TestNode){print("333\n");print(mouseDown+"\n");}
         if (!mouseDown){
 
           elements.get(i).mouseDown();
@@ -245,10 +244,10 @@ void instnatiateIntIN(float x, float y){
   nodes.Elements.add(intIN);
 }
 
-// Creates a Test node which is currently a counter
-void instantiateTest(float x, float y){
-  TestNode test = new TestNode(_canvas, x, y);
-  nodes.Elements.add(test);
+// Creates a counter node
+void instantiateCounter(float x, float y){
+  Counter counter = new Counter(_canvas, x, y);
+  nodes.Elements.add(counter);
 }
 
 // Caclulates the distance between two vectors

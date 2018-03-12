@@ -122,7 +122,6 @@ class Button extends GUI{
     }
     
     void onPress(){
-      print("Pressed");
     }
     void update(){
       //Rect
@@ -160,6 +159,8 @@ class TextInput extends GUI{
   String value = "";
   boolean active = false;
   float FontSize = 48;
+  boolean useSet = false;
+  char[] charset;
   
   TextInput (float x, float y, float Width, float Height, color Color){
       this.x = x;
@@ -217,9 +218,7 @@ class Label extends GUI{
   color TextColor = color(0);
   String text = "";
   float FontSize = 48;
-  
 
-  
   Label (float x, float y, float Width, float Height, color Color){
     this.x = x;
     this.y = y;
@@ -338,7 +337,6 @@ class Listbox extends GUI{
     if (scrollAmount >0){
       scrollAmount--;
     }
-    
   }
   
   void released(){
@@ -362,7 +360,6 @@ class Listbox extends GUI{
   
   void returnSelected(int index){
     //To be overriden on instance
-    print(index);
   }
   
   void highlight(boolean highlight){
@@ -371,7 +368,6 @@ class Listbox extends GUI{
     }else{
       highlightOption = -1;
     }
-    
   }
   
   void update(){
@@ -396,7 +392,6 @@ class Listbox extends GUI{
         fill(BlankColor);
         rect(x + padding, y+(optionHeights*i)+padding, Width - 2*padding, optionHeights - 2*padding);
       }
-
     }
     fill(TextColor);
     stroke(Color);

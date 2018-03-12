@@ -13,12 +13,11 @@ class CaesarCipher extends cipher{
   public int shiftAmount = 0;
   
   void Update(){
-    print(output);
     if (input.length() == 0){
       return;
     }
     output = "";
-    Shift("R");
+    Shift("L");
     //Swaps all the letters in the input according to the shifted alphabet
     for (int i = 0; i < input.length(); i++){
       if (Character.isLetter(input.charAt(i))){
@@ -35,11 +34,9 @@ class CaesarCipher extends cipher{
   //Changes the shifted alphabet by the required amount
   void Shift(String direction){
     if (direction == "L"){
-      char first = shifted_alphabet[0];
       for (int i = 0; i < shifted_alphabet.length-1; i++){
         shifted_alphabet[i] = alphabet[(i+shiftAmount)%26];
       }
-      shifted_alphabet[shifted_alphabet.length] = first;
     }else if (direction == "R"){
       for (int i = 0; i < shifted_alphabet.length; i++){
         shifted_alphabet[i] = alphabet[(26-shiftAmount + i )%26];
