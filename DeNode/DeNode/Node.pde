@@ -1,19 +1,19 @@
 /**
 Cipher Nodes
-  Caesar 
+  Caesar [Done]
   Substitution
   Matrix
   Railspike
 
 IO Nodes
-  Text In
+  Text In [Done]
   Int In
-  Text Output
+  Text Output [Done]
   Char In
   In from .txt document
   
 Conections
-  Bezier
+  Bezier [Done]
   Error handling (invalid plug e.g. string into int plug)
   
 Grid
@@ -376,9 +376,9 @@ class Caesar extends Node{
     super.update();
     cipher.Update();
     
-    cipher.IN = (String)inputs.get(0).value;
+    cipher.input = (String)inputs.get(0).value;
     cipher.shiftAmount = (Integer)inputs.get(1).value;
-    outputs.get(0).value = cipher.OUT;
+    outputs.get(0).value = cipher.output;
   }
   
 }
