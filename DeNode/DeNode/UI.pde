@@ -163,7 +163,7 @@ class TextInput extends GUI{
   private boolean useSet = false;
   private String[] charset;
   
-  private int textMode = 0;
+  private int textMode = 1;
   void setTextMode(String mode){
     switch(mode){
       case "PARAGRAPH": 
@@ -224,11 +224,9 @@ class TextInput extends GUI{
     fill(Color);
     stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
     rect(getX(), getY(), getWidth(), getHeight());
-    int overflow = 0;
-    while(textWidth(value.substring(overflow, value.length())) > getWidth()){
-      overflow++;
-    }  
+    
     if(active){
+      //Update text from key inputs
       for(int i = 0; i < charBuffer.size(); i++){
         if (charBuffer.get(i) == "BACK" && value.length() > 0){
           value = value.substring(0, value.length()-1);
@@ -240,27 +238,22 @@ class TextInput extends GUI{
           }else{
             value += charBuffer.get(i);
           }
-            
         } 
       }
+      //At this point Value is up to date and the drawing of the text is dependent on the Text Mode so each mode has a seperate draw function to prevent confusion and ease the addition of more text modes.
       fill(TextColor);
-      textAlign(CORNER);
-      String text = value.substring(overflow, value.length());
-      if (second() % 2 == 0){
-        text += "|";
-      }
       switch (textMode){
         case 0:
           //paragraph
-          text(text, getX(), getY() + FontSize/2);
+          drawParagraphText();
           break;
         case 1:
           //line
-          text(text, getX(), getY() + (getHeight()/2));
+          drawLineText();
           break;
         case 2:
           //Center
-          text(text, getX() + (getWidth()/2), getY() + (getHeight()/2));
+          drawCenterText();
           break;
       }
 
@@ -268,25 +261,100 @@ class TextInput extends GUI{
     }else{
       //draw without |
       fill(TextColor);
-      textAlign(CORNER);
-      text(value.substring(overflow, value.length()), getX(), getY() + (getHeight()/2));
-    }
-  }
-  
-  void drawText(boolean Active){
-    if (Active){
-      if (second() % 2 == 0){
-        if (getTextMode() == 0){
-          text(value.substring(overflow, value.length()), getX(), getY() + fontSize / 2);
-        }
-      } else{
-        
+      switch (textMode){
+        case 0:
+          //paragraph
+          drawParagraphText();
+          break;
+        case 1:
+          //line
+          drawLineText();
+          break;
+        case 2:
+          //center
+          drawCenterText();
+          break;
       }
-    }else{
-    
     }
   }
   
+  void drawParagraphText(){
+    String text = value;
+    if (second() % 2 == 0 && active){
+      text += "|";
+    }
+    int maxLines = floor(getHeight()/FontSize);
+    ArrayList<String> lines = new ArrayList<String>();
+    
+    //Non-active
+    String currentLine = "";
+    for (int i = 0; i < text.length(); i++){
+      currentLine += text.charAt(i);
+      if (textWidth(currentLine) > getWidth()){
+        for (int j = currentLine.length() - 1; j >= 0; j--){
+          
+          if (Character.toString(currentLine.charAt(j)) == " "){
+            lines.add(currentLine.substring(0, j));
+            currentLine = currentLine.substring(j+1, currentLine.length());
+          }
+          if (j == 0){
+            //The word is longer than the width therefore a dash split is required. e.g. Supercalifrafilistic-
+            //                                                                           expialidcious
+            lines.add(currentLine.substring(0, j-1) + "-");
+            currentLine = currentLine.substring(j , currentLine.length());
+          }
+        }
+      }
+    }
+    String output = "";
+    for (int i = 0; i < lines.size(); i++){
+      if (i > maxLines){
+        //add ...
+      }else{
+        output += (lines.get(i) + "\n");
+      }
+    }
+    textAlign(LEFT);
+    fill(TextColor);
+    print(lines.get(0) + "\n");
+    text(output, getX(), getY() + FontSize/2);
+    
+    
+    
+  }
+  void drawLineText(){
+    String text = value;
+    if (second() % 2 == 0 && active){
+      text += "|";
+    }
+    //Overflow management
+
+    if (active && textWidth(text) > getWidth()){
+      int overflow = 0;
+      while(textWidth(value.substring(overflow, value.length())) > getWidth()){
+        overflow++;
+      }
+      
+      text = value.substring(overflow, value.length());
+    }else{
+
+      if (textWidth(text) > getWidth()){
+        while(textWidth((text + "...").substring(0, (text + "...").length())) > getWidth()){
+          text = text.substring(0, text.length()-2);
+        }
+        text += "...";
+      }
+
+    }
+    textAlign(LEFT);
+    text(text, getX(), getY() + getHeight()/2);
+  }
+  void drawCenterText(){
+    String text = value;
+    if (second() % 2 == 0 && active){
+      text += "|";
+    }
+  }
   
 }
 

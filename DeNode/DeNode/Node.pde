@@ -49,8 +49,10 @@ class Connection{
     transferData();
     if (debug){
       fill(0);
+      textAlign(CENTER);
       rectMode(CENTER);
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(start.value.toString()), 20);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(end.value.toString()), 20);
+      print(start.value.toString() + ": " + textWidth(start.value.toString()) + "\n");
       rectMode(CORNER);
       fill(255);
       textSize(20);

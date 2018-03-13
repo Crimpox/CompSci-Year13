@@ -1,7 +1,6 @@
 /*
 ----------<TODO>-----------
 Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
-ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
 Replace node value in plug to parent
 Use a cut off mask for the canvas
 Canvas movements
@@ -19,6 +18,7 @@ Add default values for plugs based on their dimensions [Done]
 Rewrite mouse checks to implement layey checking and so that a simple hover(),
 released()or pressed()is sent to the GUI element and the specifics are handled GUI side [Done]
 Canvas to Screen for GUI node elements
+ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -96,7 +96,7 @@ Button down = new Button(1650, 350, 50, 50, color(200)){@Override public void on
 Canvas _canvas = new Canvas(0, 200, 1650, 800, color(52), color(197));
 Label nodeLabel = new Label(1650, 200, 350, 100, color(100));
 PFont futura;
-
+TextInput paraTest = new TextInput(1650, 600, 350, 300, color(100));
 void setup(){
   //Creates the window
   size(2000, 1000);
@@ -107,7 +107,7 @@ void setup(){
   
   //TEST UI ELEMENTS
   Elements.add(button);
-  Elements.add(textIn);
+
   Elements.add(listBox);
   Elements.add(up);
   Elements.add(down);
@@ -121,6 +121,10 @@ void setup(){
   Elements.add(debugLabel);
   Elements.add(clearCanvas);
   Elements.add(intIn);
+  Elements.add(textIn);
+  Elements.add(paraTest);
+  paraTest.setTextMode("PARAGRAPH");
+  paraTest.value = "Hi ther my name is leon and i sure as hell hope this works";
   intIn.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
   debugLabel.text = "Debug";
   centerCanvas.Text = "Center";
@@ -144,6 +148,8 @@ ArrayList<String> charBuffer = new ArrayList<String>();
 void keyPressed(){
   if (keyCode == BACKSPACE){
     charBuffer.add("BACK");
+  }else if(keyCode == ENTER){
+    //do nothing atm
   }else{
     if(key != CODED){
       charBuffer.add(Character.toString(key).toUpperCase()); 
