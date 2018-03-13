@@ -17,7 +17,7 @@ class CaesarCipher extends cipher{
       return;
     }
     output = "";
-    Shift("L");
+    Shift("R");
     //Swaps all the letters in the input according to the shifted alphabet
     for (int i = 0; i < input.length(); i++){
       if (Character.isLetter(input.charAt(i))){

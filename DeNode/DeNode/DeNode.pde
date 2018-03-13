@@ -8,6 +8,9 @@ Canvas movements
 Change the drawing of the connections so they're not drawn on top of everything
 Debating whether or not to have an alphabet data type for substitution or have the plugs built into the node
 Make it so when drawing from a output node you can only finish on an input node and vice versa 
+
+Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
+UI elements and inputs should simply be structured like a list and output should be on the bottom right.
 */
 /*
 ---------<DONE>-----------
@@ -22,6 +25,14 @@ Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
   @Override
   public void toggle(){
     debug = !debug;
+  }
+};
+Button clearCanvas = new Button(600, 100, 300, 100, color(100)){
+  @Override
+  void onPress(){
+    connections.clear();
+    nodes.Elements.clear();
+    
   }
 };
 Label debugLabel = new Label(800, 0, 300, 60, color(100));
@@ -48,7 +59,7 @@ Button counterButton = new Button(300, 100, 300, 100, color(100)){
     instantiateCounter(0, 0);
   }
 };
-
+TextInput intIn = new TextInput(900, 100, 100, 100, color(100));
 
 Button saveButton = new Button(500, 0, 300, 100, color(100));
 
@@ -108,8 +119,12 @@ void setup(){
   Elements.add(counterButton);
   Elements.add(debugToggle);
   Elements.add(debugLabel);
+  Elements.add(clearCanvas);
+  Elements.add(intIn);
+  intIn.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
   debugLabel.text = "Debug";
   centerCanvas.Text = "Center";
+  clearCanvas.Text = "Clear";
   nodeLabel.text = "Nodes";
   saveButton.Text = "Save"; 
   button.Text = "Caesar";
@@ -121,7 +136,6 @@ void setup(){
   listBox.options.add("String OUT");
   listBox.options.add("Int IN");
   counterButton.Text = "Counter";
-  counterButton.HighlightColor = color(11, 55, 80);
 }
 
 //Manages the key presses from the keyboard
@@ -132,7 +146,7 @@ void keyPressed(){
     charBuffer.add("BACK");
   }else{
     if(key != CODED){
-      charBuffer.add(Character.toString(key)); 
+      charBuffer.add(Character.toString(key).toUpperCase()); 
     }
   }
   println(charBuffer);

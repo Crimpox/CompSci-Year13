@@ -50,7 +50,7 @@ class Connection{
     if (debug){
       fill(0);
       rectMode(CENTER);
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(start.value.toString())/2, 20);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(start.value.toString()), 20);
       rectMode(CORNER);
       fill(255);
       textSize(20);
@@ -281,9 +281,13 @@ class plug<T> extends GUI{
     fill(Color);
     ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
     if (connecting){
-      line(canvas.canvasToScreen(x+node.x, y+node.y)[0], canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, mouseY);
+      noFill();
+      stroke(205);
+      strokeWeight(5);
+      bezier(canvas.canvasToScreen(x+node.x, y+node.y)[0], canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, canvas.canvasToScreen(x+node.x, y+node.y)[1], canvas.canvasToScreen(x+node.x, y+node.y)[0], mouseY , mouseX, mouseY);
+      strokeWeight(1);
     }
-    if (WithinBounds(mouseX, mouseY)){
+    if (WithinBounds(mouseX, mouseY )){
       if (mousePressed == true){
         pressed();
       }else{
@@ -308,7 +312,6 @@ class plug<T> extends GUI{
   
   
   void clearLine(){
-
     for(int i = 0; i < nodes.Elements.size(); i++){
       //TODO INTEGRATE PLUGS[] in nodes class
       Node _node = (Node)nodes.Elements.get(i);
@@ -414,12 +417,24 @@ class IntIN extends Node{
     this.Color = color(9, 33, 90);
     this.x = X;
     this.y = Y;
-    this.Width = 2;
-    this.Height = 2.5;
+    this.Width = 2.5;
+    this.Height = 3;
     this.Title = "Int";
-    outputs.add(new plug<Integer>(this, 2, 1.5, canvas, ""));
+    outputs.add(new plug<Integer>(this, 2.5, 1.5, canvas, ""));
+    elements.add(new TextInput(0.25, 0.8, 2, 1.2, color(38, 48, 70)));
+    elements.get(0).parent = this;
+    TextInput in = (TextInput)elements.get(0);
+    in.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
   }
-  
+  void update(){
+    super.update();
+    TextInput input = (TextInput)elements.get(0);
+    if (!input.getText().isEmpty()){
+      outputs.get(0).value = Integer.parseInt(input.getText());   
+    }else{
+      outputs.get(0).value = 0;
+    }
+  }
 }
 
 class Counter extends Node{

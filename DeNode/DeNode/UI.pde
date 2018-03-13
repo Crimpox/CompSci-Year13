@@ -8,11 +8,11 @@ class GUI {
   
   boolean WithinBounds(float X, float Y){
     if (this instanceof Node ){
-      //ISSUE HERE width is for some reason 0
       Node node = (Node)this;
       X = node.canvas.screenToCanvas(X, Y)[0];
       Y = node.canvas.screenToCanvas(X, Y)[1];
     }
+    //Since plugs are circular its easier just to find the distance to their center
     if (this instanceof plug){
       plug Plug = (plug)this;
       if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)/Plug.canvas.scale){
@@ -95,7 +95,7 @@ GUI[] FindByID(String ID){
 }
 
 class Button extends GUI{
-    color TextColor = color(0), HighlightColor = Color, TextHighlightColor = color(0), PressColor = Color, TextPressColor = color(0);
+    color TextColor = color(255), HighlightColor = color(180), TextHighlightColor = color(50), PressColor = color(210), TextPressColor = color(0);
     String Text = "";
     public boolean Highlight = false, Pressed = false;
     float FontSize = 48;
@@ -126,13 +126,13 @@ class Button extends GUI{
     void update(){
       //Rect
       if (Highlight){
-        stroke(TextColor);
+        stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
         fill(HighlightColor);
       }else if (Pressed){
-        stroke(TextColor);
+        stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
         fill(PressColor);
       }else{
-        stroke(TextColor);
+        stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
         fill(Color);
       }
       rect(getX(), getY(), getWidth(), getHeight());
@@ -155,12 +155,52 @@ class Button extends GUI{
 }
 
 class TextInput extends GUI{
-  color TextColor = color(0);
+  color TextColor = color(255);
   String value = "";
   boolean active = false;
   float FontSize = 48;
-  boolean useSet = false;
-  char[] charset;
+  
+  private boolean useSet = false;
+  private String[] charset;
+  
+  private int textMode = 0;
+  void setTextMode(String mode){
+    switch(mode){
+      case "PARAGRAPH": 
+        //Draw text as a block paragraph
+        textMode = 0;
+        break;
+      case "LINE":
+        //Draw text as a single line
+        textMode = 1;
+        break;
+      case "CENTER":
+        //Draw text centered on the text box
+        textMode = 2;
+        break;
+      default:
+        throw new IllegalArgumentException(mode + " is an unknown Text Mode\n");
+    }
+  }
+  
+  boolean inSet(String Char){
+    for (int i = 0; i < charset.length; i++){
+      if (charset[i].charAt(0) == Char.charAt(0)){
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  void setCharacterSet(String[] set){
+    useSet = true;
+    charset = set;
+  }
+  
+  void clearSet(){
+    useSet = false;
+    charset = null;
+  }
   
   TextInput (float x, float y, float Width, float Height, color Color){
       this.x = x;
@@ -182,7 +222,7 @@ class TextInput extends GUI{
   }
   void update(){
     fill(Color);
-    stroke(TextColor);
+    stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
     rect(getX(), getY(), getWidth(), getHeight());
     int overflow = 0;
     while(textWidth(value.substring(overflow, value.length())) > getWidth()){
@@ -193,17 +233,37 @@ class TextInput extends GUI{
         if (charBuffer.get(i) == "BACK" && value.length() > 0){
           value = value.substring(0, value.length()-1);
         }else if(charBuffer.get(i) != "BACK"){
+          if (useSet){
+            if (inSet(charBuffer.get(i))){
+              value += charBuffer.get(i);
+            }
+          }else{
             value += charBuffer.get(i);
+          }
+            
         } 
       }
       fill(TextColor);
       textAlign(CORNER);
+      String text = value.substring(overflow, value.length());
       if (second() % 2 == 0){
-        //Draw |
-        text(value.substring(overflow, value.length()) + "|", getX(), getY() + (getHeight()/2));
-      }else{
-        text(value.substring(overflow, value.length()), getX(), getY() + (getHeight()/2));
+        text += "|";
       }
+      switch (textMode){
+        case 0:
+          //paragraph
+          text(text, getX(), getY() + FontSize/2);
+          break;
+        case 1:
+          //line
+          text(text, getX(), getY() + (getHeight()/2));
+          break;
+        case 2:
+          //Center
+          text(text, getX() + (getWidth()/2), getY() + (getHeight()/2));
+          break;
+      }
+
       
     }else{
       //draw without |
@@ -212,10 +272,26 @@ class TextInput extends GUI{
       text(value.substring(overflow, value.length()), getX(), getY() + (getHeight()/2));
     }
   }
+  
+  void drawText(boolean Active){
+    if (Active){
+      if (second() % 2 == 0){
+        if (getTextMode() == 0){
+          text(value.substring(overflow, value.length()), getX(), getY() + fontSize / 2);
+        }
+      } else{
+        
+      }
+    }else{
+    
+    }
+  }
+  
+  
 }
 
 class Label extends GUI{
-  color TextColor = color(0);
+  color TextColor = color(255);
   String text = "";
   float FontSize = 48;
 
@@ -230,7 +306,7 @@ class Label extends GUI{
   void update(){
     //Box
     fill(Color);
-    stroke(TextColor);
+    stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
     rect(getX(), getY(), getWidth(), getHeight());
     
     //Text
