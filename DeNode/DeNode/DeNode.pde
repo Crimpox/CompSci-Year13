@@ -1,6 +1,6 @@
 /*
 ----------<TODO>-----------
-Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
+Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)   
 Replace node value in plug to parent
 Use a cut off mask for the canvas
 Canvas movements
@@ -104,7 +104,6 @@ void setup(){
   futura = loadFont("futura-heavy.vlw");
   textFont(futura, 48);
   
-  
   //TEST UI ELEMENTS
   Elements.add(button);
 
@@ -124,7 +123,6 @@ void setup(){
   Elements.add(textIn);
   Elements.add(paraTest);
   paraTest.setTextMode("PARAGRAPH");
-  paraTest.value = "Hi ther my name is leon and i sure as hell hope this works";
   intIn.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
   debugLabel.text = "Debug";
   centerCanvas.Text = "Center";

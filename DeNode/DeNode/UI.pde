@@ -15,7 +15,7 @@ class GUI {
     //Since plugs are circular its easier just to find the distance to their center
     if (this instanceof plug){
       plug Plug = (plug)this;
-      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)/Plug.canvas.scale){
+      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)/Plug.node.canvas.scale){
         return true;
       }else{
         return false;
@@ -146,7 +146,7 @@ class Button extends GUI{
       }
       textAlign(CENTER);
       textSize(FontSize);
-      text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+10);
+      text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+FontSize/4);
       Highlight = false;
       Pressed = false;
       if (parent instanceof Node){
@@ -280,44 +280,74 @@ class TextInput extends GUI{
   
   void drawParagraphText(){
     String text = value;
-    if (second() % 2 == 0 && active){
-      text += "|";
-    }
-    int maxLines = floor(getHeight()/FontSize);
+    int maxLines = floor(getHeight()/(FontSize));
     ArrayList<String> lines = new ArrayList<String>();
-    
     //Non-active
     String currentLine = "";
+    
     for (int i = 0; i < text.length(); i++){
       currentLine += text.charAt(i);
       if (textWidth(currentLine) > getWidth()){
-        for (int j = currentLine.length() - 1; j >= 0; j--){
-          
-          if (Character.toString(currentLine.charAt(j)) == " "){
+        for (int j = currentLine.length()-1; j >= 0; j--){
+          if (currentLine.charAt(j) == ' ' && textWidth(currentLine.substring(0, j)) < getWidth()){
             lines.add(currentLine.substring(0, j));
             currentLine = currentLine.substring(j+1, currentLine.length());
+            break;
           }
           if (j == 0){
             //The word is longer than the width therefore a dash split is required. e.g. Supercalifrafilistic-
             //                                                                           expialidcious
-            lines.add(currentLine.substring(0, j-1) + "-");
-            currentLine = currentLine.substring(j , currentLine.length());
+            lines.add(currentLine.substring(0, currentLine.length()-1) + "-");
+            currentLine = Character.toString(text.charAt(i));
+            break;
           }
         }
       }
     }
+    lines.add(currentLine);
+    
     String output = "";
     for (int i = 0; i < lines.size(); i++){
-      if (i > maxLines){
-        //add ...
+      
+      if (active){
+        if (i >= maxLines){
+          //remove the top line
+          for (int j = 0; j < output.length(); j++){
+            if(output.charAt(j) == '\n'){
+              println("char at j is: " + output.charAt(j));
+              output = output.substring(j+1, output.length());
+            }
+          }
+          
+            
+        }
+        if (second() % 2 == 0 && i == lines.size()-1){
+          String lastLine = lines.get(i);
+          lastLine += "|";
+          lines.remove(i);
+          lines.add(lastLine);
+        }         
+        output += (lines.get(i) + "\n");
+
       }else{
+        if (i >= maxLines){
+          //add ...
+          String lastLine = lines.get(i);
+          lastLine = lastLine.substring(0, lastLine.length()-3);
+          lastLine += "...";
+          lines.remove(i);
+          lines.add(lastLine);
+        }else{
+          
+        }
         output += (lines.get(i) + "\n");
       }
+
     }
     textAlign(LEFT);
     fill(TextColor);
-    print(lines.get(0) + "\n");
-    text(output, getX(), getY() + FontSize/2);
+    textLeading(48);
+    text(output, getX(), getY() + FontSize);
     
     
     

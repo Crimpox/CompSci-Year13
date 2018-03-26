@@ -200,6 +200,7 @@ class Node extends GUI{
   
   void drawBox(float X, float Y){
     fill(Color);
+    stroke(0);
     rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius, smoothRadius, smoothRadius, smoothRadius);
     fill(headColor);
     rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
@@ -214,12 +215,13 @@ class Node extends GUI{
     float X = canvas.canvasToScreen(x, y)[0];
     float Y = canvas.canvasToScreen(x, y)[1];
     drawBox(X, Y);
+    /*
     for(int i = 0; i < inputs.size(); i++){
       inputs.get(i).update();
     }
     for(int i = 0; i < outputs.size(); i++){
       outputs.get(i).update();
-    }
+    }*/
     for(int i = 0; i < elements.size(); i++){
       elements.get(i).update();
     }
@@ -236,10 +238,43 @@ class Node extends GUI{
     }
     
   }
+  //Sets the size of the box and the positions of the UI elements
+  void setSizings(){
+    //This block sets the positions of all the elements within the node.
+    float Xbuffer = 0.25;
+    float Ybuffer = 0.8;
+    float nodeWidth = 0;
+
+    for (int i = 0; i < elements.size(); i++){
+      if (elements.get(i) instanceof plug){
+        plug Plug = (plug)elements.get(i);
+        //Since the plug is drawn with the position being the center adding 20 should pad it out so that it does not overlap with other elements
+        Plug.y += Plug.Width;
+        if (Plug.output == true){
+          Plug.x = Width;
+        }else{
+          Plug.x = 0;
+        }
+      }else{
+        //
+        elements.get(i).x = Xbuffer;
+        nodeWidth = elements.get(i).Width;
+      }
+      elements.get(i).y = Ybuffer;
+      Ybuffer += elements.get(i).Height;
+
+      if (nodeWidth > Width){Width = nodeWidth;}
+    }
+
+    float nodeHeight = Ybuffer + 0.5 + headsize;
+
+    if (nodeHeight > Height){Height = nodeHeight;}
+    
+  }
   
 }
 
-//TODO add mouse hover highlighting
+// The T is the dimensions of the plug. Basically what data type it receives or ouputs.
 class plug<T> extends GUI{
   private T value;
   public void set(T value){ this.value = value;}
@@ -247,7 +282,8 @@ class plug<T> extends GUI{
   public String label = "";
   Node node;
   Canvas canvas;
-
+  //If it's an output then it'll go on the right side of the node.
+  boolean output = false;
   boolean connecting = false;
   
   void setValue(T value){
@@ -258,24 +294,27 @@ class plug<T> extends GUI{
     return this.value;
   }
   
-  plug(Node node, float x, float y, Canvas canvas, String label){
+  plug(Node node, float x, float y, String label){
     this.x = x;
     this.y = y;
     this.Width = 20;
     this.Height = 20;
     this.Color = color(201);
     this.node = node;
-    this.canvas = canvas;
+    this.canvas = node.canvas;
     this.label = label;
     if (value instanceof String){
       String Value = (String)value;
       Value = "";
+      setValue((T)Value);
     } else if (value instanceof Integer){
       Integer Value = (Integer)value;
       Value = 0;
+      setValue((T)Value);
     } else if (value instanceof Character){
       Character Value = (Character)value;
       Value = 'A';
+      setValue((T)Value);
     }
   }
   
@@ -344,7 +383,7 @@ class StringIN extends Node{
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
-    outputs.add(new plug<String>(this, 4, 2, canvas, ""));
+    outputs.add(new plug<String>(this, 4, 2, ""));
     elements.add(new TextInput(0.25, 0.8, 3.5, 3.2, color(38, 48, 70)));
     elements.get(0).parent = this;
   }
@@ -356,10 +395,11 @@ class StringIN extends Node{
   }
 }
 
-class Caesar extends Node{
-  
+class Caesar extends Node{  
   CaesarCipher cipher = new CaesarCipher();
-  
+  plug textIn = new plug<String>(this, 0 , 2, "text");
+  plug count = new plug<Integer>(this, 0, 2.5, "shift");
+  plug output = new plug<String>(this, 3, 2.5, "output");
   Caesar(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.x = X;
@@ -368,23 +408,26 @@ class Caesar extends Node{
     this.Height = 3;
     this.Title = "Caesar";
     this.Color = color(9, 33, 90);
-    inputs.add(new plug<String>(this, 0, 2, canvas, "text"));
-    //textIn = new plug<String>(this, 0, 2, canvas);
-    inputs.add(new plug<Integer>(this, 0, 2.5, canvas, "shift"));
-    inputs.get(1).value = 0;
-    inputs.get(0).value = "";
-    outputs.add(new plug<String>(this, 3, 2.5, canvas, ""));
+    //inputs.add(new plug<String>(this, 0, 2, canvas, "text"));
+    textIn = new plug<String>(this, 0 , 2, "text");
+    count = new plug<Integer>(this, 0, 2.5, "shift");
+    output = new plug<String>(this, 3, 2.5, "output");
+    count.setValue(0);
+    elements.add(textIn);
+    elements.add(count);
+    output.output = true;
+    elements.add(output);
   }
   
   void update(){
     super.update();
+    println(textIn.value);
+    cipher.input = (String)textIn.value;
+    cipher.shiftAmount = (Integer)count.value;
     cipher.Update();
-    
-    cipher.input = (String)inputs.get(0).value;
-    cipher.shiftAmount = (Integer)inputs.get(1).value;
-    outputs.get(0).value = cipher.output;
-  }
-  
+    output.value = cipher.output;
+
+  }  
 }
 
 class StringOUT extends Node{
@@ -398,7 +441,7 @@ class StringOUT extends Node{
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    inputs.add(new plug<String>(this, 0, 4, canvas, ""));
+    inputs.add(new plug<String>(this, 0, 4, ""));
     elements.add(new Label(0.25, 0.8, 5.5, 3.2, color(38, 48, 70)));
     elements.get(0).parent = this;
   }
@@ -422,7 +465,7 @@ class IntIN extends Node{
     this.Width = 2.5;
     this.Height = 3;
     this.Title = "Int";
-    outputs.add(new plug<Integer>(this, 2.5, 1.5, canvas, ""));
+    outputs.add(new plug<Integer>(this, 2.5, 1.5, ""));
     elements.add(new TextInput(0.25, 0.8, 2, 1.2, color(38, 48, 70)));
     elements.get(0).parent = this;
     TextInput in = (TextInput)elements.get(0);
@@ -448,15 +491,15 @@ class Counter extends Node{
     this.Width = 2.5;
     this.Height = 3.5;
     this.Title = "Test";
-    outputs.add(new plug<Integer>(this, 2.5, 1.5, canvas, ""));
+    outputs.add(new plug<Integer>(this, 2.5, 1.5, ""));
     outputs.get(0).value = 0;
-    Button plus = new Button(0.25, 0.8, 1, 1.7, color(38, 48, 70)){
+    Button plus = new Button(0.25, 0.8, 1.7, 1, color(38, 48, 70)){
       @Override
       void mouseDown(){
         outputs.get(0).value = (Integer)outputs.get(0).value + 1;
       }
     };
-    Button minus = new Button(1.25, 0.8, 1, 1.7, color(38, 48, 70)){
+    Button minus = new Button(1.25, 0.8, 1.7, 1, color(38, 48, 70)){
       @Override
       void mouseDown(){
         outputs.get(0).value = (Integer)outputs.get(0).value - 1;
@@ -466,5 +509,15 @@ class Counter extends Node{
     elements.get(0).parent = this;
     elements.add(minus);
     elements.get(1).parent = this;
+    setSizings();
   }
+}
+
+class Substitution extends Node{
+
+}
+
+class Collumn extends Node{
+  int numberOfColumns;
+  int wordsPerColumn;
 }
