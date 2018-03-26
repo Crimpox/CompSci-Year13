@@ -248,8 +248,8 @@ class Node extends GUI{
     for (int i = 0; i < elements.size(); i++){
       if (elements.get(i) instanceof plug){
         plug Plug = (plug)elements.get(i);
-        //Since the plug is drawn with the position being the center adding 20 should pad it out so that it does not overlap with other elements
-        Plug.y += Plug.Width;
+        //Since the plug is drawn with the position being the center adding 0.5 should pad it out so that it does not overlap with other elements
+        Ybuffer += 0.5;
         if (Plug.output == true){
           Plug.x = Width;
         }else{
@@ -303,19 +303,7 @@ class plug<T> extends GUI{
     this.node = node;
     this.canvas = node.canvas;
     this.label = label;
-    if (value instanceof String){
-      String Value = (String)value;
-      Value = "";
-      setValue((T)Value);
-    } else if (value instanceof Integer){
-      Integer Value = (Integer)value;
-      Value = 0;
-      setValue((T)Value);
-    } else if (value instanceof Character){
-      Character Value = (Character)value;
-      Value = 'A';
-      setValue((T)Value);
-    }
+
   }
   
   void update(){
@@ -411,7 +399,7 @@ class Caesar extends Node{
     //inputs.add(new plug<String>(this, 0, 2, canvas, "text"));
     textIn = new plug<String>(this, 0 , 2, "text");
     count = new plug<Integer>(this, 0, 2.5, "shift");
-    output = new plug<String>(this, 3, 2.5, "output");
+    output = new plug<String>(this, 3, 1.5, "output");
     count.setValue(0);
     elements.add(textIn);
     elements.add(count);
@@ -426,7 +414,7 @@ class Caesar extends Node{
     cipher.shiftAmount = (Integer)count.value;
     cipher.Update();
     output.value = cipher.output;
-
+    setSizings();
   }  
 }
 

@@ -64,6 +64,9 @@ class CaesarCipher extends cipher{
   public int shiftAmount = 0;
   
   void Update(){
+    if (input == null || output == null){
+      return;
+    }
     output = "";
     if (input.length() == 0){
       return;
