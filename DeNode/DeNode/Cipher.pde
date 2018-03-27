@@ -34,24 +34,24 @@ class cipher{
       case 'F': return 2.228;
       case 'G': return 2.015;
       case 'H': return 6.094;
-      case 'i': return 6.966;
-      case 'j': return 0.153;
-      case 'k': return 0.772;
-      case 'l': return 4.025;
-      case 'm': return 2.406;
-      case 'n': return 6.749;
-      case 'o': return 7.507;
-      case 'p': return 1.929;
-      case 'q': return 0.095;
-      case 'r': return 5.987;
-      case 's': return 6.327;
-      case 't': return 9.056;
-      case 'u': return 2.758;
-      case 'v': return 0.978;
-      case 'w': return 2.360;
-      case 'x': return 0.150;
-      case 'y': return 1.974;
-      case 'z': return 0.074;
+      case 'I': return 6.966;
+      case 'J': return 0.153;
+      case 'K': return 0.772;
+      case 'L': return 4.025;
+      case 'M': return 2.406;
+      case 'N': return 6.749;
+      case 'O': return 7.507;
+      case 'P': return 1.929;
+      case 'Q': return 0.095;
+      case 'R': return 5.987;
+      case 'S': return 6.327;
+      case 'T': return 9.056;
+      case 'U': return 2.758;
+      case 'V': return 0.978;
+      case 'W': return 2.360;
+      case 'X': return 0.150;
+      case 'Y': return 1.974;
+      case 'Z': return 0.074;
       default: return 0;
     }
     
@@ -144,9 +144,18 @@ class AtbashCipher extends cipher{
 }
 
 class RailFenceCipher extends cipher{
-  int Key = 0;
+  int Key = 1;
+  boolean encrypt = true;
   
   void Update(){
     output = "";
+    if (input == null){
+      return;
+    }
+    if (encrypt){
+
+    }else{
+    
+    }
   }
 }
