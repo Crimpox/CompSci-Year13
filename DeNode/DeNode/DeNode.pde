@@ -8,8 +8,7 @@ Change the drawing of the connections so they're not drawn on top of everything
 Debating whether or not to have an alphabet data type for substitution or have the plugs built into the node
 Make it so when drawing from a output node you can only finish on an input node and vice versa 
 
-Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
-UI elements and inputs should simply be structured like a list and output should be on the bottom right.
+
 */
 /*
 ---------<DONE>-----------
@@ -19,6 +18,8 @@ Rewrite mouse checks to implement layey checking and so that a simple hover(),
 released()or pressed()is sent to the GUI element and the specifics are handled GUI side [Done]
 Canvas to Screen for GUI node elements
 ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
+UI elements and inputs should simply be structured like a list and output should be on the right.
+Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -88,6 +89,10 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
         //Int IN
         instnatiateIntIN(0, 0);
         break;
+      case 5: index = 5;
+        //Char IN
+        instantiateCharIN(0, 0);
+        break;
     }
   }
 };      
@@ -137,6 +142,7 @@ void setup(){
   listBox.options.add("String IN");
   listBox.options.add("String OUT");
   listBox.options.add("Int IN");
+  listBox.options.add("Char IN");
   counterButton.Text = "Counter";
 }
 
@@ -268,6 +274,12 @@ void instantiateCounter(float x, float y){
   nodes.Elements.add(counter);
 }
 
+//creates Character Input node
+void instantiateCharIN(float x, float y){
+  CharIn charIN = new CharIn(_canvas, x, y);
+  nodes.Elements.add(charIN);
+}
+
 // Caclulates the distance between two vectors
 public static float distance(float[] vector1, float[] vector2){
   float xdelta = abs(vector1[0] - vector2[0]);
@@ -278,22 +290,3 @@ public static float distance(float[] vector1, float[] vector2){
 
 //Stores all the connections so they're grouped together
 ArrayList<Connection> connections = new ArrayList<Connection>();
-
-/**
-PROTOTYPE 1
-Working Static UI
-  >Basic UI elements [Check]
-  >Advanced UI elements [Check]
-  >Improve text input [not done]
-Demonstrational Caesar node
-  >Cipher logic [Check]
-  >Node binding [Check]
-Instantiation of nodes
-  >UI abstractions [Check]
-  >Basic Node [done]
-Wiring between nodes
-  >Bezier drawing [done]
-  >Variable connections [Check]
-Copy and Paste functionality
-
-**/

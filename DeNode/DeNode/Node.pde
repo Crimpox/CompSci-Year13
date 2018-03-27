@@ -2,12 +2,16 @@
 Cipher Nodes
   Caesar [Done]
   Substitution
-  Matrix
+  Transposition
   Railspike
+  Polybius
+  Vigenere
+  Playfair
+  ADFGVX
 
 IO Nodes
   Text In [Done]
-  Int In
+  Int In [Done]
   Text Output [Done]
   Char In
   In from .txt document
@@ -21,7 +25,7 @@ Grid
   Move
   
 Analysis
-  Most common letter
+  Frequency analysis
   
 **/
 class Connection{
@@ -52,7 +56,6 @@ class Connection{
       textAlign(CENTER);
       rectMode(CENTER);
       rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(end.value.toString()), 20);
-      print(start.value.toString() + ": " + textWidth(start.value.toString()) + "\n");
       rectMode(CORNER);
       fill(255);
       textSize(20);
@@ -161,9 +164,8 @@ class Node extends GUI{
   float headsize = 1;
   float fontSize = 36;
   color textColor = color(218);
+  color Color = color(9, 33, 90);
   String Title;
-  public ArrayList<plug> inputs = new ArrayList<plug>();
-  public ArrayList<plug> outputs = new ArrayList<plug>();
   public ArrayList<GUI> elements = new ArrayList<GUI>();
   
   public float[] getScreenCoords(){
@@ -230,48 +232,60 @@ class Node extends GUI{
   
   void dragRelease(){
     active = false;
-    for(int i = 0; i < inputs.size(); i++){
-      inputs.get(i).clearLine();
-    }
-    for(int i = 0; i < outputs.size();i++){
-      outputs.get(i).clearLine();
+    for (int i = 0; i < elements.size(); i++){
+      if (elements.get(i) instanceof plug){
+        ((plug)elements.get(i)).clearLine();
+      }
     }
     
   }
   //Sets the size of the box and the positions of the UI elements
   void setSizings(){
-    //This block sets the positions of all the elements within the node.
-    float Xbuffer = 0.25;
-    float Ybuffer = 0.8;
-    float nodeWidth = 0;
+    setWidth();
+    float spacing = 0.25;
+    for (int i = 0; i < elements.size(); i++)
+      if (i == 0){
+        //If it's the first element in the node
+        if (elements.get(i) instanceof plug){
+          elements.get(i).y = 1.5;
+          elements.get(i).x = (((plug)elements.get(i)).output) ? Width : 0;
 
-    for (int i = 0; i < elements.size(); i++){
-      if (elements.get(i) instanceof plug){
-        plug Plug = (plug)elements.get(i);
-        //Since the plug is drawn with the position being the center adding 0.5 should pad it out so that it does not overlap with other elements
-        Ybuffer += 0.5;
-        if (Plug.output == true){
-          Plug.x = Width;
         }else{
-          Plug.x = 0;
+          elements.get(i).x = spacing;
+          elements.get(i).y = 1.5;
         }
       }else{
-        //
-        elements.get(i).x = Xbuffer;
-        nodeWidth = elements.get(i).Width;
-      }
-      elements.get(i).y = Ybuffer;
-      Ybuffer += elements.get(i).Height;
+        elements.get(i).x = spacing;
+        if (elements.get(i) instanceof plug){
+          elements.get(i).x = (((plug)elements.get(i)).output) ? Width : 0;
+        }
+        float prevHeight;
+        if (elements.get(i-1) instanceof plug){
+          prevHeight = spacing;
+        }else{
+          prevHeight = elements.get(i-1).Height;
+        }
 
-      if (nodeWidth > Width){Width = nodeWidth;}
-    }
+        elements.get(i).y = elements.get(i-1).y + prevHeight + spacing;
+      }    
+    float prevHeight = elements.get(elements.size()-1).Height;
+    if (elements.get(elements.size()-1) instanceof plug){prevHeight = spacing;}
+    float nodeHeight = elements.get(elements.size()-1).y + prevHeight + spacing;
+    Height = (nodeHeight > Height) ? nodeHeight : Height;
 
-    float nodeHeight = Ybuffer + 0.5 + headsize;
-
-    if (nodeHeight > Height){Height = nodeHeight;}
-    
   }
   
+  void setWidth(){
+    float nodeWidth = 2;
+    for (int i = 0; i < elements.size(); i++){
+      if (elements.get(i) instanceof plug){
+          nodeWidth = (nodeWidth > textWidth(((plug)elements.get(i)).label)) ? nodeWidth : textWidth(((plug)elements.get(i)).label)/canvas.scale;      
+      }else{
+          nodeWidth = (nodeWidth > elements.get(i).Width) ? nodeWidth : elements.get(i).Width;       
+      }
+    }
+    Width = (nodeWidth > Width) ? nodeWidth : Width;
+  }
 }
 
 // The T is the dimensions of the plug. Basically what data type it receives or ouputs.
@@ -308,6 +322,14 @@ class plug<T> extends GUI{
   
   void update(){
     fill(Color);
+    textSize(28);
+    if (output){
+      textAlign(RIGHT, CENTER);
+      text(label, canvas.canvasToScreen(x - 0.3 + node.x, y)[0], canvas.canvasToScreen(x, y + node.y)[1]);
+    }else{
+      textAlign(LEFT, CENTER);
+      text(label, canvas.canvasToScreen(x + 0.3 + node.x, y)[0], canvas.canvasToScreen(x, y + node.y)[1]);
+  }
     ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
     if (connecting){
       noFill();
@@ -344,10 +366,10 @@ class plug<T> extends GUI{
     for(int i = 0; i < nodes.Elements.size(); i++){
       //TODO INTEGRATE PLUGS[] in nodes class
       Node _node = (Node)nodes.Elements.get(i);
-      for (int j = 0; j < _node.inputs.size(); j++){
-          if (_node.inputs.get(j).WithinBounds(mouseX, mouseY) && connecting){
+      for (int j = 0; j < _node.elements.size(); j++){
+          if (_node.elements.get(j).WithinBounds(mouseX, mouseY) && connecting && _node.elements.get(j) instanceof plug){
             if (node != _node){
-              connections.add(new Connection(this, _node.inputs.get(j)));
+              connections.add(new Connection(this, (plug)_node.elements.get(j)));
             
             }
           }
@@ -371,15 +393,17 @@ class StringIN extends Node{
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
-    outputs.add(new plug<String>(this, 4, 2, ""));
-    elements.add(new TextInput(0.25, 0.8, 3.5, 3.2, color(38, 48, 70)));
-    elements.get(0).parent = this;
+    elements.add(new plug<String>(this, 0, 0, "Output"));
+    ((plug)elements.get(0)).output = true;
+    elements.add(new TextInput(0, 0, 3.5, 3.2, color(38, 48, 70)));
+    elements.get(1).parent = this;
+    setSizings();
   }
   
   void update(){
     super.update();
-    TextInput input = (TextInput)elements.get(0);
-    outputs.get(0).value = input.getText();
+    TextInput input = (TextInput)elements.get(1);
+    ((plug)elements.get(0)).value = input.getText();
   }
 }
 
@@ -401,15 +425,14 @@ class Caesar extends Node{
     count = new plug<Integer>(this, 0, 2.5, "shift");
     output = new plug<String>(this, 3, 1.5, "output");
     count.setValue(0);
-    elements.add(textIn);
-    elements.add(count);
-    output.output = true;
     elements.add(output);
+    elements.add(textIn);
+    output.output = true;
+    elements.add(count);
   }
   
   void update(){
     super.update();
-    println(textIn.value);
     cipher.input = (String)textIn.value;
     cipher.shiftAmount = (Integer)count.value;
     cipher.Update();
@@ -429,16 +452,17 @@ class StringOUT extends Node{
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    inputs.add(new plug<String>(this, 0, 4, ""));
+    elements.add(new plug<String>(this, 0, 4, ""));
     elements.add(new Label(0.25, 0.8, 5.5, 3.2, color(38, 48, 70)));
-    elements.get(0).parent = this;
+    elements.get(1).parent = this;
+    setSizings();
   }
   
   void update(){
     super.update();
-    Label label = (Label)elements.get(0);
-    if (inputs.get(0).value != null){
-      label.text = (String)inputs.get(0).value;  
+    Label label = (Label)elements.get(1);
+    if (((plug)elements.get(0)).value != null){
+      label.text = (String)((plug)elements.get(0)).value;  
     }
   }
 }
@@ -453,19 +477,21 @@ class IntIN extends Node{
     this.Width = 2.5;
     this.Height = 3;
     this.Title = "Int";
-    outputs.add(new plug<Integer>(this, 2.5, 1.5, ""));
+    elements.add(new plug<Integer>(this, 2.5, 1.5, "output"));
+    ((plug)elements.get(0)).output = true;
     elements.add(new TextInput(0.25, 0.8, 2, 1.2, color(38, 48, 70)));
-    elements.get(0).parent = this;
-    TextInput in = (TextInput)elements.get(0);
+    elements.get(1).parent = this;
+    TextInput in = (TextInput)elements.get(1);
     in.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
+    setSizings();
   }
   void update(){
     super.update();
-    TextInput input = (TextInput)elements.get(0);
+    TextInput input = (TextInput)elements.get(1);
     if (!input.getText().isEmpty()){
-      outputs.get(0).value = Integer.parseInt(input.getText());   
+      ((plug)elements.get(0)).value = Integer.parseInt(input.getText());   
     }else{
-      outputs.get(0).value = 0;
+      ((plug)elements.get(0)).value = 0;
     }
   }
 }
@@ -479,30 +505,56 @@ class Counter extends Node{
     this.Width = 2.5;
     this.Height = 3.5;
     this.Title = "Test";
-    outputs.add(new plug<Integer>(this, 2.5, 1.5, ""));
-    outputs.get(0).value = 0;
+    elements.add(new plug<Integer>(this, 2.5, 1.5, "Output"));
+    ((plug)elements.get(0)).value = 0;
+    ((plug)elements.get(0)).output = true;
     Button plus = new Button(0.25, 0.8, 1.7, 1, color(38, 48, 70)){
       @Override
       void mouseDown(){
-        outputs.get(0).value = (Integer)outputs.get(0).value + 1;
+        ((plug)elements.get(0)).value = (Integer)((plug)elements.get(0)).value + 1;
       }
     };
     Button minus = new Button(1.25, 0.8, 1.7, 1, color(38, 48, 70)){
       @Override
       void mouseDown(){
-        outputs.get(0).value = (Integer)outputs.get(0).value - 1;
+        ((plug)elements.get(0)).value = (Integer)((plug)elements.get(0)).value - 1;
       } 
     };
     elements.add(plus);
-    elements.get(0).parent = this;
-    elements.add(minus);
     elements.get(1).parent = this;
+    elements.add(minus);
+    elements.get(2).parent = this;
     setSizings();
   }
 }
 
 class Substitution extends Node{
 
+}
+
+class CharIn extends Node{
+  CharIn(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Width = 1;
+    this.Height = 1;
+    this.Title = "Char";
+    elements.add(new plug<Character>(this, 0, 0, "Output"));
+    ((plug)elements.get(0)).output = true;
+    elements.add(new TextInput(0, 0, 1.5, 1.2, color(38, 48, 70)));
+    elements.get(1).parent = this;
+    ((TextInput)elements.get(1)).CharLimit = 1;
+    setSizings();
+  }
+  
+  void update(){
+    super.update();
+    if (((TextInput)elements.get(1)).value.length() > 0){
+      ((plug)elements.get(0)).value = ((TextInput)elements.get(1)).value.charAt(0);
+    }
+
+  }
 }
 
 class Collumn extends Node{

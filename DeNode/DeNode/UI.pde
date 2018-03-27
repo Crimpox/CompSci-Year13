@@ -47,7 +47,7 @@ class GUI {
     float Y = 0;
     if (parent instanceof Node){
       Node Parent = (Node)parent;
-      Y += Parent.canvas.canvasToScreen(0, Y + Parent.y)[1] + Parent.headsize*Parent.canvas.scale/2;
+      Y += Parent.canvas.canvasToScreen(0, Y + Parent.y)[1];
       Y += y * Parent.canvas.scale;
     } else{
       Y += y;    
@@ -159,6 +159,8 @@ class TextInput extends GUI{
   String value = "";
   boolean active = false;
   float FontSize = 48;
+  // if 0 then it is unlimited
+  int CharLimit = 0;
   
   private boolean useSet = false;
   private String[] charset;
@@ -233,10 +235,15 @@ class TextInput extends GUI{
         }else if(charBuffer.get(i) != "BACK"){
           if (useSet){
             if (inSet(charBuffer.get(i))){
-              value += charBuffer.get(i);
+              if (CharLimit == 0 || value.length() < CharLimit){
+                value += charBuffer.get(i);
+              }
+              
             }
           }else{
-            value += charBuffer.get(i);
+            if (CharLimit == 0 || value.length() < CharLimit){
+              value += charBuffer.get(i);
+            }
           }
         } 
       }
