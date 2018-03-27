@@ -364,12 +364,14 @@ class plug<T> extends GUI{
   
   void clearLine(){
     for(int i = 0; i < nodes.Elements.size(); i++){
-      //TODO INTEGRATE PLUGS[] in nodes class
       Node _node = (Node)nodes.Elements.get(i);
       for (int j = 0; j < _node.elements.size(); j++){
           if (_node.elements.get(j).WithinBounds(mouseX, mouseY) && connecting && _node.elements.get(j) instanceof plug){
             if (node != _node){
-              connections.add(new Connection(this, (plug)_node.elements.get(j)));
+              if (output != ((plug)_node.elements.get(j)).output){
+                connections.add(new Connection(this, (plug)_node.elements.get(j)));
+              }
+
             
             }
           }
