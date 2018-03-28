@@ -8,7 +8,6 @@ Change the drawing of the connections so they're not drawn on top of everything
 Debating whether or not to have an alphabet data type for substitution or have the plugs built into the node
 Make it so when drawing from a output node you can only finish on an input node and vice versa 
 
-
 */
 /*
 ---------<DONE>-----------
@@ -93,6 +92,9 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
         //Char IN
         instantiateCharIN(0, 0);
         break;
+      case 6: index = 6;
+        instantiateAlphabet(0, 0);
+        break;
     }
   }
 };      
@@ -143,6 +145,7 @@ void setup(){
   listBox.options.add("String OUT");
   listBox.options.add("Int IN");
   listBox.options.add("Char IN");
+  listBox.options.add("Alphabet");
   counterButton.Text = "Counter";
 }
 
@@ -278,6 +281,11 @@ void instantiateCounter(float x, float y){
 void instantiateCharIN(float x, float y){
   CharIn charIN = new CharIn(_canvas, x, y);
   nodes.Elements.add(charIN);
+}
+
+void instantiateAlphabet(float x, float y){
+  AlphabetBuilder alphabetBuilder = new AlphabetBuilder(_canvas, x, y);
+  nodes.Elements.add(alphabetBuilder);
 }
 
 // Caclulates the distance between two vectors

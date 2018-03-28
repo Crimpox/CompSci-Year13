@@ -506,17 +506,17 @@ class Counter extends Node{
     this.y = Y;
     this.Width = 2.5;
     this.Height = 3.5;
-    this.Title = "Test";
+    this.Title = "Counter";
     elements.add(new plug<Integer>(this, 2.5, 1.5, "Output"));
     ((plug)elements.get(0)).value = 0;
     ((plug)elements.get(0)).output = true;
-    Button plus = new Button(0.25, 0.8, 1.7, 1, color(38, 48, 70)){
+    Button plus = new Button(0.25, 0.8, 2, 1, color(38, 48, 70)){
       @Override
       void mouseDown(){
         ((plug)elements.get(0)).value = (Integer)((plug)elements.get(0)).value + 1;
       }
     };
-    Button minus = new Button(1.25, 0.8, 1.7, 1, color(38, 48, 70)){
+    Button minus = new Button(1.25, 0.8, 2, 1, color(38, 48, 70)){
       @Override
       void mouseDown(){
         ((plug)elements.get(0)).value = (Integer)((plug)elements.get(0)).value - 1;
@@ -524,9 +524,16 @@ class Counter extends Node{
     };
     elements.add(plus);
     elements.get(1).parent = this;
-    elements.add(minus);
+    elements.add(new Label(0, 0, 2, 1, color(38, 48, 70)));
     elements.get(2).parent = this;
+    elements.add(minus);
+    elements.get(3).parent = this;
     setSizings();
+  }
+  
+  void update(){
+    super.update();
+    ((Label)elements.get(2)).text = ((plug)elements.get(0)).value.toString();
   }
 }
 
@@ -555,7 +562,58 @@ class CharIn extends Node{
     if (((TextInput)elements.get(1)).value.length() > 0){
       ((plug)elements.get(0)).value = ((TextInput)elements.get(1)).value.charAt(0);
     }
+    
 
+  }
+}
+
+class Alphabet {
+  char[] alphabet = new char[26];
+  
+  Alphabet(){
+    cipher temp = new cipher();
+    alphabet = temp.alphabet;
+  }
+  
+  void setChar(int index, char Char){
+    alphabet[index] = Char;
+  }
+  
+  char getChar(int index){
+    return alphabet[index];
+  }
+}
+
+class AlphabetBuilder extends Node{
+  AlphabetBuilder(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Alphabet";
+    elements.add(new plug<Alphabet>(this, 0, 0, "Output"));
+    ((plug)elements.get(0)).output = true;
+
+    for(int i = 1; i <= 26; i++){
+      elements.add(new TextInput(0, 0, 0.8, 0.8, color(38, 48, 70)));
+      ((TextInput)elements.get(i)).CharLimit = 1;
+      ((TextInput)elements.get(i)).parent = this;    
+    }
+    setSizings();
+    for(int i = 1; i <= 26; i++){
+      elements.get(i).y -= (0.25 * (i-1));
+    }
+  }
+  
+  void update(){
+    super.update();
+    Alphabet alphabet = new Alphabet();
+    for (int i = 1; i <= 26; i++){
+      if (((TextInput)elements.get(i)).value != null && ((TextInput)elements.get(i)).value != ""){
+        alphabet.setChar(i-1, ((TextInput)elements.get(i)).value.charAt(0));
+      }
+
+    }
+    ((plug)elements.get(0)).value = alphabet;
   }
 }
 
