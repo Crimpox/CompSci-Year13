@@ -74,7 +74,7 @@ Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
         break;
       case 1:  index = 1;
         //substitution
-
+        instantiateSubstitution(0, 0);
         break;
       case 2:  index = 2;
         //String IN
@@ -286,6 +286,11 @@ void instantiateCharIN(float x, float y){
 void instantiateAlphabet(float x, float y){
   AlphabetBuilder alphabetBuilder = new AlphabetBuilder(_canvas, x, y);
   nodes.Elements.add(alphabetBuilder);
+}
+
+void instantiateSubstitution(float x, float y){
+  Substitution substitution = new Substitution(_canvas, x, y);
+  nodes.Elements.add(substitution);
 }
 
 // Caclulates the distance between two vectors
