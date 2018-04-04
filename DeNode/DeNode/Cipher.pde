@@ -102,12 +102,12 @@ class CaesarCipher extends cipher{
 
 // Contains the functionality for a substitutions cipher
 class SubstitutionCipher extends cipher{
-  char[] switched_alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+  Alphabet switched_alphabet;
   //Swaps letter A with letter B in the switched alphabet.
   void Switch (char LetterA, char LetterB){
     for (int i = 0; i < alphabet.length; i++){
       if(alphabet[i] == LetterA){
-        switched_alphabet[i] = LetterB;
+        switched_alphabet.setChar(i, LetterB);
       }
     }
   }
@@ -119,7 +119,7 @@ class SubstitutionCipher extends cipher{
       if(Character.isLetter(input.charAt(i))){
         for (int j = 0; j < alphabet.length; j++){
           if (input.charAt(i) == alphabet[j]){
-            output += alphabet[j];
+            output += switched_alphabet.getChar(j);
           }
         }
       }else {

@@ -31,14 +31,19 @@ Analysis
 class Connection{
   plug start;
   plug end;
-  
+  boolean Valid = false;
   Connection(plug Start, plug End){
     this.start = Start;
     this.end = End;
   }
   
   void transferData(){
-    end.value = start.value;
+    if (end.meetsRequirements() && start.meetsRequirements()){
+      Valid = true;
+      end.value = start.value;  
+    }else{
+      Valid = false;
+    }
   }
   
   void update(){
@@ -49,7 +54,11 @@ class Connection{
     float[] endCoords = _canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
     bezier(startCoords[0], startCoords[1], endCoords[0], startCoords[1], startCoords[0], endCoords[1], endCoords[0], endCoords[1]);
     strokeWeight(1);
-    stroke(color(0));
+    if (end.meetsRequirements() && start.meetsRequirements()){
+      stroke(color(0));
+    }else{
+      stroke(color(121, 37, 35));
+    }
     transferData();
     if (debug){
       fill(0);
@@ -284,7 +293,8 @@ class Node extends GUI{
           nodeWidth = (nodeWidth > elements.get(i).Width) ? nodeWidth : elements.get(i).Width;       
       }
     }
-    Width = (nodeWidth > Width) ? nodeWidth : Width;
+    Width = (nodeWidth > Width) ? nodeWidth + 0.5: Width;
+    
   }
 }
 
@@ -381,7 +391,9 @@ class plug<T> extends GUI{
     connecting = false;
   }
   
-
+  boolean meetsRequirements(){
+    return true;
+  }
   
 }
 
@@ -431,6 +443,7 @@ class Caesar extends Node{
     elements.add(textIn);
     output.output = true;
     elements.add(count);
+    setSizings();    
   }
   
   void update(){
@@ -439,7 +452,7 @@ class Caesar extends Node{
     cipher.shiftAmount = (Integer)count.value;
     cipher.Update();
     output.value = cipher.output;
-    setSizings();
+
   }  
 }
 
@@ -538,7 +551,28 @@ class Counter extends Node{
 }
 
 class Substitution extends Node{
-
+  SubstitutionCipher cipher = new SubstitutionCipher();
+  Substitution(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Substitution";
+    elements.add(new plug<String>(this, 0, 0, "Output"));
+    ((plug)elements.get(0)).output = true;
+    elements.add(new plug<String>(this, 0, 0, "Input"));
+    elements.add(new plug<Alphabet>(this, 0, 0, "Alphabet"));
+    setSizings();
+  }
+  
+  void update(){
+    super.update();
+    if (((plug)elements.get(1)).value != null && ((plug)elements.get(2)).value != null){
+      cipher.input = (String)((plug)elements.get(1)).value;
+      cipher.switched_alphabet = (Alphabet)((plug)elements.get(2)).value;
+      cipher.Update();
+      ((plug)elements.get(0)).value = cipher.output;
+    }
+  }
 }
 
 class CharIn extends Node{
@@ -592,26 +626,18 @@ class AlphabetBuilder extends Node{
     this.Title = "Alphabet";
     elements.add(new plug<Alphabet>(this, 0, 0, "Output"));
     ((plug)elements.get(0)).output = true;
-
-    for(int i = 1; i <= 26; i++){
-      elements.add(new TextInput(0, 0, 0.8, 0.8, color(38, 48, 70)));
-      ((TextInput)elements.get(i)).CharLimit = 1;
-      ((TextInput)elements.get(i)).parent = this;    
-    }
+    elements.add(new TextInput(0, 0, 8, 0.8, color(38, 48, 70)));
+    elements.get(1).parent = this;
+    ((TextInput)elements.get(1)).CharLimit = 26;
     setSizings();
-    for(int i = 1; i <= 26; i++){
-      elements.get(i).y -= (0.25 * (i-1));
-    }
+
   }
   
   void update(){
     super.update();
     Alphabet alphabet = new Alphabet();
-    for (int i = 1; i <= 26; i++){
-      if (((TextInput)elements.get(i)).value != null && ((TextInput)elements.get(i)).value != ""){
-        alphabet.setChar(i-1, ((TextInput)elements.get(i)).value.charAt(0));
-      }
-
+    for (int i = 0; i < ((TextInput)elements.get(1)).value.length(); i++){
+      alphabet.setChar(i, ((TextInput)elements.get(1)).value.charAt(i));
     }
     ((plug)elements.get(0)).value = alphabet;
   }
