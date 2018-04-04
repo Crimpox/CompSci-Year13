@@ -383,8 +383,8 @@ class TextInput extends GUI{
       }
 
     }
-    textAlign(LEFT);
-    text(text, getX(), getY() + getHeight()/2);
+    textAlign(LEFT, CENTER);
+    text(text, getX() + 5, getY() + getHeight()/2);
   }
   void drawCenterText(){
     String text = value;
