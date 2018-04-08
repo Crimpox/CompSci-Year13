@@ -1,13 +1,15 @@
-/*
+/**
+----------<BUGS>-----------
+Multiple textInputs can be active at the same time
+Nodes are being created odd sizes when being made at high zooms
 ----------<TODO>-----------
-Replace node value in plug to parent
-Use a cut off mask for the canvas
-Canvas movements
+Fix line overflow on text Input
+Add textwrap to label
+Implement conditioning for connections
+Write-up
+[↓ Maybes ↓]
 Change the drawing of the connections so they're not drawn on top of everything
-
 Maybe add a save funcion. Serializables should get marks
-*/
-/*
 ---------<DONE>-----------
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
 Add default values for plugs based on their dimensions [Done]
@@ -22,6 +24,11 @@ When nodes are selected they get moved to the top layer. (By doing this it stops
 Improve plugs so that connections can be broken
 Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
 Find a way to delete nodes
+Nodes that are not within the canvas view are not drawn
+Use a cut off mask for the canvas
+Canvas movements 
+New nodes are placed in the center of the canvas view. Not at [0, 0]
+Connections are not deleted when nodes are
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -70,33 +77,35 @@ TextInput textIn = new TextInput(0, 0, 500, 100, color(100));
 Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
   @Override
   public void returnSelected(int index){
+    float xCenter = _canvas.screenToCanvas(_canvas.Width/2 + _canvas.x, 0)[0];
+    float yCenter = _canvas.screenToCanvas(0, _canvas.Height/2 + _canvas.y)[1];
     switch(index){
       case 0:  index = 0;
         //caesar
-        instantiateCaesar(0, 0);
+        instantiateCaesar(xCenter, yCenter);
         break;
       case 1:  index = 1;
         //substitution
-        instantiateSubstitution(0, 0);
+        instantiateSubstitution(xCenter, yCenter);
         break;
       case 2:  index = 2;
         //String IN
-        instantiateStringIN(0, 0);
+        instantiateStringIN(xCenter, yCenter);
         break;
       case 3:  index = 3;
         //String OUT
-        instantiateStringOUT(0, 0);
+        instantiateStringOUT(xCenter, yCenter);
         break;
       case 4:  index = 4;
         //Int IN
-        instnatiateIntIN(0, 0);
+        instnatiateIntIN(xCenter, yCenter);
         break;
       case 5: index = 5;
         //Char IN
-        instantiateCharIN(0, 0);
+        instantiateCharIN(xCenter, yCenter);
         break;
       case 6: index = 6;
-        instantiateAlphabet(0, 0);
+        instantiateAlphabet(xCenter, yCenter);
         break;
     }
   }
@@ -115,16 +124,19 @@ void setup(){
   textFont(futura, 48);
   
   //TEST UI ELEMENTS
+  Elements.add(_canvas);
+  Elements.add(nodes);
+  Elements.add(new Panel(0, 0, 2000, 200, color(120)));
+  Elements.add(new Panel(1650, 200, 350, 800, color(120)));
   Elements.add(button);
 
   Elements.add(listBox);
   Elements.add(up);
   Elements.add(down);
-  Elements.add(_canvas);
+
   Elements.add(saveButton);
   Elements.add(nodeLabel);
   Elements.add(centerCanvas);
-  Elements.add(nodes);
   Elements.add(counterButton);
   Elements.add(debugToggle);
   Elements.add(debugLabel);
@@ -216,7 +228,6 @@ void draw(){
   for (int i = 0; i < connections.size(); i++){
     connections.get(i).update();
   }
-  
 }
 //this boolean manages whether or not the mouse was down in the previous frame, this is so the function mousedown is only called on the first frame that the mouse has been pressed down
 boolean mouseDown = false;
@@ -253,6 +264,13 @@ void MouseChecks(ArrayList<GUI> elements){
     } 
   }
 }
+void mouseWheel(MouseEvent event){
+  float amount = event.getCount();
+  if ((_canvas.scale - amount) <= 60 && (_canvas.scale - amount) >= 10){
+    _canvas.scale -= amount;
+  }
+}
+
 
 // Keeps all the nodes in a gui group so that the nodes can be created and removed without disrupting the order of the other GUI elements
 GUIGroup nodes = new GUIGroup();
@@ -318,6 +336,9 @@ Connection[] findConnection(plug Plug){
   ArrayList<Connection> found = new ArrayList<Connection>();
   for (int i = 0; i < connections.size(); i++){
     if(connections.get(i).end == Plug){
+      found.add(connections.get(i));
+    }
+    if (connections.get(i).start == Plug){
       found.add(connections.get(i));
     }
   }

@@ -15,7 +15,7 @@ class GUI {
     //Since plugs are circular its easier just to find the distance to their center
     if (this instanceof plug){
       plug Plug = (plug)this;
-      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)/Plug.node.canvas.scale){
+      if (distance(new float[]{Plug.x+Plug.node.x, Plug.y+Plug.node.y}, Plug.node.canvas.screenToCanvas(X, Y)) < (Plug.Width/2)){
         return true;
       }else{
         return false;
@@ -41,6 +41,15 @@ class GUI {
       X += x;
     }
     return X;
+  }
+  
+  float getFontSize(float size){
+    float F = size;
+    if (parent instanceof Node){
+      Node Parent = (Node)parent;
+      F = (size / 60) * Parent.canvas.scale;
+    }
+    return F;
   }
   
   float getY(){
@@ -145,7 +154,7 @@ class Button extends GUI{
         fill(TextColor);
       }
       textAlign(CENTER);
-      textSize(FontSize);
+      textSize(getFontSize(FontSize));
       text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+FontSize/4);
       Highlight = false;
       Pressed = false;
@@ -216,7 +225,7 @@ class TextInput extends GUI{
     return value;
   }
   
-  void pressed(){
+  void mouseDown(){
     active = true;
   }
   void deactivate(){
@@ -417,7 +426,7 @@ class Label extends GUI{
     //Text
     fill(TextColor);
     textAlign(CENTER);
-    textSize(FontSize);
+    textSize(getFontSize(FontSize));
     text(text, getX()+(getWidth()/2), getY()+(getHeight()/2)+10);
 
   }
@@ -564,7 +573,7 @@ class Listbox extends GUI{
       line(x, y+(i*optionHeights), x+Width, y+(i*optionHeights));
     }
     textAlign(CENTER);
-    textSize(FontSize);
+    textSize(getFontSize(FontSize));
     for(int i = 0; i < optionsShowing; i++){
       if (i < options.size()){
         fill(TextColor);

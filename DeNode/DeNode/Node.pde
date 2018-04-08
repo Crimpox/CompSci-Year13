@@ -88,6 +88,8 @@ class Canvas extends GUI{
   float zoom = 100;
   float xoffset = 0;
   float yoffset = 0;
+  float xMax = 85;
+  float yMax = 40;
   ArrayList<Node> nodes = new ArrayList<Node>();
   boolean moveable = false;
   
@@ -104,38 +106,41 @@ class Canvas extends GUI{
     if (moveable){
       if (xdisplacement >1 || xdisplacement < -1){
         xoffset += xdisplacement;
+
+        if (xoffset/scale + (Width/scale)/2 > xMax){xoffset = xMax*scale - (Width)/2;}
+        if (xoffset/scale - (Width/scale)/2 < -xMax){xoffset = -xMax*scale + (Width)/2;}
+
       }
       if(ydisplacement > 1 || ydisplacement < -1){
         yoffset += ydisplacement;    
+        if (yoffset/scale + (Height/scale)/2 > yMax){yoffset = yMax*scale - Height/2;}
+        if (yoffset/scale - (Height/scale)/2 < -yMax){yoffset = -yMax*scale + Height/2;}
       }
     }
     fill(Color);
     rectMode(CORNER);
     rect(x, y, Width, Height);
+
+    //DRAWS GRID
     stroke(gridLineColor);
     strokeWeight(1);
-    float xOffset = (Width%scale)/2;
-    float yOffset = (Height%scale)/2;
-    /*
-    for (int i = 0; i < Width; i+=scale){
-      line(x+i+xOffset, y, x+i+xOffset, y+Height);
-    }
-
-    for(int i = 0; i < Height; i+= scale){
-      line(x, y+i+yOffset, x+Width, y+i+yOffset);
-    }
-    */
+    float xRange = (Width/scale);
+    float yRange = (Height/scale);
+    float xStart = 0 - (xRange/2) - xoffset/scale;
+    float yStart = 0 - (yRange/2) - yoffset/scale;
+    //print(yRange + "\n");
     
-    for (int i = 0; i < (Width/2)/scale; i++){
-      
+    
+    for (int i = round(xStart); i < xStart+xRange; i++){
       line(canvasToScreen(i, 0)[0], y, canvasToScreen(i, 0)[0], y+Height);
       line(canvasToScreen(-i, 0)[0], y, canvasToScreen(-i, 0)[0], y+Height);
     }
-    for (int i = 0; i < (Height/2)/scale; i++){
-      line(x, canvasToScreen(0, i)[1] + yoffset, x+Width, canvasToScreen(0, i)[1] + yoffset);
-      line(x, canvasToScreen(0, -i)[1] + yoffset, x+Width, canvasToScreen(0, -i)[1] + yoffset);
+    for (int i = round(yStart); i < yStart+yRange; i++){
+      line(x, canvasToScreen(0, i)[1], x+Width, canvasToScreen(0, i)[1]);
+      line(x, canvasToScreen(0, -i)[1], x+Width, canvasToScreen(0, -i)[1]);
     }
     
+    //Draws center line
     strokeWeight(3);
     if (Width/2 +x + xoffset < x+Width && Width/2+xoffset > x){
       line(Width/2 +x +xoffset, y, Width/2 +x +xoffset, y+Height);    
@@ -149,15 +154,15 @@ class Canvas extends GUI{
   float[] canvasToScreen(float X, float Y){
     float[] Coords = new float[]{0, 0};
     //Need to factor in scale
-    Coords[0] = X * scale + (x + Width/2);
-    Coords[1] = Y * scale + (y + Height/2);
+    Coords[0] = X * scale + (x + Width/2) + xoffset;
+    Coords[1] = Y * scale + (y + Height/2) + yoffset;
     return Coords;
   }
   
   float[] screenToCanvas(float X, float Y){
     float[] Coords = new float[]{0, 0};
-    Coords[0] = (X - (x+Width/2))/scale;
-    Coords[1] = (Y - (y+Height/2))/scale;
+    Coords[0] = (X - (x+Width/2) - xoffset)/scale;
+    Coords[1] = (Y - (y+Height/2) - yoffset)/scale;
     return Coords;
   }
   
@@ -173,6 +178,23 @@ class Canvas extends GUI{
     }
     
   }
+  //Checks all corners of nodes to see if they need to be drawn
+  boolean isNodeShowing(Node node){
+    // 10 is the radius of a plug. This is accounted for as the edge of a plug may still be within the canvas
+    
+    if (WithinBounds(canvasToScreen(node.x, 0)[0] - 10, canvasToScreen(0, node.y)[1] - 10)){                                         //Top Left
+      return true;
+    }else if (WithinBounds(canvasToScreen(node.x + node.Width, 0)[0] + 10, canvasToScreen(0, node.y)[1] - 10)){                      //Top right
+      return true;
+    }else if (WithinBounds(canvasToScreen(node.x, 0)[0] - 10, canvasToScreen(0, node.y + node.Height)[1] + 10)){                     //Bottom Left
+      return true;
+    }else if (WithinBounds(canvasToScreen(node.x + node.Width, 0)[0] + 10, canvasToScreen(0, node.y + node.Height)[1] + 10)){        //Bottom Right
+      return true;
+    }else{
+      return false;
+    }
+  }
+  
 }
 
 class Node extends GUI{
@@ -180,7 +202,7 @@ class Node extends GUI{
   float smoothRadius = 20;
   color headColor = color(138, 157, 205);
   float headsize = 1;
-  float fontSize = 36;
+  float fontSize = 0.6;
   color textColor = color(218);
   color Color = color(9, 33, 90);
   String Title;
@@ -229,14 +251,17 @@ class Node extends GUI{
     rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
     fill(Color);
     textAlign(CENTER);
-    textSize(fontSize);
+    textSize(fontSize * canvas.scale);
     text(Title, X+(Width/2)*canvas.scale, Y + (headsize)*canvas.scale - (headsize/3)*canvas.scale);
   }
   
   void update(){
+    if (!canvas.isNodeShowing(this)){
+      return;
+    }
     move();
     if (active && charBuffer.contains("DEL")){
-      nodes.Elements.remove(this);
+      Delete();
     }
     float X = canvas.canvasToScreen(x, y)[0];
     float Y = canvas.canvasToScreen(x, y)[1];
@@ -245,6 +270,19 @@ class Node extends GUI{
       elements.get(i).update();
     }
 
+  }
+  
+  void Delete(){
+    for (int i = 0; i < elements.size(); i++){
+      if (elements.get(i) instanceof plug){
+        while (findConnection((plug)elements.get(i)) != null){
+          findConnection((plug)elements.get(i))[0].end.value = null;
+          connections.remove(findConnection((plug)elements.get(i))[0]);
+        }
+      }
+    }
+    
+    nodes.Elements.remove(this);  
   }
   
   void dragRelease(){
@@ -260,6 +298,7 @@ class Node extends GUI{
   void setSizings(){
     setWidth();
     float spacing = 0.25;
+    textSize(0.45 * canvas.scale);
     for (int i = 0; i < elements.size(); i++)
       if (i == 0){
         //If it's the first element in the node
@@ -331,8 +370,8 @@ class plug<T> extends GUI{
   plug(Node node, float x, float y, String label){
     this.x = x;
     this.y = y;
-    this.Width = 20;
-    this.Height = 20;
+    this.Width = 0.33;
+    this.Height = 0.33;
     this.Color = color(201);
     this.node = node;
     this.canvas = node.canvas;
@@ -342,7 +381,7 @@ class plug<T> extends GUI{
   
   void update(){
     fill(Color);
-    textSize(28);
+    textSize(0.45 * canvas.scale);
     if (output){
       textAlign(RIGHT, CENTER);
       text(label, canvas.canvasToScreen(x - 0.3 + node.x, y)[0], canvas.canvasToScreen(x, y + node.y)[1]);
@@ -351,7 +390,7 @@ class plug<T> extends GUI{
       text(label, canvas.canvasToScreen(x + 0.3 + node.x, y)[0], canvas.canvasToScreen(x, y + node.y)[1]);
   }
     stroke(0);
-    ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
+    ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width * canvas.scale, Height * canvas.scale);
     if (connecting){
       noFill();
       stroke(114);
@@ -510,6 +549,8 @@ class StringOUT extends Node{
     Label label = (Label)elements.get(1);
     if (((plug)elements.get(0)).value != null){
       label.text = (String)((plug)elements.get(0)).value;  
+    }else{
+      label.text = "";
     }
   }
 }
