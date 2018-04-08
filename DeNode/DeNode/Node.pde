@@ -194,12 +194,6 @@ class Node extends GUI{
   }
   
   boolean active = false;
-  /**
-  void pressed(){
-    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
-      active = true;
-    }
-  }**/
   
   void mouseDown(){
     topLayer();
@@ -241,16 +235,12 @@ class Node extends GUI{
   
   void update(){
     move();
+    if (active && charBuffer.contains("DEL")){
+      nodes.Elements.remove(this);
+    }
     float X = canvas.canvasToScreen(x, y)[0];
     float Y = canvas.canvasToScreen(x, y)[1];
     drawBox(X, Y);
-    /*
-    for(int i = 0; i < inputs.size(); i++){
-      inputs.get(i).update();
-    }
-    for(int i = 0; i < outputs.size(); i++){
-      outputs.get(i).update();
-    }*/
     for(int i = 0; i < elements.size(); i++){
       elements.get(i).update();
     }

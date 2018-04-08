@@ -4,7 +4,7 @@ Replace node value in plug to parent
 Use a cut off mask for the canvas
 Canvas movements
 Change the drawing of the connections so they're not drawn on top of everything
-Find a way to delete nodes
+
 Maybe add a save funcion. Serializables should get marks
 */
 /*
@@ -20,7 +20,8 @@ Simplify sub node elements so that height and width of the node is calculated by
 Make it so when drawing from a output node you can only finish on an input node and vice versa 
 When nodes are selected they get moved to the top layer. (By doing this it stops the multiple node dragging)
 Improve plugs so that connections can be broken
-Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)  
+Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
+Find a way to delete nodes
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -159,6 +160,8 @@ void keyPressed(){
     charBuffer.add("BACK");
   }else if(keyCode == ENTER){
     //do nothing atm
+  }else if (keyCode == DELETE){
+    charBuffer.add("DEL");
   }else{
     if(key != CODED){
       charBuffer.add(Character.toString(key).toUpperCase()); 
