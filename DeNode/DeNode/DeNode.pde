@@ -1,13 +1,11 @@
 /*
 ----------<TODO>-----------
-Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)   
 Replace node value in plug to parent
 Use a cut off mask for the canvas
 Canvas movements
 Change the drawing of the connections so they're not drawn on top of everything
-Improve plugs so that connections can be broken
 Find a way to delete nodes
-When nodes are selected they get moved to the top layer. (By doing this it stops the multiple node dragging)
+Maybe add a save funcion. Serializables should get marks
 */
 /*
 ---------<DONE>-----------
@@ -20,6 +18,9 @@ ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe re
 UI elements and inputs should simply be structured like a list and output should be on the right.
 Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
 Make it so when drawing from a output node you can only finish on an input node and vice versa 
+When nodes are selected they get moved to the top layer. (By doing this it stops the multiple node dragging)
+Improve plugs so that connections can be broken
+Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)  
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){

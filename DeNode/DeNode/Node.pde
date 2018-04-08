@@ -360,6 +360,7 @@ class plug<T> extends GUI{
       textAlign(LEFT, CENTER);
       text(label, canvas.canvasToScreen(x + 0.3 + node.x, y)[0], canvas.canvasToScreen(x, y + node.y)[1]);
   }
+    stroke(0);
     ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
     if (connecting){
       noFill();
