@@ -5,9 +5,9 @@ Replace node value in plug to parent
 Use a cut off mask for the canvas
 Canvas movements
 Change the drawing of the connections so they're not drawn on top of everything
-Debating whether or not to have an alphabet data type for substitution or have the plugs built into the node
-Make it so when drawing from a output node you can only finish on an input node and vice versa 
-
+Improve plugs so that connections can be broken
+Find a way to delete nodes
+When nodes are selected they get moved to the top layer. (By doing this it stops the multiple node dragging)
 */
 /*
 ---------<DONE>-----------
@@ -19,6 +19,7 @@ Canvas to Screen for GUI node elements
 ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
 UI elements and inputs should simply be structured like a list and output should be on the right.
 Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
+Make it so when drawing from a output node you can only finish on an input node and vice versa 
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -195,6 +196,7 @@ void draw(){
   //Resets the background so the previous frame is cleared
   background(255);
   //Begins the mouseChecks.
+  found = false;
   MouseChecks(Elements);
   //Draws all the UI elements.
   for (int i = 0; i < Elements.size(); i++){
@@ -214,9 +216,10 @@ void draw(){
 }
 //this boolean manages whether or not the mouse was down in the previous frame, this is so the function mousedown is only called on the first frame that the mouse has been pressed down
 boolean mouseDown = false;
+boolean found = false;
 //This checks the mouse position and state and calls functions on the UI elements respectedly 
 void MouseChecks(ArrayList<GUI> elements){
-  for(int i = elements.size() - 1; i >= 0; i--){
+  for(int i = elements.size() - 1; i >= 0 && !found; i--){
     // If its a GUI group then it will branch into a seperate mouseChecks for the GUI group 
     if (elements.get(i) instanceof GUIGroup){
       GUIGroup group = (GUIGroup)elements.get(i);
@@ -227,13 +230,16 @@ void MouseChecks(ArrayList<GUI> elements){
       Node node = (Node)elements.get(i);
       MouseChecks(node.elements);
     }
+    
+    
     if(elements.get(i).WithinBounds(mouseX, mouseY)){
+      found = true;
       if (mousePressed == true){
         elements.get(i).pressed();
         if (!mouseDown){
-
           elements.get(i).mouseDown();
           mouseDown = true;
+          break;
         }
       }else{
         elements.get(i).hover();
@@ -303,3 +309,16 @@ public static float distance(float[] vector1, float[] vector2){
 
 //Stores all the connections so they're grouped together
 ArrayList<Connection> connections = new ArrayList<Connection>();
+
+Connection[] findConnection(plug Plug){
+  ArrayList<Connection> found = new ArrayList<Connection>();
+  for (int i = 0; i < connections.size(); i++){
+    if(connections.get(i).end == Plug){
+      found.add(connections.get(i));
+    }
+  }
+  if (found.size() == 0){
+    return null;
+  }
+  return found.toArray(new Connection[found.size()]);
+}

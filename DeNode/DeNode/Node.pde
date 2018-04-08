@@ -1,7 +1,7 @@
 /**
 Cipher Nodes
   Caesar [Done]
-  Substitution
+  Substitution [Done]
   Transposition
   Railspike
   Polybius
@@ -13,7 +13,7 @@ IO Nodes
   Text In [Done]
   Int In [Done]
   Text Output [Done]
-  Char In
+  Char In [Done]
   In from .txt document
   
 Conections
@@ -33,8 +33,15 @@ class Connection{
   plug end;
   boolean Valid = false;
   Connection(plug Start, plug End){
-    this.start = Start;
-    this.end = End;
+    if (Start.output != true){
+      this.end = Start;
+      this.start = End;
+    }else{
+      this.start = Start;
+      this.end = End;
+    }
+    Start.connected = true;
+    End.connected = true;
   }
   
   void transferData(){
@@ -46,6 +53,7 @@ class Connection{
     }
   }
   
+
   void update(){
     noFill();
     stroke(color(201));
@@ -59,6 +67,7 @@ class Connection{
     }else{
       stroke(color(121, 37, 35));
     }
+    
     transferData();
     if (debug){
       fill(0);
@@ -185,16 +194,25 @@ class Node extends GUI{
   }
   
   boolean active = false;
+  /**
   void pressed(){
+    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
+      active = true;
+    }
+  }**/
+  
+  void mouseDown(){
+    topLayer();
     if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
       active = true;
     }
   }
   
-  void mouseDown(){
-    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
-      active = true;
-    }
+  //Moves the node to the toplayer meaning it is drawn on top
+  void topLayer(){
+    int index = nodes.Elements.indexOf(this);
+    nodes.Elements.remove(index);
+    nodes.Elements.add(this);
   }
   
   void released(){
@@ -298,6 +316,7 @@ class Node extends GUI{
   }
 }
 
+boolean inUse = false;
 // The T is the dimensions of the plug. Basically what data type it receives or ouputs.
 class plug<T> extends GUI{
   private T value;
@@ -309,6 +328,7 @@ class plug<T> extends GUI{
   //If it's an output then it'll go on the right side of the node.
   boolean output = false;
   boolean connecting = false;
+  boolean connected = false;
   
   void setValue(T value){
     this.value = value;
@@ -343,7 +363,7 @@ class plug<T> extends GUI{
     ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width, Height);
     if (connecting){
       noFill();
-      stroke(205);
+      stroke(114);
       strokeWeight(5);
       bezier(canvas.canvasToScreen(x+node.x, y+node.y)[0], canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, canvas.canvasToScreen(x+node.x, y+node.y)[1], canvas.canvasToScreen(x+node.x, y+node.y)[0], mouseY , mouseX, mouseY);
       strokeWeight(1);
@@ -361,14 +381,27 @@ class plug<T> extends GUI{
     }
     
   }
-  void pressed(){
-    //draw bezier
-    connecting = true;
+  void mouseDown(){
+    if (!inUse){
+      if (!output && connected){
+        Connection currentConnection = findConnection(this)[0];
+        plug start = currentConnection.start;
+        start.connecting = true;
+        inUse = true;
+        connections.remove(currentConnection);
+      }else{
+        //draw bezier
+        connecting = true;
+        inUse = true;
+      }
+    } 
+
   }
   
   void released(){
     //either connect bezier or stop drawing
     connecting = false;
+    inUse = false;
   }
   
   
@@ -379,7 +412,14 @@ class plug<T> extends GUI{
           if (_node.elements.get(j).WithinBounds(mouseX, mouseY) && connecting && _node.elements.get(j) instanceof plug){
             if (node != _node){
               if (output != ((plug)_node.elements.get(j)).output){
+                //If the plug is already in use and an input plug then remove the current connection
+                if (!(((plug)_node.elements.get(j)).output) && findConnection((plug)_node.elements.get(j)) != null){
+                  connections.remove(findConnection((plug)_node.elements.get(j))[0]);
+                }
+                //New connection is created between current plug and plug under mouse
                 connections.add(new Connection(this, (plug)_node.elements.get(j)));
+                connected = true;
+                ((plug)_node.elements.get(j)).connected = true;
               }
 
             
@@ -389,6 +429,7 @@ class plug<T> extends GUI{
       
     }
     connecting = false;
+    inUse = false;
   }
   
   boolean meetsRequirements(){
