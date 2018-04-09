@@ -301,15 +301,22 @@ class TextInput extends GUI{
     //Non-active
     String currentLine = "";
     
+    // loops through the text
     for (int i = 0; i < text.length(); i++){
+      //Adds the characters to the currentline
       currentLine += text.charAt(i);
+      //Checks if the text is overflowing the input box
       if (textWidth(currentLine) > getWidth()){
+        //If it is then it backtracks through the text to find the last space
         for (int j = currentLine.length()-1; j >= 0; j--){
+
           if (currentLine.charAt(j) == ' ' && textWidth(currentLine.substring(0, j)) < getWidth()){
+            //If a space is found then the line is cut at the space and the remainder is moved to the next line
             lines.add(currentLine.substring(0, j));
             currentLine = currentLine.substring(j+1, currentLine.length());
             break;
           }
+          //Checks if its at the start of the line, meaning there is no spaces on this line
           if (j == 0){
             //The word is longer than the width therefore a dash split is required. e.g. Supercalifrafilistic-
             //                                                                           expialidcious
@@ -321,22 +328,18 @@ class TextInput extends GUI{
       }
     }
     lines.add(currentLine);
+    int startLine = lines.size() - maxLines;
+    if (startLine < 0){startLine = 0;}
     
+    //Calculate how many lines need to be shown
+    if (lines.size() >= maxLines){
+        
+    }
+    println(startLine);
     String output = "";
-    for (int i = 0; i < lines.size(); i++){
-      
-      if (active){
-        if (i >= maxLines){
-          //remove the top line
-          for (int j = 0; j < output.length(); j++){
-            if(output.charAt(j) == '\n'){
-              println("char at j is: " + output.charAt(j));
-              output = output.substring(j+1, output.length());
-            }
-          }
-          
-            
-        }
+    if (active){
+      for (int i = startLine; i < lines.size(); i++){
+        //Adds the blinking line to indicate the line is active
         if (second() % 2 == 0 && i == lines.size()-1){
           String lastLine = lines.get(i);
           lastLine += "|";
@@ -344,22 +347,25 @@ class TextInput extends GUI{
           lines.add(lastLine);
         }         
         output += (lines.get(i) + "\n");
-
-      }else{
-        if (i >= maxLines){
+      }  
+    }else{
+      int endLine = lines.size();
+      if (maxLines < lines.size()){endLine = maxLines;}
+      for (int i = 0; i < endLine; i++){
+        if (i == maxLines-1){
           //add ...
-          String lastLine = lines.get(i);
+          String lastLine = lines.get(endLine-1);
           lastLine = lastLine.substring(0, lastLine.length()-3);
-          lastLine += "...";
-          lines.remove(i);
-          lines.add(lastLine);
-        }else{
-          
-        }
-        output += (lines.get(i) + "\n");
-      }
 
+          lastLine += "...";
+          output += lastLine;
+        }else{
+          output += (lines.get(i) + "\n");      
+        }
+      }  
     }
+
+
     textAlign(LEFT);
     fill(TextColor);
     textLeading(48);

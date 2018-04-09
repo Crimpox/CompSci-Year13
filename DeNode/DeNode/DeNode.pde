@@ -1,9 +1,7 @@
 /**
 ----------<BUGS>-----------
-Multiple textInputs can be active at the same time
-Nodes are being created odd sizes when being made at high zooms
+all mouse inputs are moving things. Just have it so left button is for interactions and middle for canvas movements.
 ----------<TODO>-----------
-Fix line overflow on text Input
 Add textwrap to label
 Implement conditioning for connections
 Write-up
@@ -29,6 +27,9 @@ Use a cut off mask for the canvas
 Canvas movements 
 New nodes are placed in the center of the canvas view. Not at [0, 0]
 Connections are not deleted when nodes are
+Multiple textInputs can be active at the same time
+Nodes are being created odd sizes when being made at high zooms (Weirdly it's only the first node being created within that update. For some reason the rest are normal)
+Fix line overflow on text Input
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -142,6 +143,7 @@ void setup(){
   Elements.add(debugLabel);
   Elements.add(clearCanvas);
   Elements.add(intIn);
+  textIn.ID = "ED";
   Elements.add(textIn);
   Elements.add(paraTest);
   paraTest.setTextMode("PARAGRAPH");
@@ -172,6 +174,7 @@ void keyPressed(){
     charBuffer.add("BACK");
   }else if(keyCode == ENTER){
     //do nothing atm
+    println("\n\n");
   }else if (keyCode == DELETE){
     charBuffer.add("DEL");
   }else{
@@ -199,6 +202,8 @@ void mouseReleased(){
     }
     if(_element.WithinBounds(mouseX, mouseY)){
       _element.released();
+    }else{
+      _element.dragRelease();
     }
   }
 }
@@ -234,7 +239,7 @@ boolean mouseDown = false;
 boolean found = false;
 //This checks the mouse position and state and calls functions on the UI elements respectedly 
 void MouseChecks(ArrayList<GUI> elements){
-  for(int i = elements.size() - 1; i >= 0 && !found; i--){
+  for(int i = elements.size() - 1; i >= 0; i--){
     // If its a GUI group then it will branch into a seperate mouseChecks for the GUI group 
     if (elements.get(i) instanceof GUIGroup){
       GUIGroup group = (GUIGroup)elements.get(i);
@@ -247,7 +252,7 @@ void MouseChecks(ArrayList<GUI> elements){
     }
     
     
-    if(elements.get(i).WithinBounds(mouseX, mouseY)){
+    if(elements.get(i).WithinBounds(mouseX, mouseY) && !found){
       found = true;
       if (mousePressed == true){
         elements.get(i).pressed();
@@ -261,6 +266,7 @@ void MouseChecks(ArrayList<GUI> elements){
       }
     }else if (mousePressed == true){
       elements.get(i).deactivate();
+
     } 
   }
 }

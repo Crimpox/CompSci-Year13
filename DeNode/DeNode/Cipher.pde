@@ -1,10 +1,10 @@
 // The base class for a cipher
-class cipher{
+static class cipher{
   String input = "";
   String output = "";
   //Static alphabet used for reference when deciphering.
-  char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-  int letterValue(char Char){
+  public static char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+  public static int letterValue(char Char){
     for (int i = 0; i < alphabet.length; i++){
       if (Character.toUpperCase(Char) == alphabet[i]){
         return i;
@@ -14,7 +14,7 @@ class cipher{
     return 0;
   }
   
-  char tableauLookup(char A, char B){
+  public static char tableauLookup(char A, char B){
     int a = letterValue(A), b = letterValue(B);
     int c = (b+a)%26;
     return alphabet[c];

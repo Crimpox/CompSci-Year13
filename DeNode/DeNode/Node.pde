@@ -32,6 +32,7 @@ class Connection{
   plug start;
   plug end;
   boolean Valid = false;
+  Canvas canvas;
   Connection(plug Start, plug End){
     if (Start.output != true){
       this.end = Start;
@@ -42,6 +43,7 @@ class Connection{
     }
     Start.connected = true;
     End.connected = true;
+    this.canvas = end.node.canvas;
   }
   
   void transferData(){
@@ -57,9 +59,9 @@ class Connection{
   void update(){
     noFill();
     stroke(color(201));
-    strokeWeight(5);
-    float[] startCoords = _canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
-    float[] endCoords = _canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
+    strokeWeight(0.1 * canvas.scale);
+    float[] startCoords = canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
+    float[] endCoords = canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
     bezier(startCoords[0], startCoords[1], endCoords[0], startCoords[1], startCoords[0], endCoords[1], endCoords[0], endCoords[1]);
     strokeWeight(1);
     if (end.meetsRequirements() && start.meetsRequirements()){
@@ -272,6 +274,12 @@ class Node extends GUI{
 
   }
   
+  void hover(){
+    if (charBuffer.contains("DEL")){
+      Delete();
+    }
+  }
+  
   void Delete(){
     for (int i = 0; i < elements.size(); i++){
       if (elements.get(i) instanceof plug){
@@ -298,7 +306,6 @@ class Node extends GUI{
   void setSizings(){
     setWidth();
     float spacing = 0.25;
-    textSize(0.45 * canvas.scale);
     for (int i = 0; i < elements.size(); i++)
       if (i == 0){
         //If it's the first element in the node
@@ -331,11 +338,12 @@ class Node extends GUI{
 
   }
   
-  void setWidth(){
+  void setWidth(){    
     float nodeWidth = 2;
     for (int i = 0; i < elements.size(); i++){
       if (elements.get(i) instanceof plug){
-          nodeWidth = (nodeWidth > textWidth(((plug)elements.get(i)).label)) ? nodeWidth : textWidth(((plug)elements.get(i)).label)/canvas.scale;      
+          textSize(0.45 * canvas.scale);
+          nodeWidth = (nodeWidth > textWidth(((plug)elements.get(i)).label)/canvas.scale) ? nodeWidth : textWidth(((plug)elements.get(i)).label)/canvas.scale;      
       }else{
           nodeWidth = (nodeWidth > elements.get(i).Width) ? nodeWidth : elements.get(i).Width;       
       }
