@@ -2,8 +2,9 @@
 ----------<BUGS>-----------
 all mouse inputs are moving things. Just have it so left button is for interactions and middle for canvas movements.
 ----------<TODO>-----------
-Add textwrap to label
 Implement conditioning for connections
+Layout final UI
+Encrypt and Decrypt toggle
 Write-up
 [↓ Maybes ↓]
 Change the drawing of the connections so they're not drawn on top of everything
@@ -30,6 +31,7 @@ Connections are not deleted when nodes are
 Multiple textInputs can be active at the same time
 Nodes are being created odd sizes when being made at high zooms (Weirdly it's only the first node being created within that update. For some reason the rest are normal)
 Fix line overflow on text Input
+Add textwrap to label
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -137,14 +139,17 @@ void setup(){
 
   Elements.add(saveButton);
   Elements.add(nodeLabel);
+  nodeLabel.setTextMode("CENTER");
   Elements.add(centerCanvas);
   Elements.add(counterButton);
   Elements.add(debugToggle);
   Elements.add(debugLabel);
+  debugLabel.setTextMode("CENTER");
   Elements.add(clearCanvas);
   Elements.add(intIn);
   textIn.ID = "ED";
   Elements.add(textIn);
+  textIn.FontSize = 48;
   Elements.add(paraTest);
   paraTest.setTextMode("PARAGRAPH");
   intIn.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});

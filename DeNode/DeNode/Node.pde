@@ -201,7 +201,7 @@ class Canvas extends GUI{
 
 class Node extends GUI{
   Canvas canvas;
-  float smoothRadius = 20;
+  float smoothRadius = 0.3;
   color headColor = color(138, 157, 205);
   float headsize = 1;
   float fontSize = 0.6;
@@ -248,9 +248,9 @@ class Node extends GUI{
   void drawBox(float X, float Y){
     fill(Color);
     stroke(0);
-    rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius, smoothRadius, smoothRadius, smoothRadius);
+    rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale);
     fill(headColor);
-    rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius, smoothRadius, 0, 0);
+    rect(X, Y, Width*canvas.scale, headsize * canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale, 0, 0);
     fill(Color);
     textAlign(CENTER);
     textSize(fontSize * canvas.scale);
@@ -490,6 +490,7 @@ class StringIN extends Node{
     ((plug)elements.get(0)).output = true;
     elements.add(new TextInput(0, 0, 3.5, 3.2, color(38, 48, 70)));
     elements.get(1).parent = this;
+    ((TextInput)elements.get(1)).setTextMode("PARAGRAPH");
     setSizings();
   }
   
@@ -686,8 +687,7 @@ class Alphabet {
   char[] alphabet = new char[26];
   
   Alphabet(){
-    cipher temp = new cipher();
-    alphabet = temp.alphabet;
+    alphabet = cipher.alphabet;
   }
   
   void setChar(int index, char Char){

@@ -167,7 +167,7 @@ class TextInput extends GUI{
   color TextColor = color(255);
   String value = "";
   boolean active = false;
-  float FontSize = 48;
+  float FontSize = 32;
   // if 0 then it is unlimited
   int CharLimit = 0;
   
@@ -184,10 +184,6 @@ class TextInput extends GUI{
       case "LINE":
         //Draw text as a single line
         textMode = 1;
-        break;
-      case "CENTER":
-        //Draw text centered on the text box
-        textMode = 2;
         break;
       default:
         throw new IllegalArgumentException(mode + " is an unknown Text Mode\n");
@@ -235,7 +231,7 @@ class TextInput extends GUI{
     fill(Color);
     stroke(color(red(Color)/10, blue(Color)/10, green(Color)/10));
     rect(getX(), getY(), getWidth(), getHeight());
-    
+    textSize(getFontSize(FontSize));
     if(active){
       //Update text from key inputs
       for(int i = 0; i < charBuffer.size(); i++){
@@ -267,10 +263,6 @@ class TextInput extends GUI{
           //line
           drawLineText();
           break;
-        case 2:
-          //Center
-          drawCenterText();
-          break;
       }
 
       
@@ -286,17 +278,13 @@ class TextInput extends GUI{
           //line
           drawLineText();
           break;
-        case 2:
-          //center
-          drawCenterText();
-          break;
       }
     }
   }
   
   void drawParagraphText(){
     String text = value;
-    int maxLines = floor(getHeight()/(FontSize));
+    int maxLines = floor(getHeight()/(getFontSize(FontSize)));
     ArrayList<String> lines = new ArrayList<String>();
     //Non-active
     String currentLine = "";
@@ -328,16 +316,10 @@ class TextInput extends GUI{
       }
     }
     lines.add(currentLine);
-    int startLine = lines.size() - maxLines;
-    if (startLine < 0){startLine = 0;}
-    
-    //Calculate how many lines need to be shown
-    if (lines.size() >= maxLines){
-        
-    }
-    println(startLine);
     String output = "";
     if (active){
+      int startLine = lines.size() - maxLines;
+      if (startLine < 0){startLine = 0;}
       for (int i = startLine; i < lines.size(); i++){
         //Adds the blinking line to indicate the line is active
         if (second() % 2 == 0 && i == lines.size()-1){
@@ -352,7 +334,7 @@ class TextInput extends GUI{
       int endLine = lines.size();
       if (maxLines < lines.size()){endLine = maxLines;}
       for (int i = 0; i < endLine; i++){
-        if (i == maxLines-1){
+        if (i == maxLines-1 && i != 0){
           //add ...
           String lastLine = lines.get(endLine-1);
           lastLine = lastLine.substring(0, lastLine.length()-3);
@@ -364,15 +346,11 @@ class TextInput extends GUI{
         }
       }  
     }
-
-
     textAlign(LEFT);
     fill(TextColor);
-    textLeading(48);
-    text(output, getX(), getY() + FontSize);
-    
-    
-    
+
+    textLeading(getFontSize(FontSize));
+    text(output, getX(), getY() + getFontSize(FontSize));
   }
   void drawLineText(){
     String text = value;
@@ -392,7 +370,7 @@ class TextInput extends GUI{
 
       if (textWidth(text) > getWidth()){
         while(textWidth((text + "...").substring(0, (text + "...").length())) > getWidth()){
-          text = text.substring(0, text.length()-2);
+          text = text.substring(0, text.length()-1);
         }
         text += "...";
       }
@@ -401,20 +379,15 @@ class TextInput extends GUI{
     textAlign(LEFT, CENTER);
     text(text, getX() + 5, getY() + getHeight()/2);
   }
-  void drawCenterText(){
-    String text = value;
-    if (second() % 2 == 0 && active){
-      text += "|";
-    }
-  }
   
 }
 
 class Label extends GUI{
   color TextColor = color(255);
   String text = "";
-  float FontSize = 48;
-
+  float FontSize = 32;
+  int textMode = 0;
+  
   Label (float x, float y, float Width, float Height, color Color){
     this.x = x;
     this.y = y;
@@ -431,10 +404,115 @@ class Label extends GUI{
     
     //Text
     fill(TextColor);
-    textAlign(CENTER);
     textSize(getFontSize(FontSize));
-    text(text, getX()+(getWidth()/2), getY()+(getHeight()/2)+10);
 
+    switch(textMode){
+      case 0:
+        drawParagraphText();
+        break;
+      case 1:
+        drawLineText();
+        break;
+      case 2:
+        drawCenterText();
+        break;
+      default:
+        break;
+    }
+
+  }
+  
+  void setTextMode(String mode){
+    switch(mode){
+      case "PARAGRAPH": 
+        //Draw text as a block paragraph
+        textMode = 0;
+        break;
+      case "LINE":
+        //Draw text as a single line
+        textMode = 1;
+        break;
+      case "CENTER":
+        //Draw text centered in the middle
+        textMode = 2;
+        break;
+      default:
+        throw new IllegalArgumentException(mode + " is an unknown Text Mode\n");
+    }
+  }
+  
+  void drawLineText(){
+    String Text = text;
+    //Overflow management
+    if (textWidth(Text) > getWidth()){
+      while(textWidth((Text + "...").substring(0, (Text + "...").length())) > getWidth()){
+        Text = Text.substring(0, Text.length()-1);
+      }
+      Text += "...";
+    }
+    textAlign(LEFT, CENTER);
+    text(Text, getX() + 5, getY() + getHeight()/2);
+  }
+  
+void drawParagraphText(){
+    String Text = text;
+    int maxLines = floor(getHeight()/(getFontSize(FontSize)));
+    ArrayList<String> lines = new ArrayList<String>();
+    //Non-active
+    String currentLine = "";
+    
+    // loops through the text
+    for (int i = 0; i < Text.length(); i++){
+      //Adds the characters to the currentline
+      currentLine += Text.charAt(i);
+      //Checks if the text is overflowing the input box
+      if (textWidth(currentLine) > getWidth()){
+        //If it is then it backtracks through the text to find the last space
+        for (int j = currentLine.length()-1; j >= 0; j--){
+
+          if (currentLine.charAt(j) == ' ' && textWidth(currentLine.substring(0, j)) < getWidth()){
+            //If a space is found then the line is cut at the space and the remainder is moved to the next line
+            lines.add(currentLine.substring(0, j));
+            currentLine = currentLine.substring(j+1, currentLine.length());
+            break;
+          }
+          //Checks if its at the start of the line, meaning there is no spaces on this line
+          if (j == 0){
+            //The word is longer than the width therefore a dash split is required. e.g. Supercalifrafilistic-
+            //                                                                           expialidcious
+            lines.add(currentLine.substring(0, currentLine.length()-1) + "-");
+            currentLine = Character.toString(Text.charAt(i));
+            break;
+          }
+        }
+      }
+    }
+    lines.add(currentLine);
+    String output = "";
+
+    int endLine = lines.size();
+    if (maxLines < lines.size()){endLine = maxLines;}
+    for (int i = 0; i < endLine; i++){
+      if (i == maxLines-1 && i != 0){
+        //add ...
+        String lastLine = lines.get(endLine-1);
+        lastLine = lastLine.substring(0, lastLine.length()-3);
+
+        lastLine += "...";
+        output += lastLine;
+      }else{
+        output += (lines.get(i) + "\n");      
+      }
+    }      
+    textAlign(LEFT);
+    fill(TextColor);
+    textLeading(getFontSize(FontSize));
+    text(output, getX(), getY() + getFontSize(FontSize));
+  }
+  
+  void drawCenterText(){
+    textAlign(CENTER);
+    text(text, getX()+(getWidth()/2), getY()+(getHeight()/2)+10); 
   }
 }
 
@@ -452,7 +530,7 @@ class Toggle extends GUI{
   
   void update(){
     fill(color(100));
-    stroke(HighlightColor);
+    stroke(color(60));
     ellipse(getX()+(getWidth()/2), y+(getHeight()/2), getWidth(), getHeight());
     noStroke();
     if (active){
