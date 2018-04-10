@@ -237,6 +237,13 @@ class TextInput extends GUI{
       for(int i = 0; i < charBuffer.size(); i++){
         if (charBuffer.get(i) == "BACK" && value.length() > 0){
           value = value.substring(0, value.length()-1);
+        }else if (charBuffer.get(i) == "COPY" && WithinBounds(mouseX, mouseY)){
+          copyToClipboard(value);
+        }else if (charBuffer.get(i) == "PASTE" && WithinBounds(mouseX, mouseY)){
+          String clipboard = getClipboard();
+          for (int j = 0; j < clipboard.length(); j++){
+            charBuffer.add(Character.toString(clipboard.charAt(j)));
+          }
         }else if(charBuffer.get(i) != "BACK"){
           if (useSet){
             if (inSet(charBuffer.get(i))){

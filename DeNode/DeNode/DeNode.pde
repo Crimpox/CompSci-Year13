@@ -1,14 +1,11 @@
 /**
 ----------<BUGS>-----------
 ----------<TODO>-----------
-Improve alphabet autofill
-Implement conditioning for connections
 Layout final UI
-Encrypt and Decrypt toggle
 Write-up
 [↓ Maybes ↓]
-Change the drawing of the connections so they're not drawn on top of everything
-Maybe add a save funcion. Serializables should get marks
+Copy and paste
+Maybe add a save funcion. Serializables should get me some marks
 ---------<DONE>-----------
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
 Add default values for plugs based on their dimensions [Done]
@@ -32,6 +29,9 @@ Multiple textInputs can be active at the same time
 Nodes are being created odd sizes when being made at high zooms (Weirdly it's only the first node being created within that update. For some reason the rest are normal)
 Fix line overflow on text Input
 Add textwrap to label
+Implement conditioning for connections
+Encrypt and Decrypt toggle
+draw Nodes on top of connections
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
@@ -175,6 +175,7 @@ void setup(){
 //The character buffer stores all the key presses within a frame.
 ArrayList<String> charBuffer = new ArrayList<String>();
 void keyPressed(){
+  println(key);
   if (keyCode == BACKSPACE){
     charBuffer.add("BACK");
   }else if(keyCode == ENTER){
@@ -182,6 +183,13 @@ void keyPressed(){
     println("\n\n");
   }else if (keyCode == DELETE){
     charBuffer.add("DEL");
+  }else if (keyCode == CONTROL){
+    //Copy label or textinput data to clipboard
+    charBuffer.add("COPY");
+    println("COPY");
+  }else if (keyCode == CONTROL && Character.toString(key).toUpperCase() == "V"){
+    //Paste clipboard to textInput
+    charBuffer.add("PASTE");
   }else{
     if(key != CODED){
       charBuffer.add(Character.toString(key).toUpperCase()); 
@@ -233,11 +241,7 @@ void draw(){
   //Sets the mouse displacements
   xdisplacement = mouseX - pmouseX;
   ydisplacement = mouseY - pmouseY;
-  
-  //Draws the connections seperately from 
-  for (int i = 0; i < connections.size(); i++){
-    connections.get(i).update();
-  }
+
 }
 //this boolean manages whether or not the mouse was down in the previous frame, this is so the function mousedown is only called on the first frame that the mouse has been pressed down
 boolean mouseDown = false;
@@ -287,7 +291,20 @@ void mouseWheel(MouseEvent event){
 
 
 // Keeps all the nodes in a gui group so that the nodes can be created and removed without disrupting the order of the other GUI elements
-GUIGroup nodes = new GUIGroup();
+GUIGroup nodes = new GUIGroup(){
+  @Override
+  void update(){
+    
+    //Draws the connections seperately from 
+    for (int i = 0; i < connections.size(); i++){
+      connections.get(i).update();
+    }
+    for(int i = 0; i < Elements.size(); i++){
+      Elements.get(i).update();
+    } 
+
+  }
+};
 
 // Creates a caesar cipher node
 void instantiateCaesar(float x, float y){

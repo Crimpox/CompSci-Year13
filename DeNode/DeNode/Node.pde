@@ -354,6 +354,8 @@ class Node extends GUI{
           nodeWidth = (nodeWidth > elements.get(i).Width) ? nodeWidth : elements.get(i).Width;       
       }
     }
+    textSize(fontSize * canvas.scale);
+    nodeWidth = (nodeWidth > textWidth(Title)/canvas.scale) ? nodeWidth: textWidth(Title)/canvas.scale;
     Width = (nodeWidth > Width) ? nodeWidth + 0.5: Width;
     
   }
@@ -477,13 +479,13 @@ class plug<T> extends GUI{
   }
   
   boolean meetsRequirements(Object value){
-    println("WAY");
     return true;
   }
   
 }
 
 class StringIN extends Node{
+  plug output;
   StringIN(Canvas canvas, float X, float Y){
     
     this.canvas = canvas;
@@ -493,8 +495,9 @@ class StringIN extends Node{
     this.Width = 4;
     this.Height = 5;
     this.Title = "Input";
-    elements.add(new plug<String>(this, 0, 0, "Output"));
-    ((plug)elements.get(0)).output = true;
+    output = new plug<String>(this, 0, 0, "Output");
+    elements.add(output);
+    output.output = true;
     elements.add(new TextInput(0, 0, 3.5, 3.2, color(38, 48, 70)));
     elements.get(1).parent = this;
     ((TextInput)elements.get(1)).setTextMode("PARAGRAPH");
@@ -504,7 +507,7 @@ class StringIN extends Node{
   void update(){
     super.update();
     TextInput input = (TextInput)elements.get(1);
-    ((plug)elements.get(0)).value = input.getText();
+    output.value = input.getText();
   }
 }
 
@@ -524,7 +527,6 @@ class Caesar extends Node{
     textIn = new plug<String>(this, 0 , 2, "text"){
       @Override
       boolean meetsRequirements(Object value){
-        println("LAWD");
         if (value instanceof String){
           return true;
         }else{
@@ -534,7 +536,16 @@ class Caesar extends Node{
         
       } 
     };
-    count = new plug<Integer>(this, 0, 2.5, "shift");
+    count = new plug<Integer>(this, 0, 2.5, "shift"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Integer){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
     output = new plug<String>(this, 3, 1.5, "output");
     count.setValue(0);
     elements.add(output);
@@ -556,7 +567,7 @@ class Caesar extends Node{
 
 class StringOUT extends Node{
   //Label output
-  
+  plug input;
   StringOUT(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.Color = color(9, 33, 90); 
@@ -565,7 +576,17 @@ class StringOUT extends Node{
     this.Width = 6;
     this.Height = 5;
     this.Title = "Output";
-    elements.add(new plug<String>(this, 0, 4, ""));
+    input = new plug<String>(this, 0, 4, "Input"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    elements.add(input);
     elements.add(new Label(0.25, 0.8, 5.5, 3.2, color(38, 48, 70)));
     elements.get(1).parent = this;
     setSizings();
@@ -574,8 +595,8 @@ class StringOUT extends Node{
   void update(){
     super.update();
     Label label = (Label)elements.get(1);
-    if (((plug)elements.get(0)).value != null){
-      label.text = (String)((plug)elements.get(0)).value;  
+    if (input.get() != null){
+      label.text = (String)input.get();  
     }else{
       label.text = "";
     }
@@ -598,6 +619,7 @@ class IntIN extends Node{
     elements.get(1).parent = this;
     TextInput in = (TextInput)elements.get(1);
     in.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
+    in.CharLimit = 10;
     setSizings();
   }
   void update(){
@@ -652,26 +674,66 @@ class Counter extends Node{
 
 class Substitution extends Node{
   SubstitutionCipher cipher = new SubstitutionCipher();
+  boolean Cipher = true;
+  Button cipherToggle;
+  plug output;
+  plug input;
+  plug alphabet;
+  
   Substitution(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.x = X;
     this.y = Y;
     this.Title = "Substitution";
-    elements.add(new plug<String>(this, 0, 0, "Output"));
-    ((plug)elements.get(0)).output = true;
-    elements.add(new plug<String>(this, 0, 0, "Input"));
-    elements.add(new plug<Alphabet>(this, 0, 0, "Alphabet"));
+    output = new plug<String>(this, 0, 0, "Output");
+    output.output = true;
+    input = new plug<String>(this, 0, 0, "Input"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    alphabet = new plug<Alphabet>(this, 0, 0, "Alphabet"){
+      boolean meetsRequirements(Object value){
+        if (value instanceof Alphabet){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    elements.add(output);
+    elements.add(input);
+    elements.add(alphabet);
+    
+    cipherToggle = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        cipher.encipher = !cipher.encipher;
+      }
+      
+    };
+    cipherToggle.parent = this;
+    cipherToggle.FontSize = 28;
+    elements.add(cipherToggle);
+    
     setSizings();
+    cipherToggle.Width = Width-0.5;
   }
   
   void update(){
     super.update();
-    if (((plug)elements.get(1)).value != null && ((plug)elements.get(2)).value != null){
-      cipher.input = (String)((plug)elements.get(1)).value;
-      cipher.switched_alphabet = (Alphabet)((plug)elements.get(2)).value;
+    if (input.value != null && alphabet.value != null){
+      cipher.input = (String)input.value;
+      cipher.switched_alphabet = (Alphabet)alphabet.value;
       cipher.Update();
-      ((plug)elements.get(0)).value = cipher.output;
+      output.value = cipher.output;
     }
+    cipherToggle.Text = (cipher.encipher) ? "Encipher" : "Decipher";
   }
 }
 
@@ -705,7 +767,7 @@ class Alphabet {
   char[] alphabet = new char[26];
   
   Alphabet(){
-    alphabet = cipher.alphabet;
+    alphabet = Cipher.alphabet;
   }
   
   void setChar(int index, char Char){
@@ -718,13 +780,23 @@ class Alphabet {
 }
 
 class AlphabetBuilder extends Node{
+  plug output;
   AlphabetBuilder(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.x = X;
     this.y = Y;
     this.Title = "Alphabet";
-    elements.add(new plug<Alphabet>(this, 0, 0, "Output"));
-    ((plug)elements.get(0)).output = true;
+    output = new plug<Alphabet>(this, 0, 0, "Output"){
+      boolean meetsRequirements(Object value){
+        if (((TextInput)elements.get(1)).value.length() == 26){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    elements.add(output);
+    output.output = true;
     elements.add(new TextInput(0, 0, 8, 0.8, color(38, 48, 70)));
     elements.get(1).parent = this;
     ((TextInput)elements.get(1)).CharLimit = 26;
@@ -738,11 +810,7 @@ class AlphabetBuilder extends Node{
     for (int i = 0; i < ((TextInput)elements.get(1)).value.length(); i++){
       alphabet.setChar(i, ((TextInput)elements.get(1)).value.charAt(i));
     }
-    ((plug)elements.get(0)).value = alphabet;
-  }
-}
 
-class Collumn extends Node{
-  int numberOfColumns;
-  int wordsPerColumn;
+    output.value = alphabet;
+  }
 }

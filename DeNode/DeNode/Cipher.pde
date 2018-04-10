@@ -1,7 +1,8 @@
 // The base class for a cipher
-static class cipher{
+static class Cipher{
   String input = "";
   String output = "";
+  boolean encipher = true;
   //Static alphabet used for reference when deciphering.
   public static char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
   public static int letterValue(char Char){
@@ -59,7 +60,7 @@ static class cipher{
 }
 
 // stores the caesar cipher function (Can probably be made into a static)
-class CaesarCipher extends cipher{
+class CaesarCipher extends Cipher{
   char[] shifted_alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
   public int shiftAmount = 0;
   
@@ -101,7 +102,7 @@ class CaesarCipher extends cipher{
 }
 
 // Contains the functionality for a substitutions cipher
-class SubstitutionCipher extends cipher{
+class SubstitutionCipher extends Cipher{
   Alphabet switched_alphabet;
   //Swaps letter A with letter B in the switched alphabet.
   void Switch (char LetterA, char LetterB){
@@ -129,7 +130,7 @@ class SubstitutionCipher extends cipher{
   }
 }
 
-class AtbashCipher extends cipher{
+class AtbashCipher extends Cipher{
   void Update(){
     output = "";
       for (int i = 0; i < input.length(); i++){
@@ -144,7 +145,7 @@ class AtbashCipher extends cipher{
   }
 }
 
-class RailFenceCipher extends cipher{
+class RailFenceCipher extends Cipher{
   int Key = 1;
   boolean encrypt = true;
   
