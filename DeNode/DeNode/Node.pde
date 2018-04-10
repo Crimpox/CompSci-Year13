@@ -47,7 +47,7 @@ class Connection{
   }
   
   void transferData(){
-    if (end.meetsRequirements() && start.meetsRequirements()){
+    if (end.meetsRequirements(start.value) && start.meetsRequirements(start.value)){
       Valid = true;
       end.value = start.value;  
     }else{
@@ -57,20 +57,21 @@ class Connection{
   
 
   void update(){
+    transferData();
     noFill();
-    stroke(color(201));
+    if (Valid){
+      stroke(color(201));
+    }else{
+      stroke(color(121, 37, 35));
+    }
+    
     strokeWeight(0.1 * canvas.scale);
     float[] startCoords = canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
     float[] endCoords = canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
     bezier(startCoords[0], startCoords[1], endCoords[0], startCoords[1], startCoords[0], endCoords[1], endCoords[0], endCoords[1]);
     strokeWeight(1);
-    if (end.meetsRequirements() && start.meetsRequirements()){
-      stroke(color(0));
-    }else{
-      stroke(color(121, 37, 35));
-    }
-    
-    transferData();
+    stroke(0);
+
     if (debug){
       fill(0);
       textAlign(CENTER);
@@ -178,7 +179,12 @@ class Canvas extends GUI{
     if (mouseButton == CENTER){
       moveable = false;
     }
-    
+  }
+  
+  void dragRelease(){
+    if (mouseButton == CENTER){
+      moveable = false;
+    } 
   }
   //Checks all corners of nodes to see if they need to be drawn
   boolean isNodeShowing(Node node){
@@ -221,7 +227,7 @@ class Node extends GUI{
   
   void mouseDown(){
     topLayer();
-    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale){
+    if (mouseY < canvas.canvasToScreen(x, y)[1] + headsize * canvas.scale && mouseButton == LEFT){
       active = true;
     }
   }
@@ -470,7 +476,8 @@ class plug<T> extends GUI{
     inUse = false;
   }
   
-  boolean meetsRequirements(){
+  boolean meetsRequirements(Object value){
+    println("WAY");
     return true;
   }
   
@@ -503,7 +510,7 @@ class StringIN extends Node{
 
 class Caesar extends Node{  
   CaesarCipher cipher = new CaesarCipher();
-  plug textIn = new plug<String>(this, 0 , 2, "text");
+  plug textIn = new plug<String>(this, 0 , 2, "text");    
   plug count = new plug<Integer>(this, 0, 2.5, "shift");
   plug output = new plug<String>(this, 3, 2.5, "output");
   Caesar(Canvas canvas, float X, float Y){
@@ -514,8 +521,19 @@ class Caesar extends Node{
     this.Height = 3;
     this.Title = "Caesar";
     this.Color = color(9, 33, 90);
-    //inputs.add(new plug<String>(this, 0, 2, canvas, "text"));
-    textIn = new plug<String>(this, 0 , 2, "text");
+    textIn = new plug<String>(this, 0 , 2, "text"){
+      @Override
+      boolean meetsRequirements(Object value){
+        println("LAWD");
+        if (value instanceof String){
+          return true;
+        }else{
+          errorLog.add("TextIn must be plugged into some sort of text");
+          return false;
+        }
+        
+      } 
+    };
     count = new plug<Integer>(this, 0, 2.5, "shift");
     output = new plug<String>(this, 3, 1.5, "output");
     count.setValue(0);

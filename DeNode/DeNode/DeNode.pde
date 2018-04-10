@@ -1,7 +1,7 @@
 /**
 ----------<BUGS>-----------
-all mouse inputs are moving things. Just have it so left button is for interactions and middle for canvas movements.
 ----------<TODO>-----------
+Improve alphabet autofill
 Implement conditioning for connections
 Layout final UI
 Encrypt and Decrypt toggle
@@ -277,8 +277,11 @@ void MouseChecks(ArrayList<GUI> elements){
 }
 void mouseWheel(MouseEvent event){
   float amount = event.getCount();
-  if ((_canvas.scale - amount) <= 60 && (_canvas.scale - amount) >= 10){
-    _canvas.scale -= amount;
+  if(_canvas.WithinBounds(mouseX, mouseY)){
+    if ((_canvas.scale - amount) <= 60 && (_canvas.scale - amount) >= 10){
+      _canvas.scale -= amount;
+    }
+  
   }
 }
 
@@ -339,6 +342,8 @@ public static float distance(float[] vector1, float[] vector2){
   return sqrt((xdelta*xdelta) + (ydelta*ydelta));
   
 }
+
+ArrayList<String> errorLog = new ArrayList<String>();
 
 //Stores all the connections so they're grouped together
 ArrayList<Connection> connections = new ArrayList<Connection>();
