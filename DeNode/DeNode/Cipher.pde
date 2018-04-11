@@ -147,17 +147,24 @@ class AtbashCipher extends Cipher{
 
 class RailFenceCipher extends Cipher{
   int Key = 1;
-  boolean encrypt = true;
   
   void Update(){
     output = "";
     if (input == null){
       return;
     }
-    if (encrypt){
+    if (encipher){
 
     }else{
     
     }
+  }
+}
+
+class TranspositionCipher extends Cipher{
+  String Key = "";
+  
+  void Update(){
+    output = "";
   }
 }

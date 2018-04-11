@@ -4,7 +4,6 @@
 Layout final UI
 Write-up
 [↓ Maybes ↓]
-Copy and paste
 Maybe add a save funcion. Serializables should get me some marks
 ---------<DONE>-----------
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
@@ -32,6 +31,8 @@ Add textwrap to label
 Implement conditioning for connections
 Encrypt and Decrypt toggle
 draw Nodes on top of connections
+Copy and paste
+Changed bezier formula
 */
 boolean debug = false;
 Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){

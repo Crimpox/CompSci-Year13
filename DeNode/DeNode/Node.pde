@@ -58,7 +58,13 @@ class Connection{
 
   void update(){
     transferData();
+    float[] startCoords = canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
+    float[] endCoords = canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
+    stroke(color(0, 0, 0, 120));
     noFill();
+    strokeWeight(0.1 * canvas.scale);
+    bezier(startCoords[0] + start.node.shadowOffset, startCoords[1] + start.node.shadowOffset, startCoords[0] + (endCoords[0] - startCoords[0])/2 + 5, startCoords[1] + 5, startCoords[0] + (endCoords[0] - startCoords[0])/2 + 5, endCoords[1] + 5, endCoords[0] + 5, endCoords[1] + 5);
+
     if (Valid){
       stroke(color(201));
     }else{
@@ -66,9 +72,8 @@ class Connection{
     }
     
     strokeWeight(0.1 * canvas.scale);
-    float[] startCoords = canvas.canvasToScreen(start.x + start.node.x, start.y + start.node.y);
-    float[] endCoords = canvas.canvasToScreen(end.x + end.node.x, end.y + end.node.y);
-    bezier(startCoords[0], startCoords[1], endCoords[0], startCoords[1], startCoords[0], endCoords[1], endCoords[0], endCoords[1]);
+
+    bezier(startCoords[0], startCoords[1], startCoords[0] + (endCoords[0] - startCoords[0])/2, startCoords[1], startCoords[0] + (endCoords[0] - startCoords[0])/2, endCoords[1], endCoords[0], endCoords[1]);
     strokeWeight(1);
     stroke(0);
 
@@ -215,6 +220,7 @@ class Node extends GUI{
   color Color = color(9, 33, 90);
   String Title;
   public ArrayList<GUI> elements = new ArrayList<GUI>();
+  int shadowOffset = 5;
   
   public float[] getScreenCoords(){
     float[] Coords =  new float[]{0, 0};
@@ -250,8 +256,11 @@ class Node extends GUI{
       y += ydisplacement/canvas.scale;    
     }
   }
-  
   void drawBox(float X, float Y){
+    shadowOffset = (active) ? 15 : 5;
+    fill(color(0, 0, 0, 120));
+    noStroke();
+    rect(X+shadowOffset, Y+shadowOffset, (Width) * canvas.scale, Height*canvas.scale, smoothRadius * canvas.scale);
     fill(Color);
     stroke(0);
     rect(X, Y, Width*canvas.scale, Height*canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale, smoothRadius * canvas.scale);
@@ -404,14 +413,21 @@ class plug<T> extends GUI{
     }else{
       textAlign(LEFT, CENTER);
       text(label, canvas.canvasToScreen(x + 0.3 + node.x, y)[0], canvas.canvasToScreen(x, y + node.y)[1]);
-  }
+    }
+    if (output){
+      fill(color(0, 0, 0, 120));
+      noStroke();
+      arc(canvas.canvasToScreen(x + node.x, y + node.y)[0] + node.shadowOffset, canvas.canvasToScreen(x + node.x, y + node.y)[1] + node.shadowOffset, Width * canvas.scale, Height * canvas.scale, -HALF_PI, HALF_PI);
+    }
+
+    fill(Color);
     stroke(0);
     ellipse(canvas.canvasToScreen(x + node.x, y + node.y)[0], canvas.canvasToScreen(x + node.x, y + node.y)[1], Width * canvas.scale, Height * canvas.scale);
     if (connecting){
       noFill();
       stroke(114);
       strokeWeight(5);
-      bezier(canvas.canvasToScreen(x+node.x, y+node.y)[0], canvas.canvasToScreen(x+node.x, y+node.y)[1], mouseX, canvas.canvasToScreen(x+node.x, y+node.y)[1], canvas.canvasToScreen(x+node.x, y+node.y)[0], mouseY , mouseX, mouseY);
+      bezier(canvas.canvasToScreen(x+node.x, y+node.y)[0], canvas.canvasToScreen(x+node.x, y+node.y)[1], canvas.canvasToScreen(x+node.x, y+node.y)[0] + (mouseX - canvas.canvasToScreen(x+node.x, y+node.y)[0])/2, canvas.canvasToScreen(x+node.x, y+node.y)[1], canvas.canvasToScreen(x+node.x, y+node.y)[0] + (mouseX - canvas.canvasToScreen(x+node.x, y+node.y)[0])/2, mouseY , mouseX, mouseY);
       strokeWeight(1);
     }
     if (WithinBounds(mouseX, mouseY )){
