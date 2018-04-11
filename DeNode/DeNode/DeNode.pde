@@ -175,7 +175,7 @@ void setup(){
 //The character buffer stores all the key presses within a frame.
 ArrayList<String> charBuffer = new ArrayList<String>();
 void keyPressed(){
-  println(key);
+  println(int(key));
   if (keyCode == BACKSPACE){
     charBuffer.add("BACK");
   }else if(keyCode == ENTER){
@@ -183,11 +183,11 @@ void keyPressed(){
     println("\n\n");
   }else if (keyCode == DELETE){
     charBuffer.add("DEL");
-  }else if (keyCode == CONTROL){
+  }else if (int(key) == 3){
     //Copy label or textinput data to clipboard
     charBuffer.add("COPY");
     println("COPY");
-  }else if (keyCode == CONTROL && Character.toString(key).toUpperCase() == "V"){
+  }else if (int(key) == 22){
     //Paste clipboard to textInput
     charBuffer.add("PASTE");
   }else{

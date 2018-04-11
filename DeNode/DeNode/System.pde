@@ -4,6 +4,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 String getClipboard(){
+  
   String text = "";
   Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();  
   try {
@@ -22,5 +23,5 @@ void copyToClipboard(String text){
   StringSelection data = new StringSelection(text);
   Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
   clipboard.setContents(data, data);
-  
+  println("COPIED");
 }

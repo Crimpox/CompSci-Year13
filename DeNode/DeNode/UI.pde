@@ -426,7 +426,9 @@ class Label extends GUI{
       default:
         break;
     }
-
+    if (charBuffer.contains("COPY") && WithinBounds(mouseX, mouseY)){
+      copyToClipboard(text);
+    }
   }
   
   void setTextMode(String mode){
