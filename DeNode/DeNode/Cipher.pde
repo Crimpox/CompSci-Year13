@@ -163,8 +163,122 @@ class RailFenceCipher extends Cipher{
 
 class TranspositionCipher extends Cipher{
   String Key = "";
-  
+  char pad = 'X';
+  char[][] matrix;
   void Update(){
     output = "";
+    input = input.replaceAll(" ", "");
+    if (input.length() == 0 || Key.length() == 0){
+      return;
+    }
+    int Width = Key.length();
+    int Height = (int)Math.ceil((float)input.length() / Width);
+    matrix = new char[Height][Width];
+    //Puts the input into a matrix
+    if (encipher){
+      for (int i = 0; i < Height; i++){
+        for (int j = 0; j < Width; j++){
+          if (input.length() != 0){
+            matrix[i][j] = input.charAt(0);
+            input = input.substring(1, input.length());
+          }else{
+            matrix[i][j] = pad;
+          }
+        }
+      }
+    }else{
+     if (input.length() % Key.length() != 0){
+        for (int i = 0; i < input.length() % Key.length(); i++){
+          input += pad;
+        }
+      }
+      for (int i = 0; i < Width; i++){
+        for (int j = 0; j < Height; j++){
+          matrix[j][i] = input.charAt(0);
+          input = input.substring(1, input.length());
+        }
+      }
+    }
+    
+    
+    if (encipher){    
+      sortMatrix();
+      for (int i = 0; i < Width; i++){
+        for (int j = 0; j < Height; j++){
+          output += matrix[j][i];
+        }
+      }    
+    }else{
+      unSortMatrix();
+      for (int i = 0; i < Height; i++){
+        for (int j = 0; j < Width; j++){
+          output += matrix[i][j];
+        }
+      }
+    }    
+  }
+  
+  void sortMatrix(){
+    boolean sorted = false;
+    while (!sorted){
+      boolean swapped = false;
+      for (int i = 0; i < Key.length()-1; i++){
+        if (int(Key.charAt(i+1)) < int(Key.charAt(i))){
+          swapCollumn(i);
+          swapped = true;
+        }
+      }
+      if (swapped == false){
+        sorted = true;
+      }
+    }
+  }
+  
+  void unSortMatrix(){
+    char[][] _matrix = new char[matrix.length][matrix[0].length];
+    //Deep copy matrix
+    for (int i = 0; i < matrix.length; i++){
+      for(int j = 0; j < matrix[i].length; j++){
+        _matrix[i][j] = matrix[i][j];
+      }
+    }
+    String _Key = Key;
+    char[][] newMatrix = new char[_matrix.length][_matrix[0].length];
+    //Sort it to find the key in ascending order
+    sortMatrix();
+    matrix = _matrix;
+    String sortedKey = Key; //AEGMNR
+    Key = _Key; //GERMAN
+    for (int i = 0; i < matrix[0].length; i++){
+      char current = sortedKey.charAt(i);
+      for (int j = 0; j < matrix[0].length; j++){
+        if (current == Key.charAt(j)){
+          println(i + "   " + j);
+          for (int k = 0; k < matrix.length; k++){
+            newMatrix[k][j] = matrix[k][i];
+          }
+        }
+      }
+    }
+    matrix = newMatrix;
+    
+  }
+  
+  void swapCollumn(int index){
+    //Swap the key
+    char I = Key.charAt(index);
+    char J = Key.charAt(index+1);
+    String head = Key.substring(0, index);
+    String tail = Key.substring(index+2, Key.length());
+    Key = head+J+I+tail;
+    
+    int Height = matrix.length;
+    //Swap columns
+    println(" input: " + Height);
+    for (int i = 0; i < Height; i++){
+      char swap = matrix[i][index];
+      matrix[i][index] = matrix[i][index+1];
+      matrix[i][index+1] = swap;
+    }
   }
 }

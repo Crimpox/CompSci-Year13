@@ -155,11 +155,18 @@ class Button extends GUI{
       }
       textAlign(CENTER);
       textSize(getFontSize(FontSize));
+      //Checks all the letters to see if any of them are not supported by the futura font
+      for (int i = 0; i < Text.length(); i++){
+        if(futura.getGlyph(Text.charAt(i)) == null){
+          //Since the text cannot be displayed by futura the program reverts back to the default font to draw the text.
+          PFont Default = createFont("monospace", 32, true);
+          textFont(Default);
+        }
+      }
       text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+FontSize/4);
       Highlight = false;
       Pressed = false;
-      if (parent instanceof Node){
-      }
+      textFont(futura);
     }
 }
 
@@ -242,7 +249,7 @@ class TextInput extends GUI{
         }else if (charBuffer.get(i) == "PASTE" && WithinBounds(mouseX, mouseY)){
           String clipboard = System.getClipboard();
           for (int j = 0; j < clipboard.length(); j++){
-            charBuffer.add(Character.toString(clipboard.charAt(j)));
+            charBuffer.add(Character.toString(clipboard.charAt(j)).toUpperCase());
           }
         }else if(charBuffer.get(i) != "BACK"){
           if (useSet){

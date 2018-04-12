@@ -1,12 +1,11 @@
 /**
 Cipher Nodes
   Caesar [Done]
-  Substitution [Done]
-  Transposition
+  Substitution [Encipher]
+  Transposition [Encipher/Decipher]
   Railspike
   Polybius
   Vigenere
-  Playfair
   ADFGVX
 
 IO Nodes
@@ -63,7 +62,7 @@ class Connection{
     stroke(color(0, 0, 0, 120));
     noFill();
     strokeWeight(0.1 * canvas.scale);
-    bezier(startCoords[0] + start.node.shadowOffset, startCoords[1] + start.node.shadowOffset, startCoords[0] + (endCoords[0] - startCoords[0])/2 + 5, startCoords[1] + 5, startCoords[0] + (endCoords[0] - startCoords[0])/2 + 5, endCoords[1] + 5, endCoords[0] + 5, endCoords[1] + 5);
+    bezier(startCoords[0] + start.node.shadowOffset, startCoords[1] + start.node.shadowOffset, startCoords[0] + (endCoords[0] - startCoords[0])/2 + 5, startCoords[1] + 5, startCoords[0] + (endCoords[0] - startCoords[0])/2 + 5, endCoords[1] + 5, endCoords[0] + end.node.shadowOffset, endCoords[1] + 5 + end.node.shadowOffset);
 
     if (Valid){
       stroke(color(201));
@@ -136,9 +135,7 @@ class Canvas extends GUI{
     float yRange = (Height/scale);
     float xStart = 0 - (xRange/2) - xoffset/scale;
     float yStart = 0 - (yRange/2) - yoffset/scale;
-    //print(yRange + "\n");
-    
-    
+      
     for (int i = round(xStart); i < xStart+xRange; i++){
       line(canvasToScreen(i, 0)[0], y, canvasToScreen(i, 0)[0], y+Height);
       line(canvasToScreen(-i, 0)[0], y, canvasToScreen(-i, 0)[0], y+Height);
@@ -828,5 +825,69 @@ class AlphabetBuilder extends Node{
     }
 
     output.value = alphabet;
+  }
+}
+
+class Transposition extends Node{
+  plug textIn;
+  plug Key;
+  plug output;
+  Button cipherToggle;
+  TranspositionCipher cipher = new TranspositionCipher();
+  Transposition(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Transposition";
+    output = new plug<String>(this, 0, 0, "Output");
+    output.output = true;
+    textIn = new plug<String>(this, 0, 0, "Text"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    Key = new plug<String>(this, 0, 0, "Key"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }else{
+          return false;
+        }
+      }      
+    };
+    cipherToggle = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        cipher.encipher = !cipher.encipher;
+      }
+      
+    };
+    cipherToggle.parent = this;
+    cipherToggle.FontSize = 28;
+    elements.add(output);
+    elements.add(textIn);
+    elements.add(Key);
+    elements.add(cipherToggle);
+    setSizings();
+    cipherToggle.Width = Width -0.5;
+  }
+  
+  void update(){
+    super.update();
+    cipherToggle.Text = (cipher.encipher) ? "Encipher" : "Decipher";
+    if (textIn.value != null && Key.value != null){
+      cipher.input = (String)textIn.value;
+      cipher.Key = (String)Key.value;
+      cipher.Update();
+      output.value = cipher.output;
+    }else{
+      output.value = "";
+    }
   }
 }

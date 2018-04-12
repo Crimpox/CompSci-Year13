@@ -1,10 +1,12 @@
 /**
 ----------<BUGS>-----------
+if paste when | is not showing then it just pastes "PASTE"
 ----------<TODO>-----------
 Layout final UI
 Write-up
 [↓ Maybes ↓]
 Maybe add a save funcion. Serializables should get me some marks
+Find a thicker font as futura is too thin when zoomed out
 ---------<DONE>-----------
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
 Add default values for plugs based on their dimensions [Done]
@@ -77,8 +79,15 @@ TextInput intIn = new TextInput(900, 100, 100, 100, color(100));
 
 Button saveButton = new Button(500, 0, 300, 100, color(100));
 
+Button Current = new Button(1000, 100, 300, 100, color(100)){
+  @Override
+  public void onPress(){
+    instantitateTransposition(0, 0);
+  }
+};
+
 TextInput textIn = new TextInput(0, 0, 500, 100, color(100));
-Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 2){
+Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 5){
   @Override
   public void returnSelected(int index){
     float xCenter = _canvas.screenToCanvas(_canvas.Width/2 + _canvas.x, 0)[0];
@@ -136,8 +145,11 @@ void setup(){
 
   Elements.add(listBox);
   Elements.add(up);
+  up.Text = "▲";
   Elements.add(down);
-
+  down.Text = "▼";
+  up.TextColor = color(100);
+  down.TextColor = color(100);  
   Elements.add(saveButton);
   Elements.add(nodeLabel);
   nodeLabel.setTextMode("CENTER");
@@ -145,6 +157,8 @@ void setup(){
   Elements.add(counterButton);
   Elements.add(debugToggle);
   Elements.add(debugLabel);
+  Elements.add(Current);
+  Current.Text = "Current";
   debugLabel.setTextMode("CENTER");
   Elements.add(clearCanvas);
   Elements.add(intIn);
@@ -176,7 +190,6 @@ void setup(){
 //The character buffer stores all the key presses within a frame.
 ArrayList<String> charBuffer = new ArrayList<String>();
 void keyPressed(){
-  println(int(key));
   if (keyCode == BACKSPACE){
     charBuffer.add("BACK");
   }else if(keyCode == ENTER){
@@ -187,7 +200,6 @@ void keyPressed(){
   }else if (int(key) == 3){
     //Copy label or textinput data to clipboard
     charBuffer.add("COPY");
-    println("COPY");
   }else if (int(key) == 22){
     //Paste clipboard to textInput
     charBuffer.add("PASTE");
@@ -196,7 +208,13 @@ void keyPressed(){
       charBuffer.add(Character.toString(key).toUpperCase()); 
     }
   }
-  println(charBuffer);
+}
+
+boolean filter = false;
+void keyReleased(){
+  if (keyCode == java.awt.event.KeyEvent.VK_F1){
+    filter = !filter;
+  }
 }
 
 //Manages the mousechecks for all the mouse releases which triggers buttons and connections
@@ -242,7 +260,7 @@ void draw(){
   //Sets the mouse displacements
   xdisplacement = mouseX - pmouseX;
   ydisplacement = mouseY - pmouseY;
-
+  if (filter){filter(INVERT);}
 }
 //this boolean manages whether or not the mouse was down in the previous frame, this is so the function mousedown is only called on the first frame that the mouse has been pressed down
 boolean mouseDown = false;
@@ -351,6 +369,11 @@ void instantiateAlphabet(float x, float y){
 void instantiateSubstitution(float x, float y){
   Substitution substitution = new Substitution(_canvas, x, y);
   nodes.Elements.add(substitution);
+}
+
+void instantitateTransposition(float x, float y){
+  Transposition transposition = new Transposition(_canvas, x, y);
+  nodes.Elements.add(transposition);
 }
 
 // Caclulates the distance between two vectors
