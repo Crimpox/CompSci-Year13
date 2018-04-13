@@ -23,7 +23,7 @@ Grid
   Move [Done]
   
 Analysis
-  Frequency analysis
+  Frequency analysis 
   
 **/
 class Connection{
@@ -47,6 +47,7 @@ class Connection{
   
   void transferData(){
     if (end.meetsRequirements(start.value) && start.meetsRequirements(start.value)){
+      errorMessage = "";
       Valid = true;
       end.value = start.value;  
     }else{
@@ -607,6 +608,16 @@ class StringOUT extends Node{
       @Override
       boolean meetsRequirements(Object value){
         if (value instanceof String){
+          ((Label)elements.get(1)).setTextMode("PARAGRAPH");
+          ((Label)elements.get(1)).FontSize = 32;  
+          return true;
+        }else if (value instanceof Character){
+          ((Label)elements.get(1)).setTextMode("CENTER");
+          ((Label)elements.get(1)).FontSize = 48;          
+          return true;
+        }else if (value instanceof Integer){
+          ((Label)elements.get(1)).setTextMode("LINE");
+          ((Label)elements.get(1)).FontSize = 48;
           return true;
         }else{
           findConnection(input)[0].errorMessage = "Input should be of type String";
@@ -621,13 +632,19 @@ class StringOUT extends Node{
   }
   
   void update(){
-    super.update();
     Label label = (Label)elements.get(1);
     if (input.get() != null){
-      label.text = (String)input.get();  
+      if (input.get() instanceof Character){
+        label.text = Character.toString((char)input.get());
+      }else if (input.get() instanceof Integer){
+        label.text = Integer.toString((int)input.get());
+      }else{
+        label.text = (String)input.get();      
+      }
     }else{
       label.text = "";
     }
+    super.update();
   }
 }
 
@@ -647,7 +664,7 @@ class IntIN extends Node{
     elements.get(1).parent = this;
     TextInput in = (TextInput)elements.get(1);
     in.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
-    in.CharLimit = 10;
+    in.CharLimit = 9;
     setSizings();
   }
   void update(){
@@ -977,4 +994,98 @@ class RailFence extends Node{
       output.value = "";
     }
   }
+}
+
+
+class FreqAnalysis extends Node{
+  plug textIn;
+  plug output;
+  plug index;
+  String input = "";
+  
+  FreqAnalysis(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Frequency Analysis";
+    textIn = new plug<String>(this, 0, 0, "Text"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }else{
+          findConnection(textIn)[0].errorMessage = "Text should be of type String";
+          return false;
+        }      
+      }
+    };
+    output = new plug<Character>(this, 0, 0, "Output");
+    output.output = true;
+    index = new plug<Integer>(this, 0, 0, "Index"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Integer){
+          if ((int)value >= 0 && (int)value < 26){
+            return true;
+          }else{
+            findConnection(index)[0].errorMessage = "Index must be between 0 and 25";
+            return false;
+          }
+        }else{
+          findConnection(index)[0].errorMessage = "Index should be of type Integer";
+          return false;
+        }
+      }
+    };
+    elements.add(output);
+    elements.add(textIn);
+    elements.add(index);
+    setSizings();
+  }
+  
+  void update(){
+    super.update();
+    if (((String)textIn.value) != null){
+      if (index.value == null){
+        index.value = 0;
+      }
+      input = (String)textIn.value;
+      output.value = freqAnalysis((int)index.value);
+    }
+  }
+    
+  char freqAnalysis(int index){
+    int[] count = new int[26];
+    for (int i = 0; i < input.length(); i++){
+      if (Character.isLetter(input.charAt(i))){
+        for (int j = 0; j < Cipher.alphabet.length; j++){
+          if (input.charAt(i) == Cipher.alphabet[j]){
+            count[j]++;
+          }
+        }
+      }
+    }
+    
+    boolean sorted = false;
+    char[] swappable = Cipher.alphabet.clone();
+    while (!sorted){
+      boolean swapped = false;
+      for (int i = 0; i < count.length - 1; i++){
+        if (count[i] < count[i+1]){
+          int swapCount = count[i];
+          char swapAlph = swappable[i];
+          count[i] = count[i+1];
+          swappable[i] = swappable[i+1];
+          count[i+1] = swapCount;
+          swappable[i+1] = swapAlph;
+          swapped = true;
+        }
+      }
+      if (!swapped){
+        sorted = true;
+      }
+    }  
+    return swappable[index];
+  }
+
 }

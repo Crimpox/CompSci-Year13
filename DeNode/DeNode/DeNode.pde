@@ -81,7 +81,7 @@ Button saveButton = new Button(500, 0, 300, 100, color(100));
 Button Current = new Button(1000, 100, 300, 100, color(100)){
   @Override
   public void onPress(){
-    instantiateRailfence(0, 0);
+    instantiateFreqAnalysis(0, 0);
   }
 };
 
@@ -378,6 +378,11 @@ void instantitateTransposition(float x, float y){
 void instantiateRailfence(float x, float y){
   RailFence railfence = new RailFence(_canvas, x, y);
   nodes.Elements.add(railfence);
+}
+
+void instantiateFreqAnalysis(float x, float y){
+  FreqAnalysis freqAnalysis = new FreqAnalysis(_canvas, x, y);
+  nodes.Elements.add(freqAnalysis);
 }
 
 // Caclulates the distance between two vectors
