@@ -13,15 +13,14 @@ IO Nodes
   Int In [Done]
   Text Output [Done]
   Char In [Done]
-  In from .txt document
   
 Conections
   Bezier [Done]
-  Error handling (invalid plug e.g. string into int plug)
+  Error handling (invalid plug e.g. string into int plug) [Done]
   
 Grid
-  Zoom
-  Move
+  Zoom [Done]
+  Move [Done]
   
 Analysis
   Frequency analysis
