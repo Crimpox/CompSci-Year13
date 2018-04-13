@@ -388,8 +388,6 @@ public static float distance(float[] vector1, float[] vector2){
   
 }
 
-ArrayList<String> errorLog = new ArrayList<String>();
-
 //Stores all the connections so they're grouped together
 ArrayList<Connection> connections = new ArrayList<Connection>();
 

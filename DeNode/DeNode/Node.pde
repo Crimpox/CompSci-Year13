@@ -32,6 +32,7 @@ class Connection{
   plug end;
   boolean Valid = false;
   Canvas canvas;
+  String errorMessage = "";
   Connection(plug Start, plug End){
     if (Start.output != true){
       this.end = Start;
@@ -75,16 +76,29 @@ class Connection{
     bezier(startCoords[0], startCoords[1], startCoords[0] + (endCoords[0] - startCoords[0])/2, startCoords[1], startCoords[0] + (endCoords[0] - startCoords[0])/2, endCoords[1], endCoords[0], endCoords[1]);
     strokeWeight(1);
     stroke(0);
-
+    
     if (debug){
+      textSize((20.0/60)*canvas.scale);
       fill(0);
       textAlign(CENTER);
       rectMode(CENTER);
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(end.value.toString()), 20);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(start.value.toString()), (20.0/60)*canvas.scale);
       rectMode(CORNER);
-      fill(255);
-      textSize(20);
-      text(start.value.toString(), (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + 10);
+      if (!Valid){
+        fill(color(242, 74, 70));
+      }else{
+        fill(255);
+      }
+      text(start.value.toString(), (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + (10.0/60)*canvas.scale);
+    }else if(errorMessage.length() > 0){
+      textSize((20.0/60)*canvas.scale);
+      fill(0);
+      textAlign(CENTER);
+      rectMode(CENTER);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(errorMessage), (20.0/60)*canvas.scale);
+      rectMode(CORNER);
+      fill(color(242, 74, 70));
+      text(errorMessage, (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + (10.0/60)*canvas.scale);
     }
   }
 }
@@ -537,13 +551,13 @@ class Caesar extends Node{
     this.Height = 3;
     this.Title = "Caesar";
     this.Color = color(9, 33, 90);
-    textIn = new plug<String>(this, 0 , 2, "text"){
+    textIn = new plug<String>(this, 0 , 2, "Text"){
       @Override
       boolean meetsRequirements(Object value){
         if (value instanceof String){
           return true;
         }else{
-          errorLog.add("TextIn must be plugged into some sort of text");
+          findConnection(textIn)[0].errorMessage = "Text should be of type String";
           return false;
         }
         
@@ -555,6 +569,7 @@ class Caesar extends Node{
         if (value instanceof Integer){
           return true;
         }else{
+          findConnection(count)[0].errorMessage = "Shift should be of type integer";
           return false;
         }
       }
@@ -595,6 +610,7 @@ class StringOUT extends Node{
         if (value instanceof String){
           return true;
         }else{
+          findConnection(input)[0].errorMessage = "Input should be of type String";
           return false;
         }
       }
@@ -706,6 +722,7 @@ class Substitution extends Node{
         if (value instanceof String){
           return true;
         }else{
+          findConnection(input)[0].errorMessage = "Input should be of type String";
           return false;
         }
       }
@@ -715,6 +732,7 @@ class Substitution extends Node{
         if (value instanceof Alphabet){
           return true;
         }else{
+          findConnection(alphabet)[0].errorMessage = "Alphabet should be of type Alphabet";
           return false;
         }
       }
@@ -793,23 +811,24 @@ class Alphabet {
 }
 
 class AlphabetBuilder extends Node{
-  plug output;
+  plug Output;
   AlphabetBuilder(Canvas canvas, float X, float Y){
     this.canvas = canvas;
     this.x = X;
     this.y = Y;
     this.Title = "Alphabet";
-    output = new plug<Alphabet>(this, 0, 0, "Output"){
+    Output = new plug<Alphabet>(this, 0, 0, "Output"){
       boolean meetsRequirements(Object value){
         if (((TextInput)elements.get(1)).value.length() == 26){
           return true;
         }else{
+          findConnection(Output)[0].errorMessage = "The alphabet must contain 26 characters";
           return false;
         }
       }
     };
-    elements.add(output);
-    output.output = true;
+    elements.add(Output);
+    Output.output = true;
     elements.add(new TextInput(0, 0, 8, 0.8, color(38, 48, 70)));
     elements.get(1).parent = this;
     ((TextInput)elements.get(1)).CharLimit = 26;
@@ -824,7 +843,7 @@ class AlphabetBuilder extends Node{
       alphabet.setChar(i, ((TextInput)elements.get(1)).value.charAt(i));
     }
 
-    output.value = alphabet;
+    Output.value = alphabet;
   }
 }
 
@@ -847,6 +866,7 @@ class Transposition extends Node{
         if (value instanceof String){
           return true;
         }else{
+          findConnection(textIn)[0].errorMessage = "Text should be of type String";
           return false;
         }
       }
@@ -857,6 +877,7 @@ class Transposition extends Node{
         if (value instanceof String){
           return true;
         }else{
+          findConnection(Key)[0].errorMessage = "Key should be of type integer";
           return false;
         }
       }      
@@ -913,6 +934,7 @@ class RailFence extends Node{
         if (value instanceof String){
           return true;
         }else{
+          findConnection(textIn)[0].errorMessage = "Text should be of type String";
           return false;
         }
       }
@@ -924,6 +946,7 @@ class RailFence extends Node{
         if (value instanceof Integer){
           return true;
         }else{
+          findConnection(Key)[0].errorMessage = "Key should be of type integer";
           return false;
         }
       }
