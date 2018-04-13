@@ -4,7 +4,7 @@ static class Cipher{
   String output = "";
   boolean encipher = true;
   //Static alphabet used for reference when deciphering.
-  public static char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+  public static final char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
   public static int letterValue(char Char){
     for (int i = 0; i < alphabet.length; i++){
       if (Character.toUpperCase(Char) == alphabet[i]){
@@ -104,29 +104,36 @@ class CaesarCipher extends Cipher{
 // Contains the functionality for a substitutions cipher
 class SubstitutionCipher extends Cipher{
   Alphabet switched_alphabet;
-  //Swaps letter A with letter B in the switched alphabet.
-  void Switch (char LetterA, char LetterB){
-    for (int i = 0; i < alphabet.length; i++){
-      if(alphabet[i] == LetterA){
-        switched_alphabet.setChar(i, LetterB);
-      }
-    }
-  }
   
   void Update(){
     output = "";
     //Switches the letters in the input with the correct ones in the switched alphabets
-    for (int i = 0; i < input.length(); i++){
-      if(Character.isLetter(input.charAt(i))){
-        for (int j = 0; j < alphabet.length; j++){
-          if (input.charAt(i) == alphabet[j]){
-            output += switched_alphabet.getChar(j);
+    if (encipher){
+      for (int i = 0; i < input.length(); i++){
+        if(Character.isLetter(input.charAt(i))){
+          for (int j = 0; j < alphabet.length; j++){
+            if (input.charAt(i) == alphabet[j]){
+              output += switched_alphabet.getChar(j);
+            }
           }
+        }else {
+          output += input.charAt(i);
         }
-      }else {
-        output += input.charAt(i);
+      }    
+    }else{
+      for (int i = 0; i < input.length(); i++){
+        if (Character.isLetter(input.charAt(i))){
+          for (int j = 0; j < switched_alphabet.alphabet.length; j++){
+            if (input.charAt(i) == switched_alphabet.getChar(j)){
+              output += Cipher.alphabet[j];
+            }
+          }
+        }else{
+          output += input.charAt(i);
+        }
       }
     }
+
   }
 }
 
@@ -153,10 +160,90 @@ class RailFenceCipher extends Cipher{
     if (input == null){
       return;
     }
+    if (Key < 1){ Key = 1;}
+    input = input.replaceAll(" ", "");
     if (encipher){
-
+      Encipher();
     }else{
+      Decipher();
+    }
+  }
+  
+  void Encipher(){
+    int[] depths = new int[input.length()];
+    boolean down = true;
+    int depth = 0;
+    for (int i = 0; i < depths.length; i++){
+      depths[i] = depth;
+      if (down){
+        depth++;
+      }else{
+        depth--;
+      }
+      if (depth == Key-1 && down){
+        down = false;
+      }
+      if (depth == 0 && !down){
+        down = true;
+      }
+    }
+    for (int i = 0; i < Key; i++){
+      for (int j = 0; j < input.length(); j++){
+        if (depths[j] == i){
+          output += input.charAt(j);
+        }
+      }
+    }
+  }
+  
+  void Decipher(){
+    int[] depths = new int[input.length()];
+    boolean down = true;
+    int depth = 0;
+    for (int i = 0; i < depths.length; i++){
+      depths[i] = depth;
+      if (down){
+        depth++;
+      }else{
+        depth--;
+      }
+      if (depth == Key-1 && down){
+        down = false;
+      }
+      if (depth == 0 && !down){
+        down = true;
+      }
+    }  
+    /*Marks all the points where letters should go e.g (key 3 length 10)
+      -   -   -   
+       - - - - - 
+        -   -   
+    */
+    char[][] fence = new char[Key][input.length()];
+    for (int i = 0; i < input.length(); i++){
+      fence[depths[i]][i] = '-';
+    }
+    /*Fills the marks with the corresponding letters e.g (key: 3 length: 10 plaintext: HELLOWORLD ciphertext:HOLELWRDLO) 
+      H   O   L
+       E L W R D
+        L   O
+    */
+    for (int i = 0; i < Key; i++){
+      for (int j = 0; j < fence[i].length; j++){
+        if (fence[i][j] == '-'){
+          fence[i][j] = input.charAt(0);
+          input = input.substring(1, input.length());
+        }
+      }
+    }
     
+    // searches each collumn for a letter which is added to the output
+    for (int i = 0; i < fence[0].length; i++){
+      for (int j = 0; j < fence.length; j++){
+        if (fence[j][i] != 0){
+          output += fence[j][i];
+        }
+      }
     }
   }
 }

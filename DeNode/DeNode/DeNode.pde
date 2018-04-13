@@ -1,6 +1,5 @@
 /**
 ----------<BUGS>-----------
-if paste when | is not showing then it just pastes "PASTE"
 ----------<TODO>-----------
 Layout final UI
 Write-up
@@ -82,7 +81,7 @@ Button saveButton = new Button(500, 0, 300, 100, color(100));
 Button Current = new Button(1000, 100, 300, 100, color(100)){
   @Override
   public void onPress(){
-    instantitateTransposition(0, 0);
+    instantiateRailfence(0, 0);
   }
 };
 
@@ -374,6 +373,11 @@ void instantiateSubstitution(float x, float y){
 void instantitateTransposition(float x, float y){
   Transposition transposition = new Transposition(_canvas, x, y);
   nodes.Elements.add(transposition);
+}
+
+void instantiateRailfence(float x, float y){
+  RailFence railfence = new RailFence(_canvas, x, y);
+  nodes.Elements.add(railfence);
 }
 
 // Caclulates the distance between two vectors

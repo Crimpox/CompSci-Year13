@@ -1,9 +1,9 @@
 /**
 Cipher Nodes
   Caesar [Done]
-  Substitution [Encipher]
+  Substitution [Encipher/Decipher]
   Transposition [Encipher/Decipher]
-  Railspike
+  Railspike [Encipher/Decipher]
   Polybius
   Vigenere
   ADFGVX
@@ -780,7 +780,7 @@ class Alphabet {
   char[] alphabet = new char[26];
   
   Alphabet(){
-    alphabet = Cipher.alphabet;
+    alphabet = Cipher.alphabet.clone();
   }
   
   void setChar(int index, char Char){
@@ -884,6 +884,71 @@ class Transposition extends Node{
     if (textIn.value != null && Key.value != null){
       cipher.input = (String)textIn.value;
       cipher.Key = (String)Key.value;
+      cipher.Update();
+      output.value = cipher.output;
+    }else{
+      output.value = "";
+    }
+  }
+}
+
+class RailFence extends Node{
+  plug textIn;
+  plug Key;
+  plug output;
+  Button cipherToggle;
+  RailFenceCipher cipher = new RailFenceCipher();
+  
+  RailFence(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Railfence";
+    output = new plug<String>(this, 0, 0, "Output");
+    output.output = true;
+    elements.add(output);
+    textIn = new plug<String>(this, 0, 0, "Text"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    elements.add(textIn);
+    Key = new plug<Integer>(this, 0, 0, "Key"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Integer){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    };
+    elements.add(Key);
+    cipherToggle = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        cipher.encipher = !cipher.encipher;
+      }
+      
+    };
+    cipherToggle.parent = this;
+    cipherToggle.FontSize = 28;    
+    elements.add(cipherToggle);
+    setSizings();
+    cipherToggle.Width = Width - 0.5;
+  }
+  
+  void update(){
+    super.update();
+    cipherToggle.Text = (cipher.encipher) ? "Encipher" : "Decipher";
+    if (textIn.value != null && Key.value != null){
+      cipher.input = (String)textIn.value;
+      cipher.Key = (int)Key.value;
       cipher.Update();
       output.value = cipher.output;
     }else{

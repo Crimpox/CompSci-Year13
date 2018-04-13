@@ -163,7 +163,7 @@ class Button extends GUI{
           textFont(Default);
         }
       }
-      text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+FontSize/4);
+      text(Text, getX()+(getWidth()/2), getY()+(getHeight()/2)+getFontSize(FontSize)/4);
       Highlight = false;
       Pressed = false;
       textFont(futura);
@@ -244,9 +244,9 @@ class TextInput extends GUI{
       for(int i = 0; i < charBuffer.size(); i++){
         if (charBuffer.get(i) == "BACK" && value.length() > 0){
           value = value.substring(0, value.length()-1);
-        }else if (charBuffer.get(i) == "COPY" && WithinBounds(mouseX, mouseY)){
+        }else if (charBuffer.get(i) == "COPY"){
           System.copyToClipboard(value);
-        }else if (charBuffer.get(i) == "PASTE" && WithinBounds(mouseX, mouseY)){
+        }else if (charBuffer.get(i) == "PASTE"){
           String clipboard = System.getClipboard();
           for (int j = 0; j < clipboard.length(); j++){
             charBuffer.add(Character.toString(clipboard.charAt(j)).toUpperCase());
