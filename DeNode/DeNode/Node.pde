@@ -4,7 +4,7 @@ Cipher Nodes
   Substitution [Encipher/Decipher]
   Transposition [Encipher/Decipher]
   Railspike [Encipher/Decipher]
-  Polybius
+  Polybius [Encipher/Decipher]
   Vigenere
   ADFGVX
 
@@ -554,6 +554,9 @@ class Caesar extends Node{
     textIn = new plug<String>(this, 0 , 2, "Text"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           return true;
         }else{
@@ -566,6 +569,9 @@ class Caesar extends Node{
     count = new plug<Integer>(this, 0, 2.5, "shift"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof Integer){
           return true;
         }else{
@@ -607,6 +613,9 @@ class StringOUT extends Node{
     input = new plug<String>(this, 0, 4, "Input"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           ((Label)elements.get(1)).setTextMode("PARAGRAPH");
           ((Label)elements.get(1)).FontSize = 32;  
@@ -735,6 +744,9 @@ class Substitution extends Node{
     input = new plug<String>(this, 0, 0, "Input"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           return true;
         }else{
@@ -744,7 +756,11 @@ class Substitution extends Node{
       }
     };
     alphabet = new plug<Alphabet>(this, 0, 0, "Alphabet"){
+      @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof Alphabet){
           return true;
         }else{
@@ -879,6 +895,9 @@ class Transposition extends Node{
     textIn = new plug<String>(this, 0, 0, "Text"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           return true;
         }else{
@@ -887,9 +906,12 @@ class Transposition extends Node{
         }
       }
     };
-    Key = new plug<String>(this, 0, 0, "Key"){
+    Key = new plug<String>(this, 0, 0, "Keyword"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           return true;
         }else{
@@ -947,6 +969,9 @@ class RailFence extends Node{
     textIn = new plug<String>(this, 0, 0, "Text"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           return true;
         }else{
@@ -959,6 +984,9 @@ class RailFence extends Node{
     Key = new plug<Integer>(this, 0, 0, "Key"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof Integer){
           return true;
         }else{
@@ -1011,6 +1039,9 @@ class FreqAnalysis extends Node{
     textIn = new plug<String>(this, 0, 0, "Text"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof String){
           return true;
         }else{
@@ -1087,5 +1118,102 @@ class FreqAnalysis extends Node{
     }  
     return swappable[index];
   }
+}
 
+class Polybius extends Node{
+  plug Output;
+  plug input;
+  plug keySquare;
+  plug cipherChars;
+  Button cipherToggle;
+  PolybiusCipher cipher = new PolybiusCipher();
+  
+  Polybius(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Polybius";
+    Output = new plug<String>(this, 0, 0, "Output");
+    Output.output = true;
+    elements.add(Output);
+    input = new plug<String>(this, 0, 0, "Text"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof String){
+          return true;
+        }
+        if (value == null){
+          return true;
+        }
+        findConnection(input)[0].errorMessage = "Text should be of type String";
+        return false;
+      }
+    };
+    elements.add(input);
+    keySquare = new plug<String>(this, 0, 0, "Key"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
+        if (value instanceof String){
+          if (((String)value).length() == 25){
+            return true;
+          }else{
+            findConnection(keySquare)[0].errorMessage = "Key square must be of length 25";
+            return false;
+          }
+        }
+        findConnection(keySquare)[0].errorMessage = "Key should be of type String";
+        return false;
+      }
+    };
+    elements.add(keySquare);
+    cipherChars = new plug<String>(this, 0, 0, "Cipher Characters"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
+        if (value instanceof String){
+          String Value = (String)value;
+          Value.replaceAll(" ", "");
+          if (Value.length() == 5){
+            return true;
+          }
+          findConnection(cipherChars)[0].errorMessage = "Cipher Characters needs to be of length 5";
+          return false;
+        }
+        findConnection(cipherChars)[0].errorMessage = "Cipher Characters should be of type String";
+        return false;
+      }
+    };
+    elements.add(cipherChars);
+    cipherToggle = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        cipher.encipher = !cipher.encipher;
+      }
+      
+    };
+    cipherToggle.parent = this;
+    cipherToggle.FontSize = 28;    
+    elements.add(cipherToggle);
+    setSizings();
+    cipherToggle.Width = Width - 0.5;
+  }
+  
+  void update(){
+    super.update();
+    cipherToggle.Text = (cipher.encipher) ? "Encipher" : "Decipher";
+    if (input != null && cipherChars != null && keySquare != null){
+      cipher.input = (String)input.value;
+      cipher.Key = (String)keySquare.value;
+      cipher.cipherChars = (String)cipherChars.value;
+      cipher.Update();
+      Output.value = cipher.output;
+    }else{
+      Output.value = "";
+    }
+  }
 }

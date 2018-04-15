@@ -369,3 +369,96 @@ class TranspositionCipher extends Cipher{
     }
   }
 }
+
+class PolybiusCipher extends Cipher{
+  String Key = "";
+  String cipherChars;
+  String[] matrix;
+  boolean encipher;
+  
+  void Update(){
+    input.replaceAll(" ", "");
+    output = "";
+    if (input.length() == 0 || Key.length() == 0 || cipherChars.length() == 0){
+      return;
+    }
+    
+    if (encipher){
+      encipher();
+    }else{
+      decipher();
+    }
+  }
+  
+  void encipher(){
+    char missing = 'A';
+    for (int i = 0; i < alphabet.length; i++){
+      if (Key.indexOf(alphabet[i]) == -1){
+        missing = alphabet[i];
+        i = alphabet.length;
+      }
+    }
+    switch (missing){
+      case 'I':
+        input.replaceAll(Character.toString(missing), "J");
+        break;
+      case 'J':
+        input.replaceAll(Character.toString(missing), "I");
+        break;
+      case 'Q':
+        input.replaceAll(Character.toString(missing), "O");
+        break;
+      case 'O':
+        input.replaceAll(Character.toString(missing), "Q");
+        break;
+      case 'X':
+        input.replaceAll(Character.toString(missing), "Z");
+        break;
+      default:
+        input.replaceAll(Character.toString(missing), "X");
+        break;
+    }
+    matrix = new String[cipherChars.length()];
+    //Matrix the Key
+    for (int i = 0; i < cipherChars.length(); i++){
+      matrix[i] = Key.substring(i * cipherChars.length(), (i+1) * cipherChars.length());
+    }
+    
+    for (int i = 0; i < input.length(); i++){
+      output += getCharacters(input.charAt(i));
+    }
+  }
+  
+  String getCharacters(char Char){
+    String Return = "";
+    for (int i = 0; i < cipherChars.length(); i++){
+      for(int j = 0; j < cipherChars.length(); j++){
+        if (matrix[i].charAt(j) == Char){
+          Return += cipherChars.charAt(i);
+          Return += cipherChars.charAt(j);
+        }
+      }
+    }
+    return Return;
+  }
+  
+  
+  void decipher(){
+    matrix = new String[cipherChars.length()];
+    //Matrix the Key
+    for (int i = 0; i < cipherChars.length(); i++){
+      matrix[i] = Key.substring(i * cipherChars.length(), (i+1) * cipherChars.length());
+    }
+    for (int i = 0; i < input.length(); i += 2){
+      output += getLetter(input.substring(i, i+2));
+    }
+    
+  }
+  
+  char getLetter(String Chars){
+    int y = cipherChars.indexOf(Chars.charAt(0));
+    int x = cipherChars.indexOf(Chars.charAt(1));
+    
+    return matrix[y].charAt(x);
+  }
+}
