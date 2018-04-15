@@ -15,16 +15,8 @@ static class Cipher{
     return 0;
   }
   
-  public static char tableauLookup(char A, char B){
-    int a = letterValue(A), b = letterValue(B);
-    int c = (b+a)%26;
-    return alphabet[c];
-  }
+
   
-/*  char reverseTableauLookup(char A, char B){
-    
-  }
-*/  
   float relativeFreq(char letter){
     switch(Character.toUpperCase(letter)){
       case 'A': return 8.167;
@@ -460,5 +452,46 @@ class PolybiusCipher extends Cipher{
     int x = cipherChars.indexOf(Chars.charAt(1));
     
     return matrix[y].charAt(x);
+  }
+}
+
+class VigenereCipher extends Cipher{
+  boolean encipher;
+  String Key;
+  
+  void Update(){
+    if (input.length() == 0 || Key.length() == 0){
+      return;
+    }
+    if (encipher){
+      encipher();
+    }else{
+      decipher();
+    }
+    
+  }
+  
+  void encipher(){
+    for (int i = 0; i < input.length(); i++){
+      output += tableauLookup(Key.charAt(i%Key.length()), input.charAt(i));
+    }
+  }
+  
+  void decipher(){
+    for (int i = 0; i < input.length(); i++){
+      output += reverseTableauLookup(input.charAt(i), Key.charAt(i%Key.length()));
+    }
+  }
+  
+  char tableauLookup(char A, char B){
+    int a = letterValue(A), b = letterValue(B);
+    int c = (b+a)%26;
+    return alphabet[c];
+  }
+  
+  //A is the cipiherText B is the key
+  char reverseTableauLookup(char cipherLetter, char keyLetter){
+    //int index = alphabet[letterValue(cipherLetter) - letterValue(keyLetter)];
+    return alphabet[(26+letterValue(cipherLetter) - letterValue(keyLetter))%26];
   }
 }

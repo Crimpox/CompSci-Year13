@@ -5,7 +5,7 @@ Cipher Nodes
   Transposition [Encipher/Decipher]
   Railspike [Encipher/Decipher]
   Polybius [Encipher/Decipher]
-  Vigenere
+  Vigenere [Encipher/Decipher] (No node)
   ADFGVX
 
 IO Nodes
