@@ -5,8 +5,7 @@ Cipher Nodes
   Transposition [Encipher/Decipher]
   Railspike [Encipher/Decipher]
   Polybius [Encipher/Decipher]
-  Vigenere [Encipher/Decipher] (No node)
-  ADFGVX
+  Vigenere [Encipher/Decipher]
 
 IO Nodes
   Text In [Done]
@@ -23,7 +22,9 @@ Grid
   Move [Done]
   
 Analysis
-  Frequency analysis 
+  Frequency analysis [Done]
+  Char to Value [Done]
+  Random generator (Alphabet/String/Integer) [Done]
   
 **/
 class Connection{
@@ -82,14 +83,20 @@ class Connection{
       fill(0);
       textAlign(CENTER);
       rectMode(CENTER);
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(start.value.toString()), (20.0/60)*canvas.scale);
+      String value = "";
+      if (start.value != null){
+        value = start.value.toString();
+      }else{
+        value = "NULL";
+      }
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(value), (20.0/60)*canvas.scale);
       rectMode(CORNER);
       if (!Valid){
         fill(color(242, 74, 70));
       }else{
         fill(255);
       }
-      text(start.value.toString(), (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + (10.0/60)*canvas.scale);
+      text(value, (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + (10.0/60)*canvas.scale);
     }else if(errorMessage.length() > 0){
       textSize((20.0/60)*canvas.scale);
       fill(0);
@@ -309,7 +316,7 @@ class Node extends GUI{
   void Delete(){
     for (int i = 0; i < elements.size(); i++){
       if (elements.get(i) instanceof plug){
-        while (findConnection((plug)elements.get(i)) != null){
+        while (findConnection((plug)elements.get(i)).length > 0){
           findConnection((plug)elements.get(i))[0].end.value = null;
           connections.remove(findConnection((plug)elements.get(i))[0]);
         }
@@ -486,7 +493,7 @@ class plug<T> extends GUI{
             if (node != _node){
               if (output != ((plug)_node.elements.get(j)).output){
                 //If the plug is already in use and an input plug then remove the current connection
-                if (!(((plug)_node.elements.get(j)).output) && findConnection((plug)_node.elements.get(j)) != null){
+                if (!(((plug)_node.elements.get(j)).output) && findConnection((plug)_node.elements.get(j)).length >0){
                   connections.remove(findConnection((plug)_node.elements.get(j))[0]);
                 }
                 //New connection is created between current plug and plug under mouse
@@ -628,6 +635,10 @@ class StringOUT extends Node{
           ((Label)elements.get(1)).setTextMode("LINE");
           ((Label)elements.get(1)).FontSize = 48;
           return true;
+        }else if (value instanceof Alphabet){
+          ((Label)elements.get(1)).setTextMode("LINE");
+          ((Label)elements.get(1)).FontSize = 32;  
+          return true;
         }else{
           findConnection(input)[0].errorMessage = "Input should be of type String";
           return false;
@@ -647,6 +658,8 @@ class StringOUT extends Node{
         label.text = Character.toString((char)input.get());
       }else if (input.get() instanceof Integer){
         label.text = Integer.toString((int)input.get());
+      }else if (input.get() instanceof Alphabet){
+        label.text = input.get().toString();
       }else{
         label.text = (String)input.get();      
       }
@@ -839,6 +852,10 @@ class Alphabet {
   
   char getChar(int index){
     return alphabet[index];
+  }
+  
+  String toString(){
+    return new String(alphabet);
   }
 }
 
@@ -1216,4 +1233,325 @@ class Polybius extends Node{
       Output.value = "";
     }
   }
+}
+
+class Vigenere extends Node{
+  plug output;
+  plug textIn;
+  plug Key;
+  Button cipherToggle;
+  VigenereCipher cipher = new VigenereCipher();
+  
+  Vigenere(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Vigenere";
+    output = new plug<String>(this, 0, 0, "Output");
+    output.output = true;
+    elements.add(output);
+    textIn = new plug<String>(this, 0, 0, "Text"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
+        if (value instanceof String){
+          return true;
+        }
+        findConnection(textIn)[0].errorMessage =" Text should be of type String";
+        return false;
+      }
+    };
+    elements.add(textIn);
+    Key = new plug<String>(this, 0, 0, "Keyword"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
+        if (value instanceof String){
+          return true;
+        }
+        findConnection(textIn)[0].errorMessage = "Key should be of type String";
+        return false;
+      }
+    };
+    elements.add(Key);
+    cipherToggle = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        cipher.encipher = !cipher.encipher;
+      }
+      
+    };
+    cipherToggle.parent = this;
+    cipherToggle.FontSize = 28;    
+    elements.add(cipherToggle);
+    setSizings();
+    cipherToggle.Width = Width - 0.5;
+  }
+  
+  void update(){
+    super.update();
+    cipherToggle.Text = (cipher.encipher) ? "Encipher" : "Decipher";
+    if (textIn.value != null && Key.value != null){
+      cipher.input = (String)textIn.value;
+      cipher.Key = (String)Key.value;
+      cipher.Update();
+      output.value = cipher.output;
+    }else{
+      output.value = "";
+    }
+  }
+}
+
+class CharValue extends Node{
+  plug input;
+  plug output;
+  
+  CharValue(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Character Value";
+    input = new plug<Character>(this, 0, 0, "Character"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Character){
+          return true;
+        }
+        findConnection(input)[0].errorMessage = "The input must be a Character";
+        return false;
+      }
+    };
+    output = new plug<Integer>(this, 0, 0, "Ouptut");
+    setSizings();
+  }
+  
+  void update(){
+    super.update();
+    output.value = Cipher.letterValue((char)input.value);
+  }
+}
+
+class RandomGenerator extends Node{
+  plug output;
+  plug StringLength;
+  plug IntMin;
+  plug IntMax;
+  Button type;
+  Button generate;
+  
+  String[] Types = {"String", "Alphabet", "Integer"};
+  int currentType = 0;
+  Object Output;
+  
+  RandomGenerator(Canvas canvas, float X, float Y){
+    this.canvas = canvas;
+    this.x = X;
+    this.y = Y;
+    this.Title = "Random";
+    type = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        ((RandomGenerator)parent).Switch();
+      }
+    };
+    type.parent = this;
+    type.FontSize = 28;
+    type.Text = Types[currentType];
+    output = new plug<String>(this, 0, 0, "Output");
+    output.output = true;
+    elements.add(output);
+    elements.add(type);
+    generate = new Button(0, 0, 1, 0.8, color(38, 48, 70)){
+      @Override
+      void mouseDown(){
+        ((RandomGenerator)parent).Generate();
+      }
+    };
+    generate.parent = this;
+    generate.FontSize = 28;
+    generate.Text = "Generate";
+    elements.add(generate);
+    StringLength = new plug<Integer>(this, 0, 0, "Length"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Integer){
+          return true;
+        }
+        findConnection(StringLength)[0].errorMessage = "Length should be of type Integer";
+        return false;
+      }
+    };
+    elements.add(StringLength);
+    IntMax = new plug<Integer>(this, 0, 0, "Max"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Integer){
+          return true;
+        }
+        findConnection(IntMax)[0].errorMessage = "Max should be of type Integer";
+        return false;
+      }
+    };
+    IntMin = new plug<Integer>(this, 0, 0, "Min"){
+      @Override
+      boolean meetsRequirements(Object value){
+        if (value instanceof Integer){
+          if ((int)value < 0){
+            findConnection(IntMin)[0].errorMessage = "Minimum must be positive";
+            return false;
+          }else{
+            return true;
+          }
+        }else{
+          findConnection(IntMin)[0].errorMessage = "Min should be of type Integer";
+          return false;
+        }
+      }
+    };
+    setSizings();
+    type.Width = Width - 0.5;
+    generate.Width = Width - 0.5;
+    
+  }
+  
+  void Generate(){
+    switch (currentType){
+      case 0:
+        if (StringLength.value != null){
+          Output = generateString();
+        }
+        break;
+      case 1:
+        Output = generateAlphabet();
+        break;
+      case 2:
+        if (IntMin.value == null){
+          IntMin.value = 0;
+        }
+        if (IntMax.value != null){
+          Output = generateInt();
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  
+  void Switch(){
+    currentType++;
+    if (currentType == Types.length){
+      currentType = 0;
+    }
+    Output = null;
+    switch (currentType){
+      case 0:
+        if (findConnection(IntMax).length != 0){
+          connections.remove(findConnection(IntMax)[0]);
+        }
+        elements.remove(IntMax);
+        if (findConnection(IntMin).length != 0){
+          connections.remove(findConnection(IntMin)[0]);
+        }
+        elements.remove(IntMin);
+        elements.add(StringLength);
+        output = new plug<String>(this, 0, 0, "Output");
+        output.output = true;
+        type.Text = "String";
+        
+        break;
+      case 1:
+        if (findConnection(StringLength).length != 0){
+          connections.remove(findConnection(StringLength)[0]);
+        }
+        elements.remove(StringLength);
+        output = new plug<Alphabet>(this, 0, 0, "Output");
+        output.output = true;
+        type.Text = "Alphabet";
+        
+        break;
+      case 2:
+        elements.add(IntMin);
+        elements.add(IntMax);
+        output = new plug<Integer>(this, 0, 0, "Output");
+        output.output = true;
+        type.Text = "Int";
+        
+        break;
+      default:
+        break;
+    }
+    output = (plug)elements.get(0);
+    Height = 2;
+    setSizings();
+    type.Width = Width - 0.5;
+  }
+  
+  void update(){
+    super.update();
+    output.value = null;
+    
+    switch(currentType){
+      case 0:
+        if (Output instanceof String){
+          output.value = (String)Output;
+        }
+        break;
+      case 1:
+        if (Output instanceof Alphabet){
+          output.value = (Alphabet)Output;
+        }
+        break;
+      case 2:
+        if (Output instanceof Integer){
+          output.value = (Integer)Output;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  
+  String generateString(){
+    String alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String random = "";
+    for (int i = 0; i < (int)StringLength.value; i++){
+      if ((int)StringLength.value > 26){
+        int index = (int)random(alphanum.length());
+        random += alphanum.charAt(index);
+        alphanum = alphanum.substring(0, index) + alphanum.substring(index+1, alphanum.length());
+      }else{
+        int index = (int)random(alpha.length());
+        random += alpha.charAt(index);
+        alpha = alpha.substring(0, index) + alpha.substring(index+1, alpha.length());
+      }
+    }
+    return random;
+  }
+  
+  Alphabet generateAlphabet(){
+    Alphabet random = new Alphabet();
+    String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for (int i = 0; i < 26; i++){
+      int index = (int)random(0, alpha.length());
+      random.setChar(i, alpha.charAt(index));
+      alpha = alpha.substring(0, index) + alpha.substring(index+1, alpha.length());
+    }
+    return random;
+  }
+  
+  int generateInt(){
+    if (IntMin.value == IntMax.value){
+      return (int)IntMin.value;
+    }
+    if ((int)IntMin.value > (int)IntMax.value){
+      return 0;
+    }
+    return (int)random((int)IntMin.value, (int)IntMax.value);
+  }
+  
 }

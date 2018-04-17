@@ -14,41 +14,6 @@ static class Cipher{
     print("ERROR: character given is not standard english alphabet");
     return 0;
   }
-  
-
-  
-  float relativeFreq(char letter){
-    switch(Character.toUpperCase(letter)){
-      case 'A': return 8.167;
-      case 'B': return 1.492;
-      case 'C': return 2.782;
-      case 'D': return 4.253;
-      case 'E': return 12.702;
-      case 'F': return 2.228;
-      case 'G': return 2.015;
-      case 'H': return 6.094;
-      case 'I': return 6.966;
-      case 'J': return 0.153;
-      case 'K': return 0.772;
-      case 'L': return 4.025;
-      case 'M': return 2.406;
-      case 'N': return 6.749;
-      case 'O': return 7.507;
-      case 'P': return 1.929;
-      case 'Q': return 0.095;
-      case 'R': return 5.987;
-      case 'S': return 6.327;
-      case 'T': return 9.056;
-      case 'U': return 2.758;
-      case 'V': return 0.978;
-      case 'W': return 2.360;
-      case 'X': return 0.150;
-      case 'Y': return 1.974;
-      case 'Z': return 0.074;
-      default: return 0;
-    }
-    
-  }
 }
 
 // stores the caesar cipher function (Can probably be made into a static)
@@ -366,7 +331,6 @@ class PolybiusCipher extends Cipher{
   String Key = "";
   String cipherChars;
   String[] matrix;
-  boolean encipher;
   
   void Update(){
     input.replaceAll(" ", "");
@@ -383,33 +347,37 @@ class PolybiusCipher extends Cipher{
   }
   
   void encipher(){
-    char missing = 'A';
-    for (int i = 0; i < alphabet.length; i++){
-      if (Key.indexOf(alphabet[i]) == -1){
-        missing = alphabet[i];
-        i = alphabet.length;
+
+    if (Key.length() == 5){
+      char missing = 'A';
+      for (int i = 0; i < alphabet.length; i++){
+        if (Key.indexOf(alphabet[i]) == -1){
+          missing = alphabet[i];
+          i = alphabet.length;
+        }
+      }
+      switch (missing){
+        case 'I':
+          input.replaceAll(Character.toString(missing), "J");
+          break;
+        case 'J':
+          input.replaceAll(Character.toString(missing), "I");
+          break;
+        case 'Q':
+          input.replaceAll(Character.toString(missing), "O");
+          break;
+        case 'O':
+          input.replaceAll(Character.toString(missing), "Q");
+          break;
+        case 'X':
+          input.replaceAll(Character.toString(missing), "Z");
+          break;
+        default:
+          input.replaceAll(Character.toString(missing), "X");
+          break;
       }
     }
-    switch (missing){
-      case 'I':
-        input.replaceAll(Character.toString(missing), "J");
-        break;
-      case 'J':
-        input.replaceAll(Character.toString(missing), "I");
-        break;
-      case 'Q':
-        input.replaceAll(Character.toString(missing), "O");
-        break;
-      case 'O':
-        input.replaceAll(Character.toString(missing), "Q");
-        break;
-      case 'X':
-        input.replaceAll(Character.toString(missing), "Z");
-        break;
-      default:
-        input.replaceAll(Character.toString(missing), "X");
-        break;
-    }
+    
     matrix = new String[cipherChars.length()];
     //Matrix the Key
     for (int i = 0; i < cipherChars.length(); i++){
@@ -460,6 +428,7 @@ class VigenereCipher extends Cipher{
   String Key;
   
   void Update(){
+    output = "";
     if (input.length() == 0 || Key.length() == 0){
       return;
     }

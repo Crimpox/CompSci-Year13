@@ -1,6 +1,7 @@
 /**
 ----------<BUGS>-----------
 ----------<TODO>-----------
+Char to value node
 Layout final UI
 Write-up
 [↓ Maybes ↓]
@@ -81,7 +82,7 @@ Button saveButton = new Button(500, 0, 300, 100, color(100));
 Button Current = new Button(1000, 100, 300, 100, color(100)){
   @Override
   public void onPress(){
-    instantiateFreqAnalysis(0, 0);
+    instantiateRandomGenerator(0, 0);
   }
 };
 
@@ -385,6 +386,11 @@ void instantiateFreqAnalysis(float x, float y){
   nodes.Elements.add(freqAnalysis);
 }
 
+void instantiateRandomGenerator(float x, float y){
+  RandomGenerator randomGenerator = new RandomGenerator(_canvas, x, y);
+  nodes.Elements.add(randomGenerator);
+}
+
 // Caclulates the distance between two vectors
 public static float distance(float[] vector1, float[] vector2){
   float xdelta = abs(vector1[0] - vector2[0]);
@@ -405,9 +411,6 @@ Connection[] findConnection(plug Plug){
     if (connections.get(i).start == Plug){
       found.add(connections.get(i));
     }
-  }
-  if (found.size() == 0){
-    return null;
   }
   return found.toArray(new Connection[found.size()]);
 }
