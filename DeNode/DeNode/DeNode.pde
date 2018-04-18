@@ -1,12 +1,9 @@
 /**
 ----------<BUGS>-----------
 ----------<TODO>-----------
-Char to value node
-Layout final UI
 Write-up
 [↓ Maybes ↓]
 Maybe add a save funcion. Serializables should get me some marks
-Find a thicker font as futura is too thin when zoomed out
 ---------<DONE>-----------
 [Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
 Add default values for plugs based on their dimensions [Done]
@@ -35,155 +32,349 @@ Encrypt and Decrypt toggle
 draw Nodes on top of connections
 Copy and paste
 Changed bezier formula
+Layout final UI
+Char to value node
 */
-boolean debug = false;
-Toggle debugToggle = new Toggle(925, 60, 50, 50, color(200)){
-  @Override
-  public void toggle(){
-    debug = !debug;
-  }
-};
-Button clearCanvas = new Button(600, 100, 300, 100, color(100)){
-  @Override
-  void onPress(){
-    connections.clear();
-    nodes.Elements.clear();
-    
-  }
-};
-Label debugLabel = new Label(800, 0, 300, 60, color(100));
-Button button = new Button(1700, 0, 300, 100, color(100)){
-  @Override
-  public void onPress(){
-    instantiateCaesar(0, 0);
-    instantiateStringIN(-7, -3);
-    instantiateCounter(-6, 3);
-    instantiateStringOUT(6, -2);
-  }
-};
-Button centerCanvas = new Button(0, 100, 300, 100, color(100)){
-  @Override
-  public void onPress(){
-    _canvas.xoffset = 0;
-    _canvas.yoffset = 0;
-  }
-}; 
 
-Button counterButton = new Button(300, 100, 300, 100, color(100)){
-  @Override
-  public void onPress(){
-    instantiateCounter(0, 0);
-  }
-};
-TextInput intIn = new TextInput(900, 100, 100, 100, color(100));
+Label banner = new Label (1250, 0, 250, 100, color(95, 39, 205));
+Label credits = new Label (1250, 100, 250, 50, color(134, 96, 205));
 
-Button saveButton = new Button(500, 0, 300, 100, color(100));
-
-Button Current = new Button(1000, 100, 300, 100, color(100)){
+// ------------------------------------ CIPHER --------------------------------------------
+Listbox cipherBox = new Listbox(800, 50, 200, color(254, 237, 201), 50, 3){
   @Override
-  public void onPress(){
-    instantiateRandomGenerator(0, 0);
-  }
-};
-
-TextInput textIn = new TextInput(0, 0, 500, 100, color(100));
-Listbox listBox = new Listbox(1700, 300, 300, color(100), 50, 5){
-  @Override
-  public void returnSelected(int index){
-    float xCenter = _canvas.screenToCanvas(_canvas.Width/2 + _canvas.x, 0)[0];
-    float yCenter = _canvas.screenToCanvas(0, _canvas.Height/2 + _canvas.y)[1];
+  public void indexSelected(int index){
+    float xCenter = mainCanvas.screenToCanvas(mainCanvas.Width/2 + mainCanvas.x, 0)[0];
+    float yCenter = mainCanvas.screenToCanvas(0, mainCanvas.Height/2 + mainCanvas.y)[1];
     switch(index){
-      case 0:  index = 0;
-        //caesar
+      case 0:
+        //Caesar
         instantiateCaesar(xCenter, yCenter);
         break;
-      case 1:  index = 1;
-        //substitution
+      case 1:
+        //Substitutions
         instantiateSubstitution(xCenter, yCenter);
         break;
-      case 2:  index = 2;
-        //String IN
-        instantiateStringIN(xCenter, yCenter);
+      case 2:
+        //Transposition
+        instantiateTransposition(xCenter, yCenter);
         break;
-      case 3:  index = 3;
-        //String OUT
-        instantiateStringOUT(xCenter, yCenter);
+      case 3:
+        //Railfence
+        instantiateRailfence(xCenter, yCenter);
         break;
-      case 4:  index = 4;
-        //Int IN
-        instnatiateIntIN(xCenter, yCenter);
+      case 4:
+        //Polybius
+        instantiatePolybius(xCenter, yCenter);
         break;
-      case 5: index = 5;
-        //Char IN
-        instantiateCharIN(xCenter, yCenter);
-        break;
-      case 6: index = 6;
-        instantiateAlphabet(xCenter, yCenter);
+      case 5:
+        //Vigenere
+        instantiateVigenere(xCenter, yCenter);
         break;
     }
   }
-};      
-Button up = new Button(1650, 300, 50, 50, color(200)){@Override public void onPress(){listBox.scrollUp();}};
-Button down = new Button(1650, 350, 50, 50, color(200)){@Override public void onPress(){listBox.scrollDown();}};
-Canvas _canvas = new Canvas(0, 200, 1650, 800, color(52), color(197));
-Label nodeLabel = new Label(1650, 200, 350, 100, color(100));
+};
+Label cipherLabel = new Label(750, 0, 250, 50, color(254, 202, 87));
+Button cipherUp = new Button(750, 50, 50, 75, color(254, 202, 87)){
+  @Override
+  void onPress(){
+    cipherBox.scrollUp();
+  }
+};
+Button cipherDown = new Button(750, 125, 50, 75, color(254, 202, 87)){
+  @Override
+  void onPress(){
+    cipherBox.scrollDown();
+  }
+};
+
+// -------------------------------------- I/O ---------------------------------------------
+Listbox ioBox = new Listbox(550, 50, 200, color(170, 209, 184), 50, 3){
+  @Override
+  public void indexSelected(int index){
+    float xCenter = mainCanvas.screenToCanvas(mainCanvas.Width/2 + mainCanvas.x, 0)[0];
+    float yCenter = mainCanvas.screenToCanvas(0, mainCanvas.Height/2 + mainCanvas.y)[1];
+    switch(index){
+      case 0:
+        //Text in
+        instantiateStringIN(xCenter, yCenter);
+        break;
+      case 1:
+        //Int in
+        instantiateIntIN(xCenter, yCenter);
+        break;
+      case 2:
+        //Char in
+        instantiateCharIN(xCenter, yCenter);
+        break;
+      case 3:
+        //Alphabet in
+        instantiateAlphabet(xCenter, yCenter);
+        break;
+      case 4:
+        //Random
+        instantiateRandomGenerator(xCenter, yCenter);
+        break;
+      case 5:
+        //Text out
+        instantiateStringOUT(xCenter, yCenter);
+        break;
+    }
+  }
+};
+Label ioLabel = new Label(500, 0, 250, 50, color(29, 209, 161));
+Button ioUp = new Button(500, 50, 50, 75, color(29, 209, 161)){
+  @Override
+  void onPress(){
+    ioBox.scrollUp();
+  }
+};
+Button ioDown = new Button(500, 125, 50, 75, color(29, 209, 161)){
+  @Override
+  void onPress(){
+    ioBox.scrollDown();
+  }
+};
+
+// ---------------------------------- Analysis --------------------------------------------
+Listbox analysisBox = new Listbox(1050, 50, 200, color(255, 214, 214), 50, 3){
+
+  @Override
+  void indexSelected(int index){
+    float xCenter = mainCanvas.screenToCanvas(mainCanvas.Width/2 + mainCanvas.x, 0)[0];
+    float yCenter = mainCanvas.screenToCanvas(0, mainCanvas.Height/2 + mainCanvas.y)[1];
+    switch(index){
+      case 0:
+        //Frequency
+        instantiateFreqAnalysis(xCenter, yCenter);
+        break;
+      case 1:
+        //Char value
+        instantiateCharValue(xCenter, yCenter);
+        break;
+      case 2:
+        //Counter
+        instantiateCounter(xCenter, yCenter);
+        break;
+    }
+  }
+};
+Label analysisLabel = new Label(1000, 0, 250, 50, color(255, 107, 107));
+Panel analysisPanel = new Panel(1000, 50, 50, 150, color(255, 107, 107));
+
+
+// --------------------------------- CANVAS CONTROLS --------------------------------------
+Button clearCanvas = new Button(300, 100, 200, 100, color(84, 160, 255)){
+  @Override
+  void onPress(){
+    connections.clear();
+    nodes.Elements.clear(); 
+  }
+};
+Button centerCanvas = new Button(300, 0, 200, 100, color(84, 160, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.xoffset = 0;
+    mainCanvas.yoffset = 0;
+  }
+};
+Button Up = new Button(100, 0, 100, 100, color(198, 228, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.yoffset += mainCanvas.scale;
+  }
+};
+Button Down = new Button(100, 100, 100, 100, color(198, 228, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.yoffset -= mainCanvas.scale;
+  }
+};
+Button Left = new Button(0, 100, 100, 100, color(198, 228, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.xoffset += mainCanvas.scale;
+  }
+};
+Button Right = new Button(200, 100, 100, 100, color(198, 228, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.xoffset -= mainCanvas.scale;
+  }
+};
+Button Plus = new Button(0, 0, 100, 100, color(84, 160, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.scale += 5;
+  }
+};
+Button Minus = new Button(200, 0, 100, 100, color(84, 160, 255)){
+  @Override
+  public void onPress(){
+    mainCanvas.scale -= 5;
+  }
+};
+
+boolean reveal = false;
+Label revealLabel = new Label(1250, 150, 250, 50, #AF9ECD);
+Toggle revealToggle = new Toggle(1450, 155, 40, 40, #C7C0DA){
+  @Override
+  public void toggle(){
+    reveal = !reveal;
+  }
+};
+
+Canvas mainCanvas = new Canvas(0, 200, 1500, 720, #B4BFD6, #949DB0);
+
 PFont futura;
-TextInput paraTest = new TextInput(1650, 600, 350, 300, color(100));
 void setup(){
   //Creates the window
-  size(2000, 1000);
+  size(1500, 920);
   //Sets font to futura
   futura = loadFont("futura-heavy.vlw");
   textFont(futura, 48);
-  
-  //TEST UI ELEMENTS
-  Elements.add(_canvas);
-  Elements.add(nodes);
-  Elements.add(new Panel(0, 0, 2000, 200, color(120)));
-  Elements.add(new Panel(1650, 200, 350, 800, color(120)));
-  Elements.add(button);
 
-  Elements.add(listBox);
-  Elements.add(up);
-  up.Text = "▲";
-  Elements.add(down);
-  down.Text = "▼";
-  up.TextColor = color(100);
-  down.TextColor = color(100);  
-  Elements.add(saveButton);
-  Elements.add(nodeLabel);
-  nodeLabel.setTextMode("CENTER");
-  Elements.add(centerCanvas);
-  Elements.add(counterButton);
-  Elements.add(debugToggle);
-  Elements.add(debugLabel);
-  Elements.add(Current);
-  Current.Text = "Current";
-  debugLabel.setTextMode("CENTER");
-  Elements.add(clearCanvas);
-  Elements.add(intIn);
-  textIn.ID = "ED";
-  Elements.add(textIn);
-  textIn.FontSize = 48;
-  Elements.add(paraTest);
-  paraTest.setTextMode("PARAGRAPH");
-  intIn.setCharacterSet(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"});
-  debugLabel.text = "Debug";
+  Elements.add(mainCanvas);
+  Elements.add(nodes);
+  
+  //Cipher
+  cipherBox.options.add("Caesar");
+  cipherBox.options.add("Substitution");
+  cipherBox.options.add("Transposition");
+  cipherBox.options.add("Railfence");
+  cipherBox.options.add("Polybius");
+  cipherBox.options.add("Vigenere");
+  cipherBox.TextColor = #B0ABA0;
+  cipherBox.HighlightColor = #FEF6E7;
+  Elements.add(cipherBox);
+  
+  cipherLabel.text = "Ciphers";
+  cipherLabel.FontSize = 32;
+  cipherLabel.setTextMode("CENTER");
+  Elements.add(cipherLabel);
+  
+  cipherUp.Text = "▲";
+  cipherUp.FontSize = 24;
+  cipherUp.HighlightColor = color(254, 220, 144);
+  cipherUp.TextHighlightColor = color(150, 125, 67);
+  Elements.add(cipherUp);
+  
+  cipherDown.Text = "▼";
+  cipherDown.FontSize = 24;
+  cipherDown.HighlightColor = color(254, 220, 144);
+  cipherDown.TextHighlightColor = color(150, 125, 67);
+  Elements.add(cipherDown);
+  
+  //IO
+  ioBox.options.add("Text in");
+  ioBox.options.add("Int in");
+  ioBox.options.add("Character in");
+  ioBox.options.add("Alphabet in");
+  ioBox.options.add("Random");
+  ioBox.options.add("Text out");
+  ioBox.TextColor = color(118, 145, 128);
+  ioBox.HighlightColor = #C7D6C7;
+  Elements.add(ioBox);
+  
+  ioLabel.text = "I/O";
+  ioLabel.FontSize = 32;
+  ioLabel.setTextMode("CENTER");
+  Elements.add(ioLabel);
+  
+  ioUp.Text = "▲";
+  ioUp.FontSize = 24;
+  ioUp.HighlightColor = color (127, 255, 216);
+  ioUp.TextHighlightColor = color(47, 150, 122);
+  Elements.add(ioUp);
+  
+  ioDown.Text = "▼";
+  ioDown.FontSize = 24;
+  ioDown.HighlightColor = color(127, 255, 216);
+  ioDown.TextHighlightColor = color (47, 150, 122);
+  Elements.add(ioDown);
+  
+  //analysis
+  analysisBox.options.add("Frequency");
+  analysisBox.options.add("Char value");
+  analysisBox.options.add("Counter");
+  analysisBox.TextColor = #8D8282;
+  analysisBox.HighlightColor = #FFECF2;
+  Elements.add(analysisBox);
+  
+  analysisLabel.text = "Analysis";
+  analysisLabel.FontSize = 32;
+  analysisLabel.setTextMode("CENTER");
+  Elements.add(analysisLabel);
+  
+  Elements.add(analysisPanel);
+  
+  //canvas controls
+  Up.Text = "▲";
+  Up.FontSize = 48;
+  Up.TextColor = color(131, 149, 167);
+  Up.HighlightColor = #DBF0FF;
+  Up.TextHighlightColor = #A2B2BD;
+  Elements.add(Up);
+  
+  Down.Text = "▼";
+  Down.FontSize = 48;
+  Down.TextColor = color(131, 149, 167);
+  Down.HighlightColor = #DBF0FF;
+  Down.TextHighlightColor = #A2B2BD;
+  Elements.add(Down);
+  
+  Left.Text = "◀";
+  Left.FontSize = 48;
+  Left.TextColor = color(131, 149, 167);
+  Left.HighlightColor = #DBF0FF;
+  Left.TextHighlightColor = #A2B2BD;
+  Elements.add(Left);
+  
+  Right.Text = "▶";
+  Right.FontSize = 48;
+  Right.TextColor = color(131, 149, 167);
+  Right.HighlightColor = #DBF0FF;
+  Right.TextHighlightColor = #A2B2BD;
+  Elements.add(Right);
+  
+  Plus.Text = "+";
+  Plus.FontSize = 48;
+  Plus.HighlightColor = color (136, 190, 255);
+  Plus.TextHighlightColor = color(80, 112, 150);
+  Elements.add(Plus);
+  
+  Minus.Text = "−";
+  Minus.FontSize = 48;
+  Minus.HighlightColor = color (136, 190, 255);
+  Minus.TextHighlightColor = color(80, 112, 150);
+  Elements.add(Minus);
+  
   centerCanvas.Text = "Center";
+  centerCanvas.HighlightColor = color (136, 190, 255);
+  centerCanvas.TextHighlightColor = color(80, 112, 150);
+  Elements.add(centerCanvas);
+  
   clearCanvas.Text = "Clear";
-  nodeLabel.text = "Nodes";
-  saveButton.Text = "Save"; 
-  button.Text = "Caesar";
-  button.HighlightColor = color(120);
-  button.PressColor = color(200);
-  listBox.options.add("Caesar");
-  listBox.options.add("Substitution");
-  listBox.options.add("String IN");
-  listBox.options.add("String OUT");
-  listBox.options.add("Int IN");
-  listBox.options.add("Char IN");
-  listBox.options.add("Alphabet");
-  counterButton.Text = "Counter";
+  clearCanvas.HighlightColor = color (136, 190, 255);
+  clearCanvas.TextHighlightColor = color(80, 112, 150);
+  Elements.add(clearCanvas);
+  
+  revealLabel.text = " Show values";
+  revealLabel.FontSize = 36;
+  Elements.add(revealLabel);
+  
+  revealToggle.HighlightColor = color(95, 39, 205);
+  Elements.add(revealToggle);  
+  
+  banner.text = "DeNode";
+  banner.FontSize = 52;
+  banner.TextColor = color(255);
+  banner.setTextMode("CENTER");
+  Elements.add(banner);
+  
+  credits.text = "By Leon Cresdee";
+  credits.FontSize = 28;
+  credits.setTextMode("CENTER");
+  Elements.add(credits);
 }
 
 //Manages the key presses from the keyboard
@@ -203,6 +394,14 @@ void keyPressed(){
   }else if (int(key) == 22){
     //Paste clipboard to textInput
     charBuffer.add("PASTE");
+  }else if (keyCode == UP){
+    Up.onPress();
+  }else if (keyCode == DOWN){
+    Down.onPress();
+  }else if (keyCode == LEFT){
+    Left.onPress();
+  }else if (keyCode == RIGHT){
+    Right.onPress();
   }else{
     if(key != CODED){
       charBuffer.add(Character.toString(key).toUpperCase()); 
@@ -210,10 +409,9 @@ void keyPressed(){
   }
 }
 
-boolean filter = false;
 void keyReleased(){
   if (keyCode == java.awt.event.KeyEvent.VK_F1){
-    filter = !filter;
+    saveFrame("Screenshots/DeNode-####.png");
   }
 }
 
@@ -247,7 +445,7 @@ float ydisplacement;
 //This function is called each time a frame is drawn
 void draw(){
   //Resets the background so the previous frame is cleared
-  background(255);
+  background(120);
   //Begins the mouseChecks.
   found = false;
   MouseChecks(Elements);
@@ -260,8 +458,12 @@ void draw(){
   //Sets the mouse displacements
   xdisplacement = mouseX - pmouseX;
   ydisplacement = mouseY - pmouseY;
-  if (filter){filter(INVERT);}
+  for (int i = 0; i < 5; i++){
+    stroke(0, 0, 0, 120 - (i * 20));
+    line(0, 200 + i, 1500, 200 + i);
+  }
 }
+
 //this boolean manages whether or not the mouse was down in the previous frame, this is so the function mousedown is only called on the first frame that the mouse has been pressed down
 boolean mouseDown = false;
 boolean found = false;
@@ -300,9 +502,9 @@ void MouseChecks(ArrayList<GUI> elements){
 }
 void mouseWheel(MouseEvent event){
   float amount = event.getCount();
-  if(_canvas.WithinBounds(mouseX, mouseY)){
-    if ((_canvas.scale - amount) <= 60 && (_canvas.scale - amount) >= 10){
-      _canvas.scale -= amount;
+  if(mainCanvas.WithinBounds(mouseX, mouseY)){
+    if ((mainCanvas.scale - amount) <= 60 && (mainCanvas.scale - amount) >= 10){
+      mainCanvas.scale -= amount;
     }
   
   }
@@ -327,68 +529,94 @@ GUIGroup nodes = new GUIGroup(){
 
 // Creates a caesar cipher node
 void instantiateCaesar(float x, float y){
-  Caesar caesar = new Caesar(_canvas, x, y);
+  Caesar caesar = new Caesar(mainCanvas, x, y);
   nodes.Elements.add(caesar);
 }
 
 // Creates a String In node
 void instantiateStringIN(float x, float y){
-  StringIN stringIN = new StringIN(_canvas, x, y);
+  StringIN stringIN = new StringIN(mainCanvas, x, y);
   nodes.Elements.add(stringIN);
 }
 
 // Creates a String Out node
 void instantiateStringOUT(float x, float y){
-  StringOUT stringOUT = new StringOUT(_canvas, x, y);
+  StringOUT stringOUT = new StringOUT(mainCanvas, x, y);
   nodes.Elements.add(stringOUT);
 }
 
 // Creates an Int In node
-void instnatiateIntIN(float x, float y){
-  IntIN intIN = new IntIN(_canvas, x ,y);
+void instantiateIntIN(float x, float y){
+  IntIN intIN = new IntIN(mainCanvas, x ,y);
   nodes.Elements.add(intIN);
 }
 
 // Creates a counter node
 void instantiateCounter(float x, float y){
-  Counter counter = new Counter(_canvas, x, y);
+  println(43);
+  Counter counter = new Counter(mainCanvas, x, y);
   nodes.Elements.add(counter);
 }
 
 //creates Character Input node
 void instantiateCharIN(float x, float y){
-  CharIn charIN = new CharIn(_canvas, x, y);
+  CharIn charIN = new CharIn(mainCanvas, x, y);
   nodes.Elements.add(charIN);
 }
 
 void instantiateAlphabet(float x, float y){
-  AlphabetBuilder alphabetBuilder = new AlphabetBuilder(_canvas, x, y);
+  AlphabetBuilder alphabetBuilder = new AlphabetBuilder(mainCanvas, x, y);
   nodes.Elements.add(alphabetBuilder);
 }
 
 void instantiateSubstitution(float x, float y){
-  Substitution substitution = new Substitution(_canvas, x, y);
+  Substitution substitution = new Substitution(mainCanvas, x, y);
   nodes.Elements.add(substitution);
 }
 
 void instantitateTransposition(float x, float y){
-  Transposition transposition = new Transposition(_canvas, x, y);
+  Transposition transposition = new Transposition(mainCanvas, x, y);
   nodes.Elements.add(transposition);
 }
 
 void instantiateRailfence(float x, float y){
-  RailFence railfence = new RailFence(_canvas, x, y);
+  RailFence railfence = new RailFence(mainCanvas, x, y);
   nodes.Elements.add(railfence);
 }
 
 void instantiateFreqAnalysis(float x, float y){
-  FreqAnalysis freqAnalysis = new FreqAnalysis(_canvas, x, y);
+  FreqAnalysis freqAnalysis = new FreqAnalysis(mainCanvas, x, y);
   nodes.Elements.add(freqAnalysis);
 }
 
 void instantiateRandomGenerator(float x, float y){
-  RandomGenerator randomGenerator = new RandomGenerator(_canvas, x, y);
+  RandomGenerator randomGenerator = new RandomGenerator(mainCanvas, x, y);
   nodes.Elements.add(randomGenerator);
+}
+
+void instantiatePolybius(float x, float y){
+  Polybius polybius = new Polybius(mainCanvas, x, y);
+  nodes.Elements.add(polybius);
+}
+
+void instantiateVigenere(float x, float y){
+  Vigenere vigenere = new Vigenere(mainCanvas, x, y);
+  nodes.Elements.add(vigenere);
+}
+
+void instantiateCharValue(float x, float y){
+  CharValue charValue = new CharValue(mainCanvas, x, y);
+  nodes.Elements.add(charValue);
+}
+
+void instantiateTransposition(float x, float y){
+  Transposition transposition = new Transposition(mainCanvas, x, y);
+  nodes.Elements.add(transposition);
+}
+
+void instantiateRailFence(float x, float y){
+  RailFence railFence = new RailFence(mainCanvas, x, y);
+  nodes.Elements.add(railFence);
 }
 
 // Caclulates the distance between two vectors

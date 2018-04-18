@@ -25,7 +25,7 @@ public static class System{
     StringSelection data = new StringSelection(text);
     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     clipboard.setContents(data, data);
-    println("COPIED");
+    
   }
   
 }

@@ -3,7 +3,7 @@ Cipher Nodes
   Caesar [Done]
   Substitution [Encipher/Decipher]
   Transposition [Encipher/Decipher]
-  Railspike [Encipher/Decipher]
+  Railfence [Encipher/Decipher]
   Polybius [Encipher/Decipher]
   Vigenere [Encipher/Decipher]
 
@@ -12,6 +12,8 @@ IO Nodes
   Int In [Done]
   Text Output [Done]
   Char In [Done]
+  Counter [Done]
+  Alphabet [Done]
   
 Conections
   Bezier [Done]
@@ -78,9 +80,9 @@ class Connection{
     strokeWeight(1);
     stroke(0);
     
-    if (debug){
+    if (reveal){
       textSize((20.0/60)*canvas.scale);
-      fill(0);
+      fill(138, 157, 205);
       textAlign(CENTER);
       rectMode(CENTER);
       String value = "";
@@ -89,7 +91,7 @@ class Connection{
       }else{
         value = "NULL";
       }
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(value), (20.0/60)*canvas.scale);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(value) + canvas.scale / 6, (30.0/60)*canvas.scale, (0.1)*canvas.scale);
       rectMode(CORNER);
       if (!Valid){
         fill(color(242, 74, 70));
@@ -102,7 +104,7 @@ class Connection{
       fill(0);
       textAlign(CENTER);
       rectMode(CENTER);
-      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(errorMessage), (20.0/60)*canvas.scale);
+      rect((startCoords[0] + endCoords[0])/2, (startCoords[1]+endCoords[1])/2 , textWidth(errorMessage)  + canvas.scale / 6, (30.0/60)*canvas.scale, (0.1)*canvas.scale);
       rectMode(CORNER);
       fill(color(242, 74, 70));
       text(errorMessage, (startCoords[0]+endCoords[0])/2, (startCoords[1]+endCoords[1])/2 + (10.0/60)*canvas.scale);
@@ -147,32 +149,32 @@ class Canvas extends GUI{
     }
     fill(Color);
     rectMode(CORNER);
-    rect(x, y, Width, Height);
+    rect(getX(), getY(), getWidth(), getHeight());
 
     //DRAWS GRID
     stroke(gridLineColor);
     strokeWeight(1);
-    float xRange = (Width/scale);
-    float yRange = (Height/scale);
+    float xRange = (getWidth()/scale);
+    float yRange = (getHeight()/scale);
     float xStart = 0 - (xRange/2) - xoffset/scale;
     float yStart = 0 - (yRange/2) - yoffset/scale;
       
     for (int i = round(xStart); i < xStart+xRange; i++){
-      line(canvasToScreen(i, 0)[0], y, canvasToScreen(i, 0)[0], y+Height);
-      line(canvasToScreen(-i, 0)[0], y, canvasToScreen(-i, 0)[0], y+Height);
+      line(canvasToScreen(i, 0)[0], getY(), canvasToScreen(i, 0)[0], getY()+getHeight());
+      line(canvasToScreen(-i, 0)[0], getY(), canvasToScreen(-i, 0)[0], getY()+getHeight());
     }
     for (int i = round(yStart); i < yStart+yRange; i++){
-      line(x, canvasToScreen(0, i)[1], x+Width, canvasToScreen(0, i)[1]);
-      line(x, canvasToScreen(0, -i)[1], x+Width, canvasToScreen(0, -i)[1]);
+      line(getX(), canvasToScreen(0, i)[1], getX()+getWidth(), canvasToScreen(0, i)[1]);
+      line(getX(), canvasToScreen(0, -i)[1], getX()+getWidth(), canvasToScreen(0, -i)[1]);
     }
     
     //Draws center line
     strokeWeight(3);
-    if (Width/2 +x + xoffset < x+Width && Width/2+xoffset > x){
-      line(Width/2 +x +xoffset, y, Width/2 +x +xoffset, y+Height);    
+    if (getWidth()/2 +getX() + xoffset < getX()+getWidth() && getWidth()/2+xoffset > getX()){
+      line(getWidth()/2 +getX() +xoffset, getY(), getWidth()/2 + getX() +xoffset, getY()+getHeight());    
     }
-    if (Height/2 +y +yoffset < y+Height && Height/2 +y +yoffset > y){
-      line(x, Height/2 +y +yoffset, x+Width, Height/2 +y +yoffset);
+    if (getHeight()/2 + getY() +yoffset < getY()+getHeight() && getHeight()/2 + getY() +yoffset > getY()){
+      line(getX(), getHeight()/2 + getY() +yoffset, getX()+getWidth(), getHeight()/2 +getY() +yoffset);
     }
     strokeWeight(1);
   }
@@ -728,6 +730,7 @@ class Counter extends Node{
     elements.get(1).parent = this;
     elements.add(new Label(0, 0, 2, 1, color(38, 48, 70)));
     elements.get(2).parent = this;
+    ((Label)elements.get(2)).setTextMode("CENTER");
     elements.add(minus);
     elements.get(3).parent = this;
     setSizings();
@@ -1223,7 +1226,7 @@ class Polybius extends Node{
   void update(){
     super.update();
     cipherToggle.Text = (cipher.encipher) ? "Encipher" : "Decipher";
-    if (input != null && cipherChars != null && keySquare != null){
+    if (input.value != null && cipherChars.value != null && keySquare.value != null){
       cipher.input = (String)input.value;
       cipher.Key = (String)keySquare.value;
       cipher.cipherChars = (String)cipherChars.value;
@@ -1318,6 +1321,9 @@ class CharValue extends Node{
     input = new plug<Character>(this, 0, 0, "Character"){
       @Override
       boolean meetsRequirements(Object value){
+        if (value == null){
+          return true;
+        }
         if (value instanceof Character){
           return true;
         }
@@ -1326,12 +1332,18 @@ class CharValue extends Node{
       }
     };
     output = new plug<Integer>(this, 0, 0, "Ouptut");
+    output.output = true;
+    elements.add(input);
+    elements.add(output);
     setSizings();
   }
   
   void update(){
     super.update();
-    output.value = Cipher.letterValue((char)input.value);
+    if (input.value != null){
+      output.value = Cipher.letterValue((char)input.value);
+    }
+    
   }
 }
 

@@ -545,7 +545,7 @@ class Toggle extends GUI{
   }
   
   void update(){
-    fill(color(100));
+    fill(Color);
     stroke(color(60));
     ellipse(getX()+(getWidth()/2), y+(getHeight()/2), getWidth(), getHeight());
     noStroke();
@@ -553,7 +553,7 @@ class Toggle extends GUI{
       fill(HighlightColor);
       ellipse(getX()+(getWidth()/2), getY()+(getHeight()/2), getWidth()*0.6, getHeight()*0.6);
     }else{
-      fill(60);
+      fill(color(red(Color)/2, green(Color)/2, blue(Color)/2));
       ellipse(getX()+(getWidth()/2), getY()+(getHeight()/2), getWidth()*0.6, getHeight()*0.6);
     }
   }
@@ -604,7 +604,7 @@ class Listbox extends GUI{
   float optionHeights;
   float FontSize = 32;
   int highlightOption = -1;
-  color highlightColor = color(100, 0, 200);
+  color HighlightColor = color(100, 0, 200);
   color BlankColor = color(60);
   float padding = 5;
   Listbox(float X, float Y, float Width, color Color, float optionHeights, int optionsShowing){
@@ -638,7 +638,7 @@ class Listbox extends GUI{
   }
   
   void onPress(){
-    returnSelected(getIndex());
+    indexSelected(getIndex());
   }
   int getIndex(){
     float index = ((mouseY - getY()) - (mouseY%optionHeights)) / optionHeights;
@@ -648,7 +648,7 @@ class Listbox extends GUI{
     return Index;
   }
   
-  void returnSelected(int index){
+  void indexSelected(int index){
     //To be overriden on instance
   }
   
@@ -664,7 +664,7 @@ class Listbox extends GUI{
     fill(Color);
     stroke(TextColor);
     rect(x, y, Width, optionsShowing*optionHeights);
-    fill(highlightColor);
+    fill(HighlightColor);
     if (highlightOption >= 0 && highlightOption < options.size()){
       rect(x, y+(optionHeights*highlightOption), Width, optionHeights);
     }
@@ -699,7 +699,7 @@ class Panel extends GUI{
   }
   void update(){
     fill(Color);
-    noStroke();
+    stroke(0);
     rect(getX(), getY(), getWidth(), getHeight());
     stroke(color(0));
   }

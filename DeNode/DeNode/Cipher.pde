@@ -11,7 +11,7 @@ static class Cipher{
         return i;
       }
     }
-    print("ERROR: character given is not standard english alphabet");
+    println("ERROR: character given is not standard english alphabet");
     return 0;
   }
 }
@@ -297,7 +297,6 @@ class TranspositionCipher extends Cipher{
       char current = sortedKey.charAt(i);
       for (int j = 0; j < matrix[0].length; j++){
         if (current == Key.charAt(j)){
-          println(i + "   " + j);
           for (int k = 0; k < matrix.length; k++){
             newMatrix[k][j] = matrix[k][i];
           }
@@ -318,7 +317,6 @@ class TranspositionCipher extends Cipher{
     
     int Height = matrix.length;
     //Swap columns
-    println(" input: " + Height);
     for (int i = 0; i < Height; i++){
       char swap = matrix[i][index];
       matrix[i][index] = matrix[i][index+1];
@@ -333,12 +331,11 @@ class PolybiusCipher extends Cipher{
   String[] matrix;
   
   void Update(){
-    input.replaceAll(" ", "");
     output = "";
     if (input.length() == 0 || Key.length() == 0 || cipherChars.length() == 0){
       return;
     }
-    
+    input.replaceAll(" ", "");
     if (encipher){
       encipher();
     }else{
