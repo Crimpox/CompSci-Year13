@@ -1,34 +1,3 @@
-/**
-Cipher Nodes
-  Caesar [Done]
-  Substitution [Encipher/Decipher]
-  Transposition [Encipher/Decipher]
-  Railfence [Encipher/Decipher]
-  Polybius [Encipher/Decipher]
-  Vigenere [Encipher/Decipher]
-
-IO Nodes
-  Text In [Done]
-  Int In [Done]
-  Text Output [Done]
-  Char In [Done]
-  Counter [Done]
-  Alphabet [Done]
-  
-Conections
-  Bezier [Done]
-  Error handling (invalid plug e.g. string into int plug) [Done]
-  
-Grid
-  Zoom [Done]
-  Move [Done]
-  
-Analysis
-  Frequency analysis [Done]
-  Char to Value [Done]
-  Random generator (Alphabet/String/Integer) [Done]
-  
-**/
 class Connection{
   plug start;
   plug end;
@@ -491,22 +460,20 @@ class plug<T> extends GUI{
     for(int i = 0; i < nodes.Elements.size(); i++){
       Node _node = (Node)nodes.Elements.get(i);
       for (int j = 0; j < _node.elements.size(); j++){
-          if (_node.elements.get(j).WithinBounds(mouseX, mouseY) && connecting && _node.elements.get(j) instanceof plug){
-            if (node != _node){
-              if (output != ((plug)_node.elements.get(j)).output){
-                //If the plug is already in use and an input plug then remove the current connection
-                if (!(((plug)_node.elements.get(j)).output) && findConnection((plug)_node.elements.get(j)).length >0){
-                  connections.remove(findConnection((plug)_node.elements.get(j))[0]);
-                }
-                //New connection is created between current plug and plug under mouse
-                connections.add(new Connection(this, (plug)_node.elements.get(j)));
-                connected = true;
-                ((plug)_node.elements.get(j)).connected = true;
+        if (_node.elements.get(j).WithinBounds(mouseX, mouseY) && connecting && _node.elements.get(j) instanceof plug){
+          if (node != _node){
+            if (output != ((plug)_node.elements.get(j)).output){
+              //If the plug is already in use and an input plug then remove the current connection
+              if (!(((plug)_node.elements.get(j)).output) && findConnection((plug)_node.elements.get(j)).length >0){
+                connections.remove(findConnection((plug)_node.elements.get(j))[0]);
               }
-
-            
+              //New connection is created between current plug and plug under mouse
+              connections.add(new Connection(this, (plug)_node.elements.get(j)));
+              connected = true;
+              ((plug)_node.elements.get(j)).connected = true;
             }
           }
+        }
       }
       
     }

@@ -1,0 +1,31 @@
+/**
+Cipher Nodes
+  Caesar [Done]
+  Substitution [Encipher/Decipher]
+  Transposition [Encipher/Decipher]
+  Railfence [Encipher/Decipher]
+  Polybius [Encipher/Decipher]
+  Vigenere [Encipher/Decipher]
+
+IO Nodes
+  Text In [Done]
+  Int In [Done]
+  Text Output [Done]
+  Char In [Done]
+  Counter [Done]
+  Alphabet [Done]
+  
+Conections
+  Bezier [Done]
+  Error handling (invalid plug e.g. string into int plug) [Done]
+  
+Grid
+  Zoom [Done]
+  Move [Done]
+  
+Analysis
+  Frequency analysis [Done]
+  Char to Value [Done]
+  Random generator (Alphabet/String/Integer) [Done]
+  
+**/

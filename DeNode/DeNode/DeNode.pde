@@ -1,40 +1,3 @@
-/**
-----------<BUGS>-----------
-----------<TODO>-----------
-Write-up
-[↓ Maybes ↓]
-Maybe add a save funcion. Serializables should get me some marks
----------<DONE>-----------
-[Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
-Add default values for plugs based on their dimensions [Done]
-Rewrite mouse checks to implement layey checking and so that a simple hover(),
-released()or pressed()is sent to the GUI element and the specifics are handled GUI side [Done]
-Canvas to Screen for GUI node elements
-ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
-UI elements and inputs should simply be structured like a list and output should be on the right.
-Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
-Make it so when drawing from a output node you can only finish on an input node and vice versa 
-When nodes are selected they get moved to the top layer. (By doing this it stops the multiple node dragging)
-Improve plugs so that connections can be broken
-Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
-Find a way to delete nodes
-Nodes that are not within the canvas view are not drawn
-Use a cut off mask for the canvas
-Canvas movements 
-New nodes are placed in the center of the canvas view. Not at [0, 0]
-Connections are not deleted when nodes are
-Multiple textInputs can be active at the same time
-Nodes are being created odd sizes when being made at high zooms (Weirdly it's only the first node being created within that update. For some reason the rest are normal)
-Fix line overflow on text Input
-Add textwrap to label
-Implement conditioning for connections
-Encrypt and Decrypt toggle
-draw Nodes on top of connections
-Copy and paste
-Changed bezier formula
-Layout final UI
-Char to value node
-*/
 
 Label banner = new Label (1250, 0, 250, 100, color(95, 39, 205));
 Label credits = new Label (1250, 100, 250, 50, color(134, 96, 205));
@@ -163,6 +126,7 @@ Panel analysisPanel = new Panel(1000, 50, 50, 150, color(255, 107, 107));
 
 
 // --------------------------------- CANVAS CONTROLS --------------------------------------
+//Clears the canvas of nodes and connections
 Button clearCanvas = new Button(300, 100, 200, 100, color(84, 160, 255)){
   @Override
   void onPress(){
@@ -170,6 +134,7 @@ Button clearCanvas = new Button(300, 100, 200, 100, color(84, 160, 255)){
     nodes.Elements.clear(); 
   }
 };
+//Centers the canvas back to 0, 0
 Button centerCanvas = new Button(300, 0, 200, 100, color(84, 160, 255)){
   @Override
   public void onPress(){
@@ -177,6 +142,7 @@ Button centerCanvas = new Button(300, 0, 200, 100, color(84, 160, 255)){
     mainCanvas.yoffset = 0;
   }
 };
+//These buttons all move within the canvas
 Button Up = new Button(100, 0, 100, 100, color(198, 228, 255)){
   @Override
   public void onPress(){
@@ -201,6 +167,7 @@ Button Right = new Button(200, 100, 100, 100, color(198, 228, 255)){
     mainCanvas.xoffset -= mainCanvas.scale;
   }
 };
+//Zooms the canvas in and out
 Button Plus = new Button(0, 0, 100, 100, color(84, 160, 255)){
   @Override
   public void onPress(){
@@ -213,7 +180,7 @@ Button Minus = new Button(200, 0, 100, 100, color(84, 160, 255)){
     mainCanvas.scale -= 5;
   }
 };
-
+// The boolean reveal is whether or not the connections display the values they are transfering. It is toggled by the toggle element revealToggle
 boolean reveal = false;
 Label revealLabel = new Label(1250, 150, 250, 50, #AF9ECD);
 Toggle revealToggle = new Toggle(1450, 155, 40, 40, #C7C0DA){
@@ -222,17 +189,20 @@ Toggle revealToggle = new Toggle(1450, 155, 40, 40, #C7C0DA){
     reveal = !reveal;
   }
 };
-
+//The main canvas that all the nodes are placed in
 Canvas mainCanvas = new Canvas(0, 200, 1500, 720, #B4BFD6, #949DB0);
 
+// futura is the font used by the program
 PFont futura;
 void setup(){
   //Creates the window
   size(1500, 920);
-  //Sets font to futura
+  //Loads the font futura and sets the default size to 48
   futura = loadFont("futura-heavy.vlw");
   textFont(futura, 48);
-
+  
+  //Everything bellow is the configuration of the UI elements and the adding to the elements array
+  
   Elements.add(mainCanvas);
   Elements.add(nodes);
   
@@ -382,42 +352,53 @@ void setup(){
 ArrayList<String> charBuffer = new ArrayList<String>();
 void keyPressed(){
   if (keyCode == BACKSPACE){
+    //Adding BACK to the charBuffer signals the textInput to remove the last character
     charBuffer.add("BACK");
   }else if(keyCode == ENTER){
-    //do nothing atm
+    //Does nothing to prevent unwanted new lines on the textInput
     println("\n\n");
   }else if (keyCode == DELETE){
+    //Puts the command to delete in the charBuffer which signals the node to delete if the mouse is over it
     charBuffer.add("DEL");
   }else if (int(key) == 3){
-    //Copy label or textinput data to clipboard
+    //If the textInput is active or mouse is over a label it'll copy text into the clipboard
     charBuffer.add("COPY");
   }else if (int(key) == 22){
-    //Paste clipboard to textInput
+    //If textInput is active then it pastes the clipboard into the textInput
     charBuffer.add("PASTE");
   }else if (keyCode == UP){
+    //Trigers the Up button
     Up.onPress();
   }else if (keyCode == DOWN){
+    //Trigers the Down button
     Down.onPress();
   }else if (keyCode == LEFT){
+    //Triggers the Left button
     Left.onPress();
   }else if (keyCode == RIGHT){
+    //Triggers the Right button
     Right.onPress();
   }else{
     if(key != CODED){
+      //Addeds the key pressed to the charBuffer
       charBuffer.add(Character.toString(key).toUpperCase()); 
     }
   }
 }
 
+// called when a key is lifted
 void keyReleased(){
+  //Takes a screenshot of the frame when F1 is pressed
   if (keyCode == java.awt.event.KeyEvent.VK_F1){
     saveFrame("Screenshots/DeNode-####.png");
   }
 }
 
-//Manages the mousechecks for all the mouse releases which triggers buttons and connections
+//Called when a mouse button is lifted
 void mouseReleased(){
   mouseDown = false;
+  //Sorts through all the elements and branches if it encounters a GUI grou
+  //Then if the the mouse is within the elements bounds it calls released() on the element if outside the bounds dragRelease()
   for (int i = Elements.size() - 1; i >= 0; i--){
     GUI _element = (GUI)Elements.get(i);
     if (_element instanceof GUIGroup){
@@ -481,7 +462,11 @@ void MouseChecks(ArrayList<GUI> elements){
       MouseChecks(node.elements);
     }
     
-    
+    //Calls certain functions on elements based on certain conditions
+    // pressed() if within bounds and mouse down
+    // mouseDown() if its the first frame of the element being pressed
+    // hover() if withing bounds but mouse isnt pressed
+    // deactivate() if mouse pressed outside of bounds
     if(elements.get(i).WithinBounds(mouseX, mouseY) && !found){
       found = true;
       if (mousePressed == true){
@@ -500,13 +485,15 @@ void MouseChecks(ArrayList<GUI> elements){
     } 
   }
 }
+
+//Called when the mouse wheel is scrolled
+//Changes the scale of the canvas based on scroll amount (clamped between scale of 60 and 10 pixels per a canvas unit)
 void mouseWheel(MouseEvent event){
   float amount = event.getCount();
   if(mainCanvas.WithinBounds(mouseX, mouseY)){
     if ((mainCanvas.scale - amount) <= 60 && (mainCanvas.scale - amount) >= 10){
       mainCanvas.scale -= amount;
     }
-  
   }
 }
 
@@ -558,65 +545,70 @@ void instantiateCounter(float x, float y){
   nodes.Elements.add(counter);
 }
 
-//creates Character Input node
+// Creates Character Input node
 void instantiateCharIN(float x, float y){
   CharIn charIN = new CharIn(mainCanvas, x, y);
   nodes.Elements.add(charIN);
 }
 
+// Createa an Alphabet Input node
 void instantiateAlphabet(float x, float y){
   AlphabetBuilder alphabetBuilder = new AlphabetBuilder(mainCanvas, x, y);
   nodes.Elements.add(alphabetBuilder);
 }
 
+// Creates a Substitution cipher node
 void instantiateSubstitution(float x, float y){
   Substitution substitution = new Substitution(mainCanvas, x, y);
   nodes.Elements.add(substitution);
 }
 
+// Creates a Transposition cipher node
 void instantitateTransposition(float x, float y){
   Transposition transposition = new Transposition(mainCanvas, x, y);
   nodes.Elements.add(transposition);
 }
 
+// Creates a Railfence cipher node
 void instantiateRailfence(float x, float y){
   RailFence railfence = new RailFence(mainCanvas, x, y);
   nodes.Elements.add(railfence);
 }
 
+// Creates a Frequency Analysis node
 void instantiateFreqAnalysis(float x, float y){
   FreqAnalysis freqAnalysis = new FreqAnalysis(mainCanvas, x, y);
   nodes.Elements.add(freqAnalysis);
 }
 
+// Creates a Random generator node
 void instantiateRandomGenerator(float x, float y){
   RandomGenerator randomGenerator = new RandomGenerator(mainCanvas, x, y);
   nodes.Elements.add(randomGenerator);
 }
 
+// Creates a Polybius cipher node
 void instantiatePolybius(float x, float y){
   Polybius polybius = new Polybius(mainCanvas, x, y);
   nodes.Elements.add(polybius);
 }
 
+// Creates a Vigenere cipher node
 void instantiateVigenere(float x, float y){
   Vigenere vigenere = new Vigenere(mainCanvas, x, y);
   nodes.Elements.add(vigenere);
 }
 
+// Creates a Character to Value node
 void instantiateCharValue(float x, float y){
   CharValue charValue = new CharValue(mainCanvas, x, y);
   nodes.Elements.add(charValue);
 }
 
+// Creates a Transposition cipher node
 void instantiateTransposition(float x, float y){
   Transposition transposition = new Transposition(mainCanvas, x, y);
   nodes.Elements.add(transposition);
-}
-
-void instantiateRailFence(float x, float y){
-  RailFence railFence = new RailFence(mainCanvas, x, y);
-  nodes.Elements.add(railFence);
 }
 
 // Caclulates the distance between two vectors
@@ -630,6 +622,7 @@ public static float distance(float[] vector1, float[] vector2){
 //Stores all the connections so they're grouped together
 ArrayList<Connection> connections = new ArrayList<Connection>();
 
+//Returns list of connections that are connection to the plug given as a paramater
 Connection[] findConnection(plug Plug){
   ArrayList<Connection> found = new ArrayList<Connection>();
   for (int i = 0; i < connections.size(); i++){

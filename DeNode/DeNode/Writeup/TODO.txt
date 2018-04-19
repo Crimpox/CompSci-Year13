@@ -1,0 +1,36 @@
+/**
+
+----------<BUGS>-----------
+----------<TODO>-----------
+Write-up
+---------<DONE>-----------
+[Issue (SOLVED)] mousechecks not working on sub node GUI elements. mousechecks is being called but not returning correct result. possibly due to screen coords being used for the x and y of the sub node elements
+Add default values for plugs based on their dimensions [Done]
+Rewrite mouse checks to implement layey checking and so that a simple hover(),
+released()or pressed()is sent to the GUI element and the specifics are handled GUI side [Done]
+Canvas to Screen for GUI node elements
+ADD FUNCTIONALITYY OF LIMITING CHARACTER INPUT ON TEXT INPUT BOXES Also maybe redo alot the entire things.
+UI elements and inputs should simply be structured like a list and output should be on the right.
+Simplify sub node elements so that height and width of the node is calculated by the size of the elements inside it
+Make it so when drawing from a output node you can only finish on an input node and vice versa 
+When nodes are selected they get moved to the top layer. (By doing this it stops the multiple node dragging)
+Improve plugs so that connections can be broken
+Reverse mouse check loop so it searches backwards in order to allow selection of toplayer. (The search loops have been reversed but making the loop stop calling pressed() is looking to be complicated)
+Find a way to delete nodes
+Nodes that are not within the canvas view are not drawn
+Use a cut off mask for the canvas
+Canvas movements 
+New nodes are placed in the center of the canvas view. Not at [0, 0]
+Connections are not deleted when nodes are
+Multiple textInputs can be active at the same time
+Nodes are being created odd sizes when being made at high zooms (Weirdly it's only the first node being created within that update. For some reason the rest are normal)
+Fix line overflow on text Input
+Add textwrap to label
+Implement conditioning for connections
+Encrypt and Decrypt toggle
+draw Nodes on top of connections
+Copy and paste
+Changed bezier formula
+Layout final UI
+Char to value node
+*/

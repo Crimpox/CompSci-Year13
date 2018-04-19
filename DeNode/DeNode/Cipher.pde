@@ -78,6 +78,7 @@ class SubstitutionCipher extends Cipher{
         }
       }    
     }else{
+      // Switches the input with ones from the standard english alphabet based on the index of the letter in the cipher alphabet
       for (int i = 0; i < input.length(); i++){
         if (Character.isLetter(input.charAt(i))){
           for (int j = 0; j < switched_alphabet.alphabet.length; j++){
@@ -91,21 +92,6 @@ class SubstitutionCipher extends Cipher{
       }
     }
 
-  }
-}
-
-class AtbashCipher extends Cipher{
-  void Update(){
-    output = "";
-      for (int i = 0; i < input.length(); i++){
-        if (Character.isLetter(input.charAt(i))){
-          for (int j = 0; j < alphabet.length; j++){
-            output += alphabet[25-j];
-          }  
-        }else{
-          output += input.charAt(i);
-        }
-      }
   }
 }
 
@@ -130,6 +116,12 @@ class RailFenceCipher extends Cipher{
     int[] depths = new int[input.length()];
     boolean down = true;
     int depth = 0;
+    //Creates an array called depths that states the of the railfence at each index of the input
+    // E.G. 0123210123210
+    //      0     0     0
+    //       1   1 1   1
+    //        2 2   2 2
+    //         3     3
     for (int i = 0; i < depths.length; i++){
       depths[i] = depth;
       if (down){
@@ -144,6 +136,7 @@ class RailFenceCipher extends Cipher{
         down = true;
       }
     }
+    //Adds the input to the output based be depth. So adds all the characters with depth 0 then all with depth 1
     for (int i = 0; i < Key; i++){
       for (int j = 0; j < input.length(); j++){
         if (depths[j] == i){
@@ -155,6 +148,7 @@ class RailFenceCipher extends Cipher{
   
   void Decipher(){
     int[] depths = new int[input.length()];
+    // Creates an array of depths. See encipher() for more detailed explanation
     boolean down = true;
     int depth = 0;
     for (int i = 0; i < depths.length; i++){
@@ -218,8 +212,17 @@ class TranspositionCipher extends Cipher{
     int Width = Key.length();
     int Height = (int)Math.ceil((float)input.length() / Width);
     matrix = new char[Height][Width];
-    //Puts the input into a matrix
+
     if (encipher){
+      //Looks up the input
+      //Puts the input into columns based on the key length
+      // e.g DEFEND THE EAST WALL with key GERMAN
+      // 
+      //  Goes to: GERMAN
+      //
+      //           DEFEND
+      //           THEEAS
+      //           TWALLX     
       for (int i = 0; i < Height; i++){
         for (int j = 0; j < Width; j++){
           if (input.length() != 0){
@@ -236,6 +239,8 @@ class TranspositionCipher extends Cipher{
           input += pad;
         }
       }
+      //Puts the input into columns
+      //Puts the input in by columns not by rows like the enciphering.
       for (int i = 0; i < Width; i++){
         for (int j = 0; j < Height; j++){
           matrix[j][i] = input.charAt(0);
@@ -245,15 +250,19 @@ class TranspositionCipher extends Cipher{
     }
     
     
-    if (encipher){    
+    if (encipher){  
+      //Sort matrix
       sortMatrix();
+      //Displays the output by reading the matrix by columns
       for (int i = 0; i < Width; i++){
         for (int j = 0; j < Height; j++){
           output += matrix[j][i];
         }
       }    
     }else{
+      //Unsort matrix
       unSortMatrix();
+      //Dsiplays the output by reading by rows
       for (int i = 0; i < Height; i++){
         for (int j = 0; j < Width; j++){
           output += matrix[i][j];
@@ -263,6 +272,7 @@ class TranspositionCipher extends Cipher{
   }
   
   void sortMatrix(){
+    //Uses bubblesort to sort the matrix by key
     boolean sorted = false;
     while (!sorted){
       boolean swapped = false;
@@ -279,6 +289,7 @@ class TranspositionCipher extends Cipher{
   }
   
   void unSortMatrix(){
+    //Unsort the matrix by moving collumns so the key is unsorted.
     char[][] _matrix = new char[matrix.length][matrix[0].length];
     //Deep copy matrix
     for (int i = 0; i < matrix.length; i++){
@@ -293,6 +304,9 @@ class TranspositionCipher extends Cipher{
     matrix = _matrix;
     String sortedKey = Key; //AEGMNR
     Key = _Key; //GERMAN
+    //Take the heading character from the sorted key for the collumn
+    //Then find the index of it in the original key
+    //Set the collumn in the new matrix at the index of the original key to corresponding collumn in the sorted matrix
     for (int i = 0; i < matrix[0].length; i++){
       char current = sortedKey.charAt(i);
       for (int j = 0; j < matrix[0].length; j++){
@@ -307,6 +321,8 @@ class TranspositionCipher extends Cipher{
     
   }
   
+  //Swaps the collumn with the one to the right of it
+  //Used for enciphering bubblesort
   void swapCollumn(int index){
     //Swap the key
     char I = Key.charAt(index);
@@ -344,7 +360,7 @@ class PolybiusCipher extends Cipher{
   }
   
   void encipher(){
-
+    //Replaces the missing letter with either some common substitutes or just X
     if (Key.length() == 5){
       char missing = 'A';
       for (int i = 0; i < alphabet.length; i++){
@@ -375,8 +391,9 @@ class PolybiusCipher extends Cipher{
       }
     }
     
+    
+    //Puts the key into a square matrix
     matrix = new String[cipherChars.length()];
-    //Matrix the Key
     for (int i = 0; i < cipherChars.length(); i++){
       matrix[i] = Key.substring(i * cipherChars.length(), (i+1) * cipherChars.length());
     }
@@ -386,6 +403,9 @@ class PolybiusCipher extends Cipher{
     }
   }
   
+  //Searches for the input character in the keysquare and outputs two characters based on the position of that letter.
+  //The first is the nth character of the key where n is the row which the character is in .
+  //The second is the mth character of the key where m is the collumn which the character is in
   String getCharacters(char Char){
     String Return = "";
     for (int i = 0; i < cipherChars.length(); i++){
