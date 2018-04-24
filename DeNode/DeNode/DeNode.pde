@@ -10,7 +10,7 @@ Listbox cipherBox = new Listbox(800, 50, 200, color(254, 237, 201), 50, 3){
     float yCenter = mainCanvas.screenToCanvas(0, mainCanvas.Height/2 + mainCanvas.y)[1];
     switch(index){
       case 0:
-        //Caesar
+        //Caesardel
         instantiateCaesar(xCenter, yCenter);
         break;
       case 1:

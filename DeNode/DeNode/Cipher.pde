@@ -14,6 +14,19 @@ static class Cipher{
     println("ERROR: character given is not standard english alphabet");
     return 0;
   }
+  
+  public static String removePunctuation(String text){
+    String pureText = "";
+    for(int i = 0; i < text.length(); i++){
+      for(int j = 0; j < alphabet.length; j++){
+        if (Character.toUpperCase(text.charAt(i)) == alphabet[j]){
+          pureText += text.charAt(i);
+        }
+      }
+    }
+    return pureText;
+  }
+  
 }
 
 // stores the caesar cipher function (Can probably be made into a static)
@@ -113,6 +126,10 @@ class RailFenceCipher extends Cipher{
   }
   
   void Encipher(){
+    if (Key == 1){
+      output = input;
+      return;
+    }
     int[] depths = new int[input.length()];
     boolean down = true;
     int depth = 0;
@@ -147,6 +164,11 @@ class RailFenceCipher extends Cipher{
   }
   
   void Decipher(){
+    if (Key == 1){
+      output = input;
+      return;
+    }
+    
     int[] depths = new int[input.length()];
     // Creates an array of depths. See encipher() for more detailed explanation
     boolean down = true;
@@ -209,6 +231,7 @@ class TranspositionCipher extends Cipher{
     if (input.length() == 0 || Key.length() == 0){
       return;
     }
+    input = removePunctuation(input);
     int Width = Key.length();
     int Height = (int)Math.ceil((float)input.length() / Width);
     matrix = new char[Height][Width];
@@ -351,7 +374,7 @@ class PolybiusCipher extends Cipher{
     if (input.length() == 0 || Key.length() == 0 || cipherChars.length() == 0){
       return;
     }
-    input.replaceAll(" ", "");
+    input = input.replaceAll(" ", "");
     if (encipher){
       encipher();
     }else{
@@ -361,7 +384,7 @@ class PolybiusCipher extends Cipher{
   
   void encipher(){
     //Replaces the missing letter with either some common substitutes or just X
-    if (Key.length() == 5){
+    if (cipherChars.length() == 5){
       char missing = 'A';
       for (int i = 0; i < alphabet.length; i++){
         if (Key.indexOf(alphabet[i]) == -1){
@@ -369,24 +392,26 @@ class PolybiusCipher extends Cipher{
           i = alphabet.length;
         }
       }
+      println("missing: " + missing);
       switch (missing){
         case 'I':
-          input.replaceAll(Character.toString(missing), "J");
+          input = input.replaceAll(Character.toString(missing), "J");
           break;
         case 'J':
-          input.replaceAll(Character.toString(missing), "I");
+          println(223);
+          input = input.replaceAll(Character.toString(missing), "I");
           break;
         case 'Q':
-          input.replaceAll(Character.toString(missing), "O");
+          input = input.replaceAll(Character.toString(missing), "O");
           break;
         case 'O':
-          input.replaceAll(Character.toString(missing), "Q");
+          input = input.replaceAll(Character.toString(missing), "Q");
           break;
         case 'X':
-          input.replaceAll(Character.toString(missing), "Z");
+          input = input.replaceAll(Character.toString(missing), "Z");
           break;
         default:
-          input.replaceAll(Character.toString(missing), "X");
+          input = input.replaceAll(Character.toString(missing), "X");
           break;
       }
     }
@@ -436,6 +461,9 @@ class PolybiusCipher extends Cipher{
     int y = cipherChars.indexOf(Chars.charAt(0));
     int x = cipherChars.indexOf(Chars.charAt(1));
     
+    if (y == -1 || x == -1 || matrix[y].charAt(x) == -1){
+      return ' ';
+    }
     return matrix[y].charAt(x);
   }
 }
@@ -449,6 +477,7 @@ class VigenereCipher extends Cipher{
     if (input.length() == 0 || Key.length() == 0){
       return;
     }
+    input = removePunctuation(input);
     if (encipher){
       encipher();
     }else{

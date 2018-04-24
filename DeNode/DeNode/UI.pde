@@ -350,8 +350,10 @@ class TextInput extends GUI{
       for (int i = 0; i < endLine; i++){
         if (i == maxLines-1 && i != 0){
           //add ...
-          String lastLine = lines.get(endLine-1);
-          lastLine = lastLine.substring(0, lastLine.length()-3);
+          String lastLine = lines.get(endLine);
+          int end = lastLine.length()-3;
+          if (end < 0){end = 0;}
+          lastLine = lastLine.substring(0, end);
 
           lastLine += "...";
           output += lastLine;
@@ -512,7 +514,9 @@ void drawParagraphText(){
       if (i == maxLines-1 && i != 0){
         //add ...
         String lastLine = lines.get(endLine-1);
-        lastLine = lastLine.substring(0, lastLine.length()-3);
+        int end = lastLine.length()-3;
+        if (end < 0){end = 0;}
+        lastLine = lastLine.substring(0, end);
 
         lastLine += "...";
         output += lastLine;

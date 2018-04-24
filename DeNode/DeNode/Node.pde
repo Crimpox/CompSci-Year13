@@ -268,6 +268,7 @@ class Node extends GUI{
     move();
     if (active && charBuffer.contains("DEL")){
       Delete();
+      return;
     }
     float X = canvas.canvasToScreen(x, y)[0];
     float Y = canvas.canvasToScreen(x, y)[1];
@@ -567,10 +568,13 @@ class Caesar extends Node{
   
   void update(){
     super.update();
-    cipher.input = (String)textIn.value;
-    cipher.shiftAmount = (Integer)count.value;
-    cipher.Update();
-    output.value = cipher.output;
+    if (textIn.value != null && count.value != null){
+      cipher.input = (String)textIn.value;
+      cipher.shiftAmount = (Integer)count.value;
+      cipher.Update();
+      output.value = cipher.output;
+    }
+    
 
   }  
 }
