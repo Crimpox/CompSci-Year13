@@ -821,10 +821,12 @@ class Alphabet {
   }
   
   void setChar(int index, char Char){
+    index = index%26;
     alphabet[index] = Char;
   }
   
   char getChar(int index){
+    index = index%26;
     return alphabet[index];
   }
   

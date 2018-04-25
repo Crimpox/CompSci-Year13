@@ -439,6 +439,7 @@ void draw(){
   //Sets the mouse displacements
   xdisplacement = mouseX - pmouseX;
   ydisplacement = mouseY - pmouseY;
+  //Draws shadowing for the UI bar
   for (int i = 0; i < 5; i++){
     stroke(0, 0, 0, 120 - (i * 20));
     line(0, 200 + i, 1500, 200 + i);
